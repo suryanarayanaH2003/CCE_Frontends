@@ -1,4 +1,4 @@
-// "use client";
+
 // import { useState, useEffect, useContext, useMemo, useRef } from "react";
 // import axios from "axios";
 // import { motion, useInView } from "framer-motion";
@@ -300,7 +300,7 @@
 // };
 
 
-"use client";
+
 import { useState, useEffect, useContext, useMemo } from "react";
 import axios from "axios";
 import { LoaderContext } from "../Common/Loader";
