@@ -907,8 +907,7 @@ export default function JobPostForm() {
       // If in edit mode, handle the edit request using the same FormData structure
       if (isEditMode) {
         
-        const response = await axios.post(
-          `http://127.0.0.1:8000/api/job-edit/${id}/`,
+        const response = await axios.post(`${base_url}/api/job-edit/${id}/`,
           formDataToSend,
           {
             headers: {

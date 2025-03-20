@@ -40,7 +40,7 @@ const InternshipPreview = () => {
     }, []);
 
     useEffect(() => {
-        fetch(`http://127.0.0.1:8000/api/internship/${id}/`)
+        fetch(`${base_url}/api/internship/${id}/`)
             .then((response) => response.json())
             .then((data) => setInternship(data.internship))
             .catch((error) => console.error("Error fetching internship:", error));

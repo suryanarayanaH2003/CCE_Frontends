@@ -13,7 +13,7 @@ const InternshipEdit = () => {
     const [userRole, setUserRole] = useState(null);
 
     useEffect(() => {
-        fetch(`http://127.0.0.1:8000/api/internship/${id}/`)
+        fetch(`${base_url}/api/internship/${id}/`)
             .then(response => response.json())
             .then(data => {
                 setInternship(data.internship.internship_data);
@@ -51,7 +51,7 @@ const InternshipEdit = () => {
             edited: role
         };
     
-        fetch(`http://127.0.0.1:8000/api/internship-edit/${id}/`, {
+        fetch(`${base_url}/api/internship-edit/${id}/`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -77,7 +77,7 @@ const InternshipEdit = () => {
 
     const handleDelete = () => {
         if (window.confirm("Are you sure you want to delete this internship?")) {
-            fetch(`http://127.0.0.1:8000/api/internship-delete/${id}/`, {
+            fetch(`${base_url}/api/internship-delete/${id}/`, {
                 method: 'DELETE'
             })
             .then(response => {

@@ -21,7 +21,7 @@ const JobEdit = () => {
             setUserRole(payload.role);
         }
 
-        fetch(`http://127.0.0.1:8000/api/job/${id}/`)
+        fetch(`${base_url}/api/job/${id}/`)
             .then(response => response.json())
             .then(data => {
                 setJob(data.job);
@@ -54,7 +54,7 @@ const JobEdit = () => {
             edited: role // Include the role in the request payload
         };
 
-        fetch(`http://127.0.0.1:8000/api/job-edit/${id}/`, {
+        fetch(`${base_url}/api/job-edit/${id}/`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -73,7 +73,7 @@ const JobEdit = () => {
 
     const handleDelete = () => {
         if (window.confirm("Are you sure you want to delete this job?")) {
-            fetch(`http://127.0.0.1:8000/api/job-delete/${id}/`, {
+            fetch(`${base_url}/api/job-delete/${id}/`, {
                 method: 'DELETE'
             })
             .then(response => {

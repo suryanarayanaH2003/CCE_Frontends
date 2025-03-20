@@ -75,7 +75,7 @@ const ExamPreview = () => {
 
   useEffect(() => {
     setLoading(true);
-    fetch(`http://127.0.0.1:8000/api/exam/${id}/`)
+    fetch(`${base_url}/api/exam/${id}/`)
       .then((response) => response.json())
       .then((data) => {
         setExam(data.exam);

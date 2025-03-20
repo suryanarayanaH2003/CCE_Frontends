@@ -51,7 +51,7 @@
 
 //     try {
 //       const response = await axios.post(
-//         "http://127.0.0.1:8000/api/contact-us/",
+//         `${base_url}/api/contact-us/",
 //         formData,
 //         {
 //           headers: { "Content-Type": "application/json" },
@@ -207,7 +207,7 @@ const ContactForm = () => {
 
     try {
       const response = await axios.post(
-        "http://127.0.0.1:8000/api/contact-us/",
+        `${base_url}/api/contact-us/`,
         formData,
         {
           headers: { "Content-Type": "application/json" },

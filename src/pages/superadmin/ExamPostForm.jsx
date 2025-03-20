@@ -768,7 +768,7 @@ export default function ExamPostForm() {
         const headers = { Authorization: `Bearer ${token}` };
 
         if (isEditMode) {
-          const response = await fetch(`http://127.0.0.1:8000/api/exam-edit/${id || urlExamId}/`, {
+          const response = await fetch(`${base_url}/api/exam-edit/${id || urlExamId}/`, {
             method: "POST",  // Change the method to POST
             headers,
             body: formDataToSend,

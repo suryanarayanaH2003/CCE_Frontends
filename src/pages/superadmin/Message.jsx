@@ -27,7 +27,7 @@ export default function Message() {
       }
       try {
         const response = await axios.get(
-          "http://127.0.0.1:8000/api/get_all_student_chats/",
+          `${base_url}/api/get_all_student_chats/`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -62,14 +62,14 @@ export default function Message() {
     try {
       // Fetch messages
       const response = await axios.get(
-        `http://127.0.0.1:8000/api/get_student_messages/${student_id}/`,
+        `${base_url}/api/get_student_messages/${student_id}/`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setMessages(response.data.messages || []);
 
       // Mark messages as seen by admin
       await axios.post(
-        `http://127.0.0.1:8000/api/mark_messages_as_seen/${student_id}/`,
+        `${base_url}/api/mark_messages_as_seen/${student_id}/`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -100,7 +100,7 @@ export default function Message() {
 
     try {
       const response = await axios.post(
-        "http://127.0.0.1:8000/api/admin_reply_message/",
+        `${base_url}/api/admin_reply_message/`,
         replyData,
         {
           headers: { Authorization: `Bearer ${token}` },

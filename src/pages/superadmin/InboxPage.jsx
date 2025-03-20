@@ -204,7 +204,7 @@ const InboxPage = () => {
     setSelectedStudent(student_id);
     try {
       const response = await axios.get(
-        `http://127.0.0.1:8000/api/get_student_messages/${student_id}/`,
+        `${base_url}/api/get_student_messages/${student_id}/`,
         {
           headers: {
             Authorization: `Bearer ${Cookies.get("jwt")}`,
@@ -220,7 +220,7 @@ const InboxPage = () => {
   const markMessagesAsSeen = async (student_id) => {
     try {
       const response = await axios.post(
-        `http://127.0.0.1:8000/api/mark_messages_as_seen/${student_id}/`,
+        `${base_url}/api/mark_messages_as_seen/${student_id}/`,
         {},
         {
           headers: {
@@ -249,7 +249,7 @@ const InboxPage = () => {
 
     try {
       const response = await axios.post(
-        "http://127.0.0.1:8000/api/admin_reply_message/",
+        `${base_url}/api/admin_reply_message/`,
         replyData,
         {
           headers: {

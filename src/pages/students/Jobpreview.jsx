@@ -93,7 +93,7 @@ const JobPreview = () => {
 
   useEffect(() => {
     setLoading(true);
-    fetch(`http://127.0.0.1:8000/api/job/${id}/`)
+    fetch(`${base_url}/api/job/${id}/`)
       .then((response) => response.json())
       .then((data) => {
         setJob(data.job);
@@ -208,7 +208,7 @@ const JobPreview = () => {
 
   const handleDelete = () => {
     if (window.confirm("Are you sure you want to delete this job?")) {
-      fetch(`http://127.0.0.1:8000/api/job-delete/${id}/`, {
+      fetch(`${base_url}/api/job-delete/${id}/`, {
         method: "DELETE",
       })
         .then((response) => {

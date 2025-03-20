@@ -94,7 +94,7 @@ const InternshipPreview = () => {
 
   useEffect(() => {
     setLoading(true);
-    fetch(`http://127.0.0.1:8000/api/internship/${id}/`)
+    fetch(`${base_url}/api/internship/${id}/`)
       .then((response) => response.json())
       .then((data) => {
         setInternship(data.internship);
@@ -211,7 +211,7 @@ const InternshipPreview = () => {
 
   const handleDelete = () => {
     if (window.confirm("Are you sure you want to delete this internship?")) {
-      fetch(`http://127.0.0.1:8000/api/internship-delete/${id}/`, {
+      fetch(`${base_url}/api/internship-delete/${id}/`, {
         method: 'DELETE'
       })
         .then(response => {
