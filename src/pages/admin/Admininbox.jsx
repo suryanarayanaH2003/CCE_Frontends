@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { LoaderContext } from "../../components/Common/Loader"; // Import Loader Context
 import Pagination from "../../components/Admin/pagination"; // Import Pagination Component
-
+import { base_url } from "../../App";
 export default function AdminMail() {
   const [jobs, setJobs] = useState([]);
   const [exams, setExams] = useState([]);

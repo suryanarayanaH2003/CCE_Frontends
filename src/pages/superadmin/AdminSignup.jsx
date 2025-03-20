@@ -8,7 +8,7 @@ import login2 from "../../assets/images/LoginImg2.png";
 import login3 from "../../assets/images/LoginImg3.png";
 import Squares from "../../components/ui/GridLogin";
 import "react-toastify/dist/ReactToastify.css";
-
+import { base_url } from "../../App";
 const slideVariants = {
   enter: {
     x: 1000,

@@ -8,7 +8,7 @@ import Cookies from 'js-cookie';
 import bgimage from "../../assets/icons/Group 1.svg";
 import { FiSearch } from "react-icons/fi";
 import Pagination from "../../components/Admin/pagination"; // Import the Pagination component
-
+import { base_url } from "../../App";
 export default function AchievementDashboard() {
   const navigate = useNavigate(); // Initialize useNavigate
   const [achievements, setAchievements] = useState([]);

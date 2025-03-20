@@ -305,6 +305,7 @@ import { useState, useEffect, useContext, useMemo } from "react";
 import axios from "axios";
 import { LoaderContext } from "../Common/Loader";
 import GridLines from "../../assets/images/Grid Lines.png";
+import { base_url } from "../../App";
 
 export default function AchievementDashboard() {
   // State management

@@ -9,7 +9,7 @@ import InternshipTable from "../../components/SuperAdmin/ManagementTable/Interns
 import ExamTable from "../../components/SuperAdmin/ManagementTable/ExamTable";
 import { LoaderContext } from "../../components/Common/Loader";
 import { toast, ToastContainer } from "react-toastify";
-
+import { base_url } from "../../App";
 export default function MailPage() {
   const [jobs, setJobs] = useState([]);
   const [achievements, setAchievements] = useState([]);

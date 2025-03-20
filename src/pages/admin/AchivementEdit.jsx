@@ -4,6 +4,7 @@ import Cookies from "js-cookie";
 import AdminPageNavbar from "../../components/Admin/AdminNavBar";
 import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
 import { IoMdArrowDropdown } from "react-icons/io";
+import { base_url } from "../../App";
 
 
 export default function AchievementEdit() {

@@ -12,6 +12,7 @@ import {
   Trophy,
   X,
 } from "lucide-react";
+import { base_url } from "../../App";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 import { FaCheckDouble, FaCheck, FaEye } from "react-icons/fa";

@@ -7,6 +7,7 @@ import InstagramIcon from "../../assets/icons/Instagram.png";
 import TwitterXIcon from "../../assets/icons/TwitterX.png";
 import SnsIcon from "../../assets/images/SNS Group Logo 1.png";
 
+
 const Footer = () => {
   const categories = {
     Home: [

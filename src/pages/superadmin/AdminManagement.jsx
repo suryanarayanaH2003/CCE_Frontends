@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
 import Pagination from "../../components/Admin/pagination"; // Import Pagination component
 import { FaSearch } from "react-icons/fa";
-
+import { base_url } from "../../App";
 export default function ManagementHomePage() {
     const navigate = useNavigate();
     const [filter, setFilter] = useState("");

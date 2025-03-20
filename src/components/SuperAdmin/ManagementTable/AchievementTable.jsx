@@ -8,6 +8,7 @@ import nextIcon from "../../../assets/icons/next-icon.svg";
 import axios from "axios";
 import { toast } from "react-toastify";
 import Cookies from "js-cookie";
+import { base_url } from "../../../App";
 
 const AchievementTable = ({
   achievements,

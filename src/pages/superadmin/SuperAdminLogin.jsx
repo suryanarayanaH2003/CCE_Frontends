@@ -5,7 +5,7 @@ import { ToastContainer, toast } from "react-toastify"; // Import ToastContainer
 import "react-toastify/dist/ReactToastify.css"; // Import Toastify styles
 import LoginCard from "../../components/Cards/LoginCard";
 import { AppPages } from "../../utils/constants";
-
+import { base_url } from "../../App";
 export default function SuperAdminLogin() {
     const [formData, setFormData] = useState({
         email: "",

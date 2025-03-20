@@ -12,7 +12,7 @@ import Loginpng from "../../assets/icons/mdi_recent.png";
 import EmailPng from "../../assets/icons/material-symbols_mail-outline.png";
 import PhonePng from "../../assets/icons/Vector.png";
 import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
-
+import { base_url } from "../../App";
 const AdminProfile = () => {
   const navigate = useNavigate();
   const { id } = useParams();

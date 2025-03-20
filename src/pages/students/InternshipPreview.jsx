@@ -6,6 +6,7 @@ import AdminPageNavbar from "../../components/Admin/AdminNavBar";
 import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
 import StudentPageNavbar from "../../components/Students/StudentPageNavbar";
 import Footer from "../../components/Common/Footer";
+import { base_url } from "../../App";
 import {
   FaBuilding,
   FaBriefcase,

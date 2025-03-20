@@ -7,7 +7,7 @@ import { LoaderContext } from "../../components/Common/Loader";
 import Squares from "../../components/ui/GridLogin";
 import Pagination from "../../components/Admin/pagination";
 import Footer from "../../components/Common/Footer";
-
+import { base_url } from "../../App";
 export default function AchievementDashboard() {
   // State management
   const [achievements, setAchievements] = useState([]);

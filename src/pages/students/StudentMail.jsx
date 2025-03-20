@@ -295,6 +295,7 @@ import { FaCheckDouble, FaCheck } from "react-icons/fa";
 import { Inbox } from "lucide-react";
 import StudentPageNavbar from "../../components/Students/StudentPageNavbar";
 import { IoIosSend } from "react-icons/io";
+import { base_url } from "../../App";
 
 const StudentMail = () => {
   const [messages, setMessages] = useState([]);

@@ -1,4 +1,5 @@
 import { Departments } from "../../utils/constants";
+
 export default function StudentPageHeader({page, filter, setFilter}) {
   return (
     <header className="flex flex-col items-center justify-center py-14 container self-center">

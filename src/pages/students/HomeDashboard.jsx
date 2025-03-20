@@ -8,6 +8,7 @@ import ApplicationCard from "../../components/Students/ApplicationCard";
 import CarouselAchievments from "../../components/Students/CarouselAchievments";
 import Image from "../../assets/images/AboutCCE1.png";
 import Image1 from "../../assets/images/AboutCCE2.png";
+import { base_url } from "../../App";
 
 // icon imports
 import codeSandBoxIcon from "../../assets/icons/codesandbox.png";

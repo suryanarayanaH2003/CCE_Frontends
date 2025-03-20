@@ -8,6 +8,7 @@ import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
 import Footer from "../../components/Common/Footer";
 import "react-toastify/dist/ReactToastify.css";
 import { toast } from "react-toastify";
+import { base_url } from "../../App";
 
 import {
   FaBook,

@@ -12,6 +12,7 @@ import EmailPng from "../../assets/icons/material-symbols_mail-outline.png";
 import PhonePng from "../../assets/icons/Vector.png";
 import Saved from "../../assets/icons/Not Saved.png";
 import { useNavigate } from 'react-router-dom';
+import { base_url } from "../../App";
 
 const StudentProfile = () => {
   const [student, setStudent] = useState(null);

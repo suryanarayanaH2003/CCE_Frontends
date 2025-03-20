@@ -14,7 +14,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { MultiStepLoader as Loader } from "../../components/ui/multi-step-loader";
 import { max } from 'date-fns';
-
+import { base_url } from "../../App";
 const loadingStates = [
   { text: "Gathering job details" },
   { text: "Checking application deadline" },

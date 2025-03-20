@@ -6,6 +6,7 @@ import { LoaderContext } from "../../components/Common/Loader"; // Import Loader
 import bgimage from "../../assets/icons/Group 1.svg";
 import { FiSearch } from "react-icons/fi";
 import Pagination from "../../components/Admin/pagination"; // Assuming Pagination is in this path
+import { base_url } from "../../App";
 
 export default function AchievementDashboard() {
   const [achievements, setAchievements] = useState([]);

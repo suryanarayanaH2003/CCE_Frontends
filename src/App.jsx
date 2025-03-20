@@ -54,7 +54,7 @@ import StudentRegister from "./pages/superadmin/StudentRegister";
 
 
 
-const base_url = import.meta.env.VITE_API_BASE_URL || process.env.VITE_API_BASE_URL || "http://localhost:8000";
+export const base_url = import.meta.env.VITE_API_BASE_URL || process.env.VITE_API_BASE_URL || "http://localhost:8000";
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {

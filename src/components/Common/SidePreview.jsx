@@ -7,7 +7,7 @@ import Cookies from "js-cookie"
 import axios from "axios"
 import { useEffect } from 'react';
 import { toast } from 'react-toastify';
-
+import { base_url } from "../../App";
 const borderColor = "border-gray-300";
 
 function getTimeAgo(dateString) {

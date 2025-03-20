@@ -10,7 +10,7 @@ import approvedIcon from "../../assets/icons/Approved 1.png";
 import rejectedIcon from "../../assets/icons/Rejected 1.png";
 import pendingIcon from "../../assets/icons/Pending 1.png"; // Corrected import for pending icon
 import NoListing from "../../assets/images/NoListing.svg";
-
+import { base_url } from "../../App";
 import {
   CheckCircle2,
   XCircle,

@@ -5,6 +5,7 @@ import { Button } from "../../components/ui/button";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { School, UserCircle, Clock, Mail, Award } from "lucide-react";
+import { base_url } from "../../App";
 
 const SuperAdminProfile = () => {
   const navigate = useNavigate();

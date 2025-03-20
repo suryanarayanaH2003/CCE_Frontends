@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import Pagination from "../../components/Admin/pagination";
 import { LoaderContext } from "../../components/Common/Loader";
 import NoListingImage from "../../assets/images/NoListing.svg"; // Import the image
+import { base_url } from "../../App";
 
 export default function JobDashboard() {
   const [jobs, setJobs] = useState([]);

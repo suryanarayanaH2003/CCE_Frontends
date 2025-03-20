@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { FiBookmark, FiMapPin, FiEye, FiClock } from "react-icons/fi";
 import Cookies from "js-cookie";
 import axios from "axios";
+import { base_url } from "../../App";
 
 function timeAgo(dateString) {
   const givenDate = new Date(dateString);

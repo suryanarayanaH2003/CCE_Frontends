@@ -11,6 +11,7 @@ import Pagination from "../../components/Admin/pagination";
 import { FiSearch } from "react-icons/fi";
 import { LoaderContext } from "../../components/Common/Loader";
 import NoListingImage from "../../assets/images/NoListing.svg"; // Import the image
+import { base_url } from "../../App";
 
 export default function ExamDashboard() {
   const [exams, setExams] = useState([]);

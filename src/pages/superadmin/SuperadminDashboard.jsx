@@ -9,7 +9,7 @@ import Pagination from "../../components/Admin/pagination"; // Import Pagination
 import { Link } from "react-router-dom";
 import { LoaderContext } from "../../components/Common/Loader";
 import yellowBg from "../../assets/images/Yellowbg.png"; // Import the background image
-
+import { base_url } from "../../App";
 const SuperAdminHome = () => {
   const navigate = useNavigate();
   const [jobs, setJobs] = useState([]);

@@ -9,6 +9,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { GoChecklist } from "react-icons/go"; // Exam icon
 import { RiBookLine } from "react-icons/ri"; // Subject icon
 import { MdOutlineTopic } from "react-icons/md"; // Topic icon
+import { base_url } from "../../App";
 
 const typeIcons = {
   Exam: GoChecklist,

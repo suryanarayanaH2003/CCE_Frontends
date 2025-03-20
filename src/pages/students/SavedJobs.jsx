@@ -5,6 +5,7 @@ import ApplicationCard from "../../components/Students/ApplicationCard";
 import Cookies from "js-cookie";
 import { FiSearch } from "react-icons/fi";
 import { FaCaretLeft, FaCaretRight } from "react-icons/fa";
+import { base_url } from "../../App";
 
 export default function SavedJobs() {
   const [savedJobs, setSavedJobs] = useState([]);

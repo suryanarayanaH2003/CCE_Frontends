@@ -12,6 +12,7 @@ import {
   FaPlus,
   FaTrash,
 } from "react-icons/fa";
+import { base_url } from "../../App";
 import AdminPageNavbar from "../../components/Admin/AdminNavBar";
 import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
 import { FormInputField, FormTextAreaField } from "../../components/Common/InputField";

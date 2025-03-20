@@ -10,7 +10,7 @@ import {
 import { LoaderContext } from "../../components/Common/Loader";
 import Pagination from "../../components/Admin/pagination";
 import { FaEye } from "react-icons/fa";
-
+import { base_url } from "../../App";
 export default function AdminMail() {
   const [jobs, setJobs] = useState([]);
   const [internships, setInternships] = useState([]);

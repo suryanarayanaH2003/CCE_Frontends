@@ -7,6 +7,7 @@ import LoginCard from "../../components/Cards/LoginCard";
 import ForgotPasswordCard from "../../components/Cards/ForgotPasswordCard";
 import ResetPasswordCard from "../../components/Cards/ResetPasswordCard";
 import { AppPages } from "../../utils/constants"; 
+import { base_url } from "../../App";
 
 export default function StudentLogin() {
     const [formData, setFormData] = useState({

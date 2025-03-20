@@ -5,6 +5,7 @@ import PageHeader from "../../components/Common/StudentPageHeader";
 import ApplicationCard from "../../components/Students/ApplicationCard";
 import { AppPages } from "../../utils/constants";
 import Cookies from "js-cookie";
+import { base_url } from "../../App";
 
 export default function AppliedJobs() {
   const [appliedJobs, setAppliedJobs] = useState([]);

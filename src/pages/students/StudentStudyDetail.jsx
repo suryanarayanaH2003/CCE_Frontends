@@ -15,6 +15,7 @@ import docsIcon from '../../assets/icons/docs.png';
 import othersIcon from '../../assets/images/others.jpg';
 import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
+import { base_url } from "../../App";
 
 // Updated YouTube video ID extraction
 const getYouTubeVideoId = (url) => {

@@ -11,6 +11,7 @@ import { LuGitFork, LuPhone } from "react-icons/lu";
 import NoStudent from "../../assets/images/NoStudent.svg";
 import { FaSearch } from "react-icons/fa";
 
+import { base_url } from "../../App";
 
 const StudentManagement = () => {
   const [students, setStudents] = useState([]);
