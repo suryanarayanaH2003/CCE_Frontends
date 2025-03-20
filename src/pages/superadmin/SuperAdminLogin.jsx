@@ -42,6 +42,7 @@ export default function SuperAdminLogin() {
         setIsLoading(true);
     
         try {
+            console.log("base_url", `${base_url}/api/superadmin_login/`);
             const response = await fetch(`${base_url}/api/superadmin_login/`, {
                 method: "POST",
                 headers: {
