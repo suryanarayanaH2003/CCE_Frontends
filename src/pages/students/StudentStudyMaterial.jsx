@@ -13,6 +13,7 @@ import { jwtDecode } from 'jwt-decode';
 import Footer from '../../components/Common/Footer';
 import NoListingImage from "../../assets/images/NoListing.svg"; 
 import StudentPageNavbar from '../../components/Students/StudentPageNavbar';
+import { base_url } from "../../App";
 
 export default function StudyMaterial() {
   const [cards, setCards] = useState([]);

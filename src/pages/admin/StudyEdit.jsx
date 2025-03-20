@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import Cookies from 'js-cookie';
 import AdminPageNavbar from "../../components/Admin/AdminNavBar";
 import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
+import { base_url } from "../../App";
 
 const StudyEdit = () => {
     const { id } = useParams();

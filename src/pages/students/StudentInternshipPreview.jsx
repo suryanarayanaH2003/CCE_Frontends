@@ -7,6 +7,7 @@ import StudentPageNavbar from "../../components/Students/StudentPageNavbar";
 import { FaBuilding, FaBriefcase, FaMapMarkerAlt, FaGraduationCap, FaUserTie } from "react-icons/fa";
 import { RiMoneyRupeeCircleFill } from "react-icons/ri";
 import { formatDate } from "date-fns";
+import { base_url } from "../../App";
 
 const InternshipPreview = () => {
     const { id } = useParams();

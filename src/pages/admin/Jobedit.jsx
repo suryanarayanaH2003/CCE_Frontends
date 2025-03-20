@@ -5,6 +5,7 @@ import { RiMoneyRupeeCircleFill } from "react-icons/ri";
 import { FaBuilding, FaBriefcase, FaMapMarkerAlt, FaGraduationCap, FaUserTie } from "react-icons/fa";
 import AdminPageNavbar from "../../components/Admin/AdminNavBar";
 import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
+import { base_url } from "../../App";
 
 const JobEdit = () => {
     const { id } = useParams();

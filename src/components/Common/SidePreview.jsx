@@ -68,6 +68,7 @@ function getTimeAgo(dateString) {
 // }
 
 
+
 export default function SidePreview({ selectedItem, handleViewItem, setSelectedItem, isSaved, fetchSavedJobs }) {
     useEffect(() => {
     }, [selectedItem])

@@ -2,7 +2,6 @@ import React, { useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { FaUpload, FaDownload, FaExclamationTriangle } from 'react-icons/fa';
-import { base_url } from "../../App";
 const StudentRegister = () => {
   const navigate = useNavigate();
   const fileInputRef = useRef(null);

@@ -6,6 +6,7 @@ import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
 import Cookies from "js-cookie";
 import { FaCheck, FaSearch, FaPaperPlane, FaTimes } from "react-icons/fa";
 import SeenTick from "../../assets/icons/charm_tick-double.png";
+import { base_url } from "../../App";
 
 export default function Message() {
   const navigate = useNavigate();

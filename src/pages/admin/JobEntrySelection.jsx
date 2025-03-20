@@ -5,6 +5,7 @@ import { useDropzone } from "react-dropzone";
 import Cookies from "js-cookie";
 import AdminPageNavbar from "../../components/Admin/AdminNavBar";
 import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
+import { base_url } from "../../App";
 
 const JobEntrySelection = () => {
   const navigate = useNavigate();
