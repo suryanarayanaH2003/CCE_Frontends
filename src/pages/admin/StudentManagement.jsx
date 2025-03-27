@@ -10,8 +10,8 @@ import { MdOutlineMailOutline } from "react-icons/md";
 import { LuGitFork, LuPhone } from "react-icons/lu";
 import NoStudent from "../../assets/images/NoStudent.svg";
 import { FaSearch } from "react-icons/fa";
+import DesktopOnly from "../../components/Common/DesktopOnly";
 
-import { base_url } from "../../App";
 
 const StudentManagement = () => {
   const [students, setStudents] = useState([]);
@@ -22,6 +22,7 @@ const StudentManagement = () => {
   const [editableStudent, setEditableStudent] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [userRole, setUserRole] = useState(null);
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const itemsPerPage = 7;
 
@@ -30,7 +31,7 @@ const StudentManagement = () => {
   useEffect(() => {
     const fetchStudents = async () => {
       try {
-        const response = await axios.get(`${base_url}/api/students/`);
+        const response = await axios.get(`${API_BASE_URL}/api/students/`);
         setStudents(response.data.students);
       } catch (error) {
         console.error("Error fetching students:", error);
@@ -65,7 +66,7 @@ const StudentManagement = () => {
 
   const handleDeleteStudent = async (id) => {
     try {
-      await axios.delete(`${base_url}/api/students/${id}/delete/`);
+      await axios.delete(`${API_BASE_URL}/api/students/${id}/delete/`);
       setStudents(students.filter((student) => student._id !== id));
       setSelectedStudent(null);
       setShowDeleteConfirm(false);
@@ -78,7 +79,7 @@ const StudentManagement = () => {
   const handleToggleStatus = async (student) => {
     const updatedStatus = student.status === "active" ? "inactive" : "active";
     try {
-      await axios.put(`${base_url}/api/students/${student._id}/update/`, { status: updatedStatus });
+      await axios.put(`${API_BASE_URL}/api/students/${student._id}/update/`, { status: updatedStatus, role: userRole });
 
       // Update both student list and selected student to reflect changes
       setStudents(
@@ -89,7 +90,7 @@ const StudentManagement = () => {
 
       setSelectedStudent((prevStudent) => ({
         ...prevStudent,
-        status: updatedStatus, // Update the status without closing the modal
+        status: updatedStatus,
       }));
     } catch (error) {
       console.error("Error updating student status:", error);
@@ -103,8 +104,12 @@ const StudentManagement = () => {
 
   const handleSaveChanges = async () => {
     try {
+      const payload = {
+        ...editableStudent,
+        role: userRole, // Assuming userRole is defined elsewhere
+      };
       // Send the updated student data to the backend with the correct URL
-      await axios.put(`${base_url}/api/students/${editableStudent._id}/update/`, editableStudent);
+      await axios.put(`${API_BASE_URL}/api/students/${editableStudent._id}/update/`, payload);
 
       // Update the local state with the new student data
       setStudents(
@@ -145,6 +150,7 @@ const StudentManagement = () => {
     <div>
       {userRole === "admin" && <AdminPageNavbar />}
       {userRole === "superadmin" && <SuperAdminPageNavbar />}
+      <DesktopOnly />
       <div className="p-8 min-h-screen ml-62 mr-5">
         <h1 className="text-4xl font-bold mb-3">Student Management</h1>
 
@@ -241,7 +247,9 @@ const StudentManagement = () => {
 
         {selectedStudent && (
           <div className="fixed inset-0 backdrop-blur-md bg-opacity-40 flex justify-center items-center z-50">
-            <div className="bg-white bg-opacity-90 backdrop-blur-lg p-8 rounded-lg shadow-lg w-full max-w-xl relative">
+            <div className="w-65">
+              </div>
+            <div className="bg-white bg-opacity-90 backdrop-blur-lg p-8 rounded-lg shadow-lg w-full max-w-xl justify-center relative">
               {/* Close Button */}
               <button
                 className="absolute top-2 right-2 p-4 text-gray-600 hover:text-gray-800 focus:outline-none"

@@ -1,10 +1,10 @@
 import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
+import { toast } from 'react-toastify';
 import AdminPageNavbar from "../../components/Admin/AdminNavBar";
 import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
 import { IoMdArrowDropdown } from "react-icons/io";
-import { base_url } from "../../App";
 
 
 export default function AchievementEdit() {
@@ -17,6 +17,7 @@ export default function AchievementEdit() {
   const [newImage, setNewImage] = useState(null);
   const token = Cookies.get("jwt");
   const navigate = useNavigate();
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
   const [userRole, setUserRole] = useState(null);
   const fileInputRef = useRef(null);
 
@@ -32,7 +33,7 @@ export default function AchievementEdit() {
   useEffect(() => {
     const fetchAchievement = async () => {
       try {
-        const response = await fetch(`${base_url}/api/get-achievement/${id}/`, {
+        const response = await fetch(`${API_BASE_URL}/api/get-achievement/${id}/`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -105,25 +106,57 @@ export default function AchievementEdit() {
 
   const handleSave = async () => {
     try {
+      // Check if any changes were made
+      if (JSON.stringify(editedAchievement) === JSON.stringify(achievement) && !newImage) {
+        toast.warn("No changes made to save.");
+        return;
+      }
+  
+      // Validate required fields
+      if (!editedAchievement.name.trim()) {
+        toast.warn("Name is required.");
+        return;
+      }
+      if (!editedAchievement.achievement_type.trim()) {
+        toast.warn("Achievement type is required.");
+        return;
+      }
+      if (!editedAchievement.company_name.trim()) {
+        toast.warn("Company name is required.");
+        return;
+      }
+      if (!editedAchievement.date_of_achievement.trim()) {
+        toast.warn("Date of achievement is required.");
+        return;
+      }
+      if (!editedAchievement.achievement_description.trim()) {
+        toast.warn("Achievement description is required.");
+        return;
+      }
+      if (!editedAchievement.batch.trim()) {
+        toast.warn("Batch is required.");
+        return;
+      }
+  
       // Add date validation
       const selectedDate = new Date(editedAchievement.date_of_achievement);
       const today = new Date();
       today.setHours(0, 0, 0, 0); // Set time to midnight for accurate comparison
-
+  
       if (selectedDate > today) {
         setError("Date of achievement cannot be in the future");
         return;
       }
-
+  
       const updatedData = { ...editedAchievement };
-
+  
       if (newImage) {
         const reader = new FileReader();
         reader.readAsDataURL(newImage);
         reader.onloadend = async () => {
           updatedData.photo = reader.result.split(",")[1]; // Get only base64 part
-
-          const response = await fetch(`${base_url}/api/edit-achievement/${id}/`, {
+  
+          const response = await fetch(`${API_BASE_URL}/api/edit-achievement/${id}/`, {
             method: "PUT",
             headers: {
               Authorization: `Bearer ${token}`,
@@ -131,17 +164,17 @@ export default function AchievementEdit() {
             },
             body: JSON.stringify(updatedData),
           });
-
+  
           if (!response.ok) {
             const errorData = await response.json();
             throw new Error(errorData.error || "Failed to update achievement");
           }
-
+  
           setAchievement(updatedData);
           navigate("/admin-achievements"); // Redirect to the previous page
         };
       } else {
-        const response = await fetch(`${base_url}/api/edit-achievement/${id}/`, {
+        const response = await fetch(`${API_BASE_URL}/api/edit-achievement/${id}/`, {
           method: "PUT",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -149,12 +182,12 @@ export default function AchievementEdit() {
           },
           body: JSON.stringify(updatedData),
         });
-
+  
         if (!response.ok) {
           const errorData = await response.json();
           throw new Error(errorData.error || "Failed to update achievement");
         }
-
+  
         setAchievement(updatedData);
         navigate("/admin-achievements"); // Redirect to the previous page
       }
@@ -166,7 +199,7 @@ export default function AchievementEdit() {
   const handleDelete = async () => {
     if (window.confirm("Are you sure you want to delete this achievement?")) {
       try {
-        const response = await fetch(`${base_url}/api/delete-achievement/${id}/`, {
+        const response = await fetch(`${API_BASE_URL}/api/delete-achievement/${id}/`, {
           method: "DELETE",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -179,7 +212,7 @@ export default function AchievementEdit() {
           throw new Error(errorData.error || "Failed to delete achievement");
         }
 
-        alert("Achievement deleted successfully!");
+        toast.success("Achievement deleted successfully!");
 
         // Navigate based on user role
         if (userRole === "admin") {

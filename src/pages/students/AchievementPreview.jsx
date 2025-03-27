@@ -3,13 +3,14 @@ import { useParams, useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import AdminPageNavbar from "../../components/Admin/AdminNavBar";
 import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
-import { base_url } from "../../App";
+
 export default function AchievementPreview() {
   const { id } = useParams();
   const [achievement, setAchievement] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [userRole, setUserRole] = useState(null);
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
   const token = Cookies.get("jwt");
   const navigate = useNavigate();
 
@@ -25,7 +26,7 @@ export default function AchievementPreview() {
   useEffect(() => {
     const fetchAchievement = async () => {
       try {
-        const response = await fetch(`${base_url}/api/get-achievement/${id}/`, {
+        const response = await fetch(`${API_BASE_URL}/api/get-achievement/${id}/`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,

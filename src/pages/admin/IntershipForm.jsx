@@ -5,14 +5,11 @@ import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import "react-datepicker/dist/react-datepicker.css";
-import { base_url } from "../../App";
 import {
   FaClipboardList,
   FaFileSignature,
   FaRegFileAlt,
   FaSuitcase,
-  FaChevronLeft,
-  FaChevronRight,
 } from "react-icons/fa";
 import AdminPageNavbar from "../../components/Admin/AdminNavBar";
 import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
@@ -21,30 +18,23 @@ import {
   FormTextAreaField,
 } from "../../components/Common/InputField";
 import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { MultiStepLoader as Loader } from "../../components/ui/multi-step-loader";
+import DesktopOnly from "../../components/Common/DesktopOnly";
 
 const loadingStates = [
-  {
-    text: "Gathering internship details",
-  },
-  {
-    text: "Checking application deadline",
-  },
-  {
-    text: "Preparing application process",
-  },
-  {
-    text: "Validating internship details",
-  },
-  {
-    text: "Finalizing internship posting",
-  },
+  { text: "Gathering internship details" },
+  { text: "Checking application deadline" },
+  { text: "Preparing application process" },
+  { text: "Validating internship details" },
+  { text: "Finalizing internship posting" },
 ];
 
 const InternshipDetails = ({ formData, setFormData }) => {
   return (
     <>
-      <div className="flex flex-col space-y-6 w-full">
+      {/* Left Column */}
+      <div className="flex flex-col space-y-5">
         <FormInputField
           label="Internship Title"
           required
@@ -54,8 +44,8 @@ const InternshipDetails = ({ formData, setFormData }) => {
             maxLength: 100,
           }}
           setter={(val) => {
-            const filteredValue = val.replace(/[^A-Za-z ]/g, "").replace(/\s+/g, " ");
-            setFormData((prev) => ({ ...prev, title: filteredValue.trimStart() }));
+            const filteredValue = val.replace(/[^A-Za-z ]/g, "");
+            setFormData((prev) => ({ ...prev, title: filteredValue }));
           }}
         />
         <FormInputField
@@ -67,12 +57,12 @@ const InternshipDetails = ({ formData, setFormData }) => {
             maxLength: 100,
           }}
           setter={(val) => {
-            const filteredValue = val.replace(/[^A-Za-z ,]/g, "").replace(/\s+/g, " ");
-            setFormData((prev) => ({ ...prev, location: filteredValue.trimStart() }));
+            const filteredValue = val.replace(/[^A-Za-z ,]/g, "");
+            setFormData((prev) => ({ ...prev, location: filteredValue }));
           }}
         />
         <FormInputField
-          label={"Industry Type"}
+          label="Industry Type"
           args={{
             placeholder: "Enter Industry Type",
             value: formData.industry_type,
@@ -82,6 +72,36 @@ const InternshipDetails = ({ formData, setFormData }) => {
             setFormData((prev) => ({ ...prev, industry_type: val }))
           }
         />
+        <FormInputField
+          label="Stipend Range"
+          args={{
+            placeholder: "Enter Stipend Range (e.g., 500 - 1000)",
+            value: formData.stipend,
+            maxLength: 10,
+          }}
+          setter={(val) => {
+            const filteredValue = val.replace(/[^0-9-]/g, "");
+            setFormData((prev) => ({ ...prev, stipend: filteredValue }));
+          }}
+          type="text"
+        />
+                <FormInputField
+          label="Duration"
+          required
+          args={{
+            placeholder: "Enter Duration (e.g., 3 months)",
+            value: formData.duration,
+            maxLength: 50,
+          }}
+          setter={(val) => {
+            const filteredValue = val.replace(/[^0-9A-Za-z ]/g, "");
+            setFormData((prev) => ({ ...prev, duration: filteredValue }));
+          }}
+        />
+      </div>
+
+      {/* Right Column */}
+      <div className="flex flex-col space-y-5">
         <FormInputField
           label="Internship Type"
           args={{
@@ -106,11 +126,8 @@ const InternshipDetails = ({ formData, setFormData }) => {
             setFormData((prev) => ({ ...prev, company_name: filteredValue }));
           }}
         />
-      </div>
-
-      <div className="flex flex-col space-y-4 w-full">
         <FormTextAreaField
-          label={"Internship Description"}
+          label="Internship Description"
           args={{
             placeholder: "Enter a brief description of the internship",
             value: formData.job_description,
@@ -121,7 +138,7 @@ const InternshipDetails = ({ formData, setFormData }) => {
           }
         />
         <FormInputField
-          label={"Company Website"}
+          label="Company Website"
           args={{
             placeholder: "Enter Company Website URL",
             value: formData.company_website,
@@ -131,34 +148,107 @@ const InternshipDetails = ({ formData, setFormData }) => {
             setFormData((prev) => ({ ...prev, company_website: val }))
           }
         />
-        <FormInputField
-          label="Duration"
-          required
-          args={{
-            placeholder: "Enter Duration (e.g., 3 months)",
-            value: formData.duration,
-            maxLength: 50,
-          }}
-          setter={(val) => {
-            const filteredValue = val.replace(/[^0-9A-Za-z ]/g, "").replace(/\s+/g, " ");
-            setFormData((prev) => ({ ...prev, duration: filteredValue.trimStart() }));
-          }}
-        />
-        <FormInputField
-          label="Stipend Range"
-          args={{
-            placeholder: "Enter Stipend Range (e.g., 500 - 1000)",
-            value: formData.stipend,
-            maxLength: 10,
-          }}
-          setter={(val) => {
-            const filteredValue = val.replace(/[^0-9-]/g, "");
-            setFormData((prev) => ({ ...prev, stipend: filteredValue }));
-          }}
-          type="text"
-        />
+
+        
       </div>
     </>
+  );
+};
+
+const TagInput = ({ label, required, value, setter, placeholder, maxLength }) => {
+  const [tags, setTags] = useState(Array.isArray(value) ? value : []);
+  const [input, setInput] = useState('');
+
+  useEffect(() => {
+    // Update internal tags when value changes from outside
+    if (Array.isArray(value)) {
+      setTags(value.filter(tag => tag.trim() !== ''));
+    }
+  }, [value]);
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' || e.key === ',') {
+      e.preventDefault();
+      addTag();
+    }
+  };
+
+  const addTag = () => {
+    const trimmedInput = input.trim();
+    if (trimmedInput && !tags.includes(trimmedInput)) {
+      const newTags = [...tags, trimmedInput];
+      setTags(newTags);
+      setter(newTags);
+      setInput('');
+    }
+  };
+
+  const removeTag = (tagToRemove) => {
+    const newTags = tags.filter(tag => tag !== tagToRemove);
+    setTags(newTags);
+    setter(newTags);
+  };
+
+  const handleInputChange = (e) => {
+    // If the user types a comma, add the tag
+    const value = e.target.value;
+    if (value.includes(',')) {
+      const parts = value.split(',');
+      const newTag = parts[0].trim();
+      
+      if (newTag && !tags.includes(newTag)) {
+        const newTags = [...tags, newTag];
+        setTags(newTags);
+        setter(newTags);
+      }
+      
+      // Keep any text after the last comma in the input
+      setInput(parts[parts.length - 1].trim());
+    } else {
+      setInput(value);
+    }
+  };
+
+  const handleBlur = () => {
+    if (input.trim()) {
+      addTag();
+    }
+  };
+
+  return (
+    <div className="flex flex-col space-y-2">
+      <label className="text-sm font-semibold">
+        {label} {required && <span className="text-red-500">*</span>}
+      </label>
+      <div className="flex flex-wrap items-center border border-gray-300 rounded-lg p-2 focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500">
+        {tags.map((tag, index) => (
+          <div
+            key={index}
+            className="bg-yellow-100 border border-yellow-300 rounded-md px-1 mb-0.5 ml-1 mr-1 py-1 flex items-center"
+          >
+            <span className="text-sm">{tag}</span>
+            <button
+              type="button"
+              onClick={() => removeTag(tag)}
+              className="ml-1 text-gray-500 hover:text-gray-700 focus:outline-none"
+            >
+              ×
+            </button>
+          </div>
+        ))}
+        <textarea
+          value={input}
+          onChange={handleInputChange}
+          onKeyDown={handleKeyDown}
+          onBlur={handleBlur}
+          placeholder={tags.length ? "" : placeholder}
+          className="flex-grow outline-none p-1 text-sm resize-none min-h-[24px] overflow-hidden"
+          maxLength={maxLength}
+          rows={1}
+        />
+      </div>
+      <p className="text-xs text-gray-500">Press comma or Enter to add</p>
+    </div>
   );
 };
 
@@ -172,8 +262,9 @@ const InternshipRequirements = ({ formData, setFormData }) => {
     const file = e.target.files[0];
     if (file) {
       if (file.type === "image/jpeg" || file.type === "image/png") {
-        setFormData({ ...formData, image: file });
+        if (imagePreview) URL.revokeObjectURL(imagePreview);
         const imageUrl = URL.createObjectURL(file);
+        setFormData({ ...formData, image: file });
         setImagePreview(imageUrl);
         localStorage.setItem("jobImagePreview", imageUrl);
         const fileInfo = {
@@ -192,47 +283,49 @@ const InternshipRequirements = ({ formData, setFormData }) => {
       }
     }
   };
-
+  
   const handleImageDelete = () => {
+    if (imagePreview && imagePreview.startsWith("blob:")) {
+      URL.revokeObjectURL(imagePreview);
+    }
     setImagePreview(null);
     setFormData({ ...formData, image: null });
     localStorage.removeItem("jobImagePreview");
     localStorage.removeItem("jobImageFile");
-    if (imagePreview && imagePreview.startsWith("blob:")) {
-      URL.revokeObjectURL(imagePreview);
-    }
   };
+  
+  useEffect(() => {
+    return () => {
+      if (imagePreview && imagePreview.startsWith("blob:")) {
+        URL.revokeObjectURL(imagePreview);
+      }
+    };
+  }, [imagePreview]);
 
   return (
     <>
-      <div className="flex flex-col space-y-6 w-full">
-        <FormInputField
-          label={"Technical Skills Required"}
+      {/* Left Column */}
+      <div className="flex flex-col space-y-5">
+        <TagInput
+          label="Technical Skills Required"
           args={{
             placeholder: "Enter Technical Skills (comma-separated)",
             value: formData.technical_skills.join(","),
             maxLength: 300,
           }}
-          setter={(val) =>
-            setFormData((prev) => ({
-              ...prev,
-              technical_skills: val.split(","),
-            }))
-          }
+          setter={(val) => setFormData(prev => ({ ...prev, technical_skills: val }))}
         />
-        <FormInputField
-          label={"Soft Skills Required"}
+        <TagInput
+          label="Soft Skills Required"
           args={{
             placeholder: "Enter Soft Skills (comma-separated)",
             value: formData.soft_skills.join(","),
             maxLength: 300,
           }}
-          setter={(val) =>
-            setFormData((prev) => ({ ...prev, soft_skills: val.split(",") }))
-          }
+          setter={(val) => setFormData(prev => ({ ...prev, technical_skills: val }))}
         />
         <FormInputField
-          label={"Educational Requirement"}
+          label="Educational Requirement"
           args={{
             placeholder: "Enter Educational Requirement (e.g., Bachelor's Degree)",
             value: formData.education_requirements,
@@ -244,9 +337,10 @@ const InternshipRequirements = ({ formData, setFormData }) => {
         />
       </div>
 
-      <div className="flex flex-col space-y-6 w-full">
+      {/* Right Column */}
+      <div className="flex flex-col space-y-5">
         <FormTextAreaField
-          label={"Documents Required"}
+          label="Documents Required"
           args={{
             placeholder: "List required documents (e.g., Resume, Cover Letter)",
             value: formData.documents_required,
@@ -256,64 +350,71 @@ const InternshipRequirements = ({ formData, setFormData }) => {
             setFormData((prev) => ({ ...prev, documents_required: val }))
           }
         />
-        <FormInputField
-          label={"Additional Skills"}
+        <TagInput
+          label="Additional Skills"
           args={{
             placeholder: "Enter Additional Skills (comma-separated)",
             value: formData.additional_skills.join(","),
             maxLength: 300,
           }}
-          setter={(val) =>
-            setFormData((prev) => ({
-              ...prev,
-              additional_skills: val.split(","),
-            }))
-          }
+          setter={(val) => setFormData(prev => ({ ...prev, technical_skills: val }))}
         />
       </div>
-      <div className="border-2 border-gray-300 border-dashed rounded-xl p-4 text-center bg-white mt-8 w-full">
-        <label htmlFor="image" className="cursor-pointer text-gray-500 text-sm">
-          {imagePreview ? "Change Image" : "Upload a job-related photo (Accepted formats: JPG, PNG)"}
-        </label>
-        <input
-          type="file"
-          id="image"
-          name="image"
-          accept="image/jpeg, image/png"
-          onChange={handleImageChange}
-          className="hidden"
-        />
-        {imagePreview && (
-          <div className="mt-4 relative">
-            <img
-              src={imagePreview}
-              alt="Uploaded"
-              className="mx-auto rounded-lg shadow-md max-w-full h-auto"
-              style={{ maxHeight: "200px" }}
-            />
-            <button
-              type="button"
-              onClick={handleImageDelete}
-              className="absolute top-0 right-2 bg-white text-pink-500 p-1 hover:bg-gray-100 border-pink-500"
-              aria-label="Delete image"
-            >
+
+      {/* Image Upload Section - Full Width */}
+      <div className="col-span-2 mt-8">
+        <div className="border-2 border-gray-300 border-dashed rounded-xl px-3 py-2 text-center bg-white w-full hover:border-[#ffcc00] transition-colors">
+          <label
+            htmlFor="image"
+            className="cursor-pointer text-gray-600 text-lg flex flex-col items-center"
+          >
+            <div className="mb-3 text-blue-500">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
+                className="h-12 w-12"
                 fill="none"
                 viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={1.5}
+                stroke="#ffcc00"
               >
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"
+                  strokeWidth="2"
+                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
                 />
               </svg>
-            </button>
-          </div>
-        )}
+            </div>
+            <span className="text-lg font-medium">
+              {imagePreview ? "Change Image" : "Upload a job-related photo"}
+            </span>
+            <span className="text-sm text-gray-400 mt-2">JPG or PNG format only</span>
+          </label>
+          <input
+            type="file"
+            id="image"
+            name="image"
+            accept="image/jpeg, image/png"
+            onChange={handleImageChange}
+            className="hidden"
+          />
+          {imagePreview && (
+            <div className="mt-6 relative">
+              <img
+                src={imagePreview}
+                alt="Uploaded"
+                className="mx-auto rounded-lg mb-4 shadow-md max-w-full h-auto"
+                style={{ maxHeight: "250px" }}
+              />
+              <button
+                type="button"
+                onClick={handleImageDelete}
+                className="absolute top-2 right-2 bg-white text-red-500 p-1 rounded-full hover:bg-gray-100"
+              >
+                ×
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </>
   );
@@ -322,23 +423,24 @@ const InternshipRequirements = ({ formData, setFormData }) => {
 const ApplicationProcess = ({ formData, setFormData }) => {
   return (
     <>
-      <div className="flex flex-col space-y-6 w-full">
+      {/* Left Column */}
+      <div className="flex flex-col space-y-5">
         <FormInputField
-          label={"Internship Posting Date"}
+          label="Internship Posting Date"
           args={{
             placeholder: "Posting Date",
             type: "date",
             value: new Date().toISOString().split("T")[0],
             readOnly: true,
           }}
-          setter={() => { }}
+          setter={() => {}}
           type="date"
         />
         <FormInputField
-          label={"Application Deadline"}
+          label="Application Deadline"
           required={true}
           args={{
-            placeholder: "Enter Application Deadline (YYYY-MM-DD)",
+            placeholder: "Enter Application Deadline",
             type: "date",
             value: formData.application_deadline,
             min: new Date(Date.now() + 86400000).toISOString().split("T")[0],
@@ -350,9 +452,9 @@ const ApplicationProcess = ({ formData, setFormData }) => {
           type="date"
         />
         <FormInputField
-          label={"Interview Start Date (If Applicable)"}
+          label="Interview Start Date (If Applicable)"
           args={{
-            placeholder: "Enter Interview Start Date (YYYY-MM-DD)",
+            placeholder: "Enter Interview Start Date",
             type: "date",
             value: formData.interview_start_date,
             min: new Date(Date.now() + 86400000).toISOString().split("T")[0],
@@ -364,7 +466,7 @@ const ApplicationProcess = ({ formData, setFormData }) => {
           type="date"
         />
         <FormTextAreaField
-          label={"Steps to Apply"}
+          label="Steps to Apply"
           args={{
             placeholder: "Describe the steps candidates need to take to apply",
             value: formData.steps_to_apply,
@@ -376,15 +478,18 @@ const ApplicationProcess = ({ formData, setFormData }) => {
         />
       </div>
 
-      <div className="flex flex-col space-y-6 w-full">
+      {/* Right Column */}
+      <div className="flex flex-col space-y-5">
         <FormInputField
-          label={"Interview End Date (If Applicable)"}
+          label="Interview End Date (If Applicable)"
           args={{
-            placeholder: "Enter Interview End Date (YYYY-MM-DD)",
+            placeholder: "Enter Interview End Date",
             type: "date",
             value: formData.interview_end_date,
             min: formData.interview_start_date
-              ? new Date(new Date(formData.interview_start_date).getTime() + 86400000).toISOString().split("T")[0]
+              ? new Date(new Date(formData.interview_start_date).getTime() + 86400000)
+                  .toISOString()
+                  .split("T")[0]
               : new Date(Date.now() + 86400000).toISOString().split("T")[0],
             maxLength: 300,
           }}
@@ -394,7 +499,7 @@ const ApplicationProcess = ({ formData, setFormData }) => {
           type="date"
         />
         <FormInputField
-          label={"Internship Link"}
+          label="Internship Link"
           required={true}
           args={{
             placeholder: "Enter the application link",
@@ -407,7 +512,7 @@ const ApplicationProcess = ({ formData, setFormData }) => {
           }}
         />
         <FormTextAreaField
-          label={"Selection Process"}
+          label="Selection Process"
           args={{
             placeholder: "Describe the selection process for applicants",
             value: formData.selection_process,
@@ -425,9 +530,10 @@ const ApplicationProcess = ({ formData, setFormData }) => {
 const InternshipPreview = ({ formData, setFormData }) => {
   return (
     <>
-      <div className="flex flex-col space-y-6 w-full">
+      {/* Left Column */}
+      <div className="flex flex-col space-y-4">
         <FormInputField
-          label={"Internship Title"}
+          label="Internship Title"
           required={true}
           disabled={true}
           args={{
@@ -438,7 +544,7 @@ const InternshipPreview = ({ formData, setFormData }) => {
           setter={(val) => setFormData((prev) => ({ ...prev, title: val }))}
         />
         <FormInputField
-          label={"Internship Location"}
+          label="Internship Location"
           required={true}
           disabled={true}
           args={{
@@ -449,11 +555,11 @@ const InternshipPreview = ({ formData, setFormData }) => {
           setter={(val) => setFormData((prev) => ({ ...prev, location: val }))}
         />
         <FormInputField
-          label={"Application Deadline"}
+          label="Application Deadline"
           required={true}
           disabled={true}
           args={{
-            placeholder: "Enter Application Deadline (YYYY-MM-DD)",
+            placeholder: "Enter Application Deadline",
             type: "date",
             value: formData.application_deadline,
             maxLength: 300,
@@ -463,7 +569,7 @@ const InternshipPreview = ({ formData, setFormData }) => {
           }
         />
         <FormInputField
-          label={"Internship Type"}
+          label="Internship Type"
           disabled={true}
           args={{
             placeholder: "Enter Internship Type",
@@ -474,8 +580,12 @@ const InternshipPreview = ({ formData, setFormData }) => {
             setFormData((prev) => ({ ...prev, internship_type: val }))
           }
         />
+      </div>
+
+      {/* Right Column */}
+      <div className="flex flex-col space-y-4">
         <FormInputField
-          label={"Company Name"}
+          label="Company Name"
           disabled={true}
           args={{
             placeholder: "Enter Company Name",
@@ -486,11 +596,8 @@ const InternshipPreview = ({ formData, setFormData }) => {
             setFormData((prev) => ({ ...prev, company_name: val }))
           }
         />
-      </div>
-
-      <div className="flex flex-col space-y-6 w-full">
         <FormTextAreaField
-          label={"Internship Description"}
+          label="Internship Description"
           disabled={true}
           args={{
             placeholder: "Enter a brief description of the internship",
@@ -502,7 +609,7 @@ const InternshipPreview = ({ formData, setFormData }) => {
           }
         />
         <FormInputField
-          label={"Internship Link"}
+          label="Internship Link"
           required={true}
           disabled={true}
           args={{
@@ -515,7 +622,7 @@ const InternshipPreview = ({ formData, setFormData }) => {
           }
         />
         <FormInputField
-          label={"Duration"}
+          label="Duration"
           required={true}
           disabled={true}
           args={{
@@ -526,10 +633,10 @@ const InternshipPreview = ({ formData, setFormData }) => {
           setter={(val) => setFormData((prev) => ({ ...prev, duration: val }))}
         />
         <FormInputField
-          label={"Stipend Range"}
+          label="Stipend Range"
           disabled={true}
           args={{
-            placeholder: "Enter Stipend Range (e.g., $500 - $1000)",
+            placeholder: "Enter Stipend Range (e.g., 500 - 1000)",
             value: formData.stipend,
             maxLength: 300,
           }}
@@ -556,7 +663,7 @@ const InternPostForm = () => {
     stipend: initialInternshipData.stipend || "",
     application_deadline:
       initialInternshipData.application_deadline &&
-        !isNaN(Date.parse(initialInternshipData.application_deadline))
+      !isNaN(Date.parse(initialInternshipData.application_deadline))
         ? initialInternshipData.application_deadline
         : null,
     skills_required: initialInternshipData.required_skills || [],
@@ -570,17 +677,17 @@ const InternPostForm = () => {
     additional_skills: initialInternshipData.additional_skills || [],
     internship_posting_date:
       initialInternshipData.internship_posting_date &&
-        !isNaN(Date.parse(initialInternshipData.internship_posting_date))
+      !isNaN(Date.parse(initialInternshipData.internship_posting_date))
         ? initialInternshipData.internship_posting_date.split("T")[0]
         : null,
     interview_start_date:
       initialInternshipData.interview_start_date &&
-        !isNaN(Date.parse(initialInternshipData.interview_start_date))
+      !isNaN(Date.parse(initialInternshipData.interview_start_date))
         ? initialInternshipData.interview_start_date.split("T")[0]
         : null,
     interview_end_date:
       initialInternshipData.interview_end_date &&
-        !isNaN(Date.parse(initialInternshipData.interview_end_date))
+      !isNaN(Date.parse(initialInternshipData.interview_end_date))
         ? initialInternshipData.interview_end_date.split("T")[0]
         : null,
     internship_link: initialInternshipData.internship_link || "",
@@ -595,8 +702,8 @@ const InternPostForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [toastMessage, setToastMessage] = useState("");
-  const [isTypeOpen, setIsTypeOpen] = useState(false);
   const [urlError, setUrlError] = useState("");
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
   const [deadlineError, setDeadlineError] = useState("");
   const navigate = useNavigate();
   const [userRole, setUserRole] = useState(null);
@@ -604,53 +711,59 @@ const InternPostForm = () => {
   const [loading, setLoading] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
+  const [categories, setCategories] = useState({
+    "Internship Details": { status: "active", icon: <FaSuitcase /> },
+    "Internship Requirements": { status: "unvisited", icon: <FaClipboardList /> },
+    "Application Process": { status: "unvisited", icon: <FaFileSignature /> },
+    Summary: { status: "unvisited", icon: <FaRegFileAlt /> },
+  });
+
   useEffect(() => {
     const checkScreenSize = () => {
-      if (window.innerWidth < 768) {
-        setIsSidebarOpen(false);
-      } else {
-        setIsSidebarOpen(true);
-      }
+      setIsSidebarOpen(window.innerWidth >= 768);
     };
-
     checkScreenSize();
-
     window.addEventListener("resize", checkScreenSize);
-
     return () => window.removeEventListener("resize", checkScreenSize);
   }, []);
 
   useEffect(() => {
     if (loading) {
-      const timer = setTimeout(() => {
-        setLoading(false);
-      }, 10000);
-
+      const timer = setTimeout(() => setLoading(false), 10000);
       return () => clearTimeout(timer);
     }
   }, [loading]);
 
-  const [categories, setCategories] = useState({
-    "Internship Details": { status: "active", icon: <FaSuitcase /> },
-    "Internship Requirements": {
-      status: "unvisited",
-      icon: <FaClipboardList />,
-    },
-    "Application Process": { status: "unvisited", icon: <FaFileSignature /> },
-    Summary: { status: "unvisited", icon: <FaRegFileAlt /> },
-  });
+  useEffect(() => {
+    if (toastMessage) {
+      const timer = setTimeout(() => setToastMessage(""), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [toastMessage]);
 
-  const internshipTypes = [
-    "Full-time",
-    "Part-time",
-    "Contract",
-    "Temporary",
-    "Volunteer",
-  ];
+  useEffect(() => {
+    const token = Cookies.get("jwt");
+    if (!token) {
+      setError("No token found. Please log in.");
+      return;
+    }
+    const decodedToken = jwtDecode(token);
+    const currentTime = Date.now() / 1000;
+    if (decodedToken.exp < currentTime) {
+      setError("Token has expired. Please log in again.");
+      return;
+    }
+    if (decodedToken.role !== "superadmin" && decodedToken.role !== "admin") {
+      setError("You do not have permission to access this page.");
+      return;
+    }
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    setUserRole(payload.role);
+    setUserId(payload.role === "admin" ? payload.admin_user : payload.superadmin_user);
+  }, []);
 
   const validateUrl = (url) => {
-    const urlPattern =
-      /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/;
+    const urlPattern = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/;
     return urlPattern.test(url);
   };
 
@@ -665,135 +778,26 @@ const InternPostForm = () => {
     }
   };
 
-  useEffect(() => {
-    const token = Cookies.get("jwt");
-    if (!token) {
-      setError("No token found. Please log in.");
-      return;
-    }
-
-    const decodedToken = jwtDecode(token);
-    const currentTime = Date.now() / 1000;
-    if (decodedToken.exp < currentTime) {
-      setError("Token has expired. Please log in again.");
-      return;
-    }
-
-    if (decodedToken.role !== "superadmin" && decodedToken.role !== "admin") {
-      setError("You do not have permission to access this page.");
-    }
-    if (token) {
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      setUserRole(payload.role);
-      if (payload.role === "admin") {
-        setUserId(payload.admin_user);
-      } else if (payload.role === "superadmin") {
-        setUserId(payload.superadmin_user);
-      }
-    }
-  }, []);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
-
-    if (name === "company_website") {
-      if (value && !validateUrl(value)) {
-        setUrlError("Invalid URL");
-      } else {
-        setUrlError("");
-      }
-    }
-  };
-
-  const handleTypeChange = (type) => {
-    setFormData({
-      ...formData,
-      internship_type: type,
-    });
-    setIsTypeOpen(false);
-  };
-
-  const handleDateChange = (date) => {
-    setFormData({
-      ...formData,
-      application_deadline: date,
-    });
-    validateDeadline(date);
-  };
-
-  const handleSkillsChange = (e) => {
-    if (e.key === "Enter" || e.key === ",") {
-      e.preventDefault();
-      const skill = e.target.value.trim();
-      if (skill && !formData.skills_required.includes(skill)) {
-        setFormData({
-          ...formData,
-          skills_required: [...formData.skills_required, skill],
-        });
-        e.target.value = "";
-      }
-    }
-  };
-
-  const handleRemoveSkill = (skillToRemove) => {
-    setFormData({
-      ...formData,
-      skills_required: formData.skills_required.filter(
-        (skill) => skill !== skillToRemove
-      ),
-    });
-  };
-
   const handleSubmit = async () => {
     const today = new Date().toISOString().split("T")[0];
     if (formData.application_deadline < today) {
-      setToastMessage("Application deadline must be a future date.");
+      toast.error("Application deadline must be a future date.");
       return;
     }
     if (formData.company_website && !validateUrl(formData.company_website)) {
       toast.error("Invalid URL");
-      setLoading(false);
       return;
     }
     if (!validateDeadline(formData.application_deadline)) {
-      toast.error("please check the deadline");
-      setLoading(false);
-      return;
-    }
-
-    // Check if any fields have been edited
-    const isFormEdited = Object.keys(formData).some(
-      (key) => formData[key] !== initialFormData[key]
-    );
-
-    if (!isFormEdited) {
-      toast.info("No fields have been edited.");
+      toast.error("Please check the deadline");
       return;
     }
 
     setLoading(true);
-
     setTimeout(async () => {
-      if (formData.company_website && !validateUrl(formData.company_website)) {
-        toast.error("Invalid URL");
-        setLoading(false);
-        return;
-      }
-
-      if (!validateDeadline(formData.application_deadline)) {
-        toast.error("please check the deadline");
-        setLoading(false);
-        return;
-      }
-
       setIsSubmitting(true);
       setMessage("");
       setError("");
-
       try {
         const token = Cookies.get("jwt");
         if (!token) {
@@ -820,9 +824,7 @@ const InternPostForm = () => {
             key === "application_deadline" &&
             internshipData[key] instanceof Date
           ) {
-            internshipData[key] = internshipData[key]
-              .toISOString()
-              .split("T")[0];
+            internshipData[key] = internshipData[key].toISOString().split("T")[0];
           } else if (
             key === "application_deadline" &&
             typeof internshipData[key] === "string"
@@ -846,11 +848,11 @@ const InternPostForm = () => {
 
         const internshipId = sessionStorage.getItem("internshipId");
         const url = internshipId
-          ? `${base_url}/api/internship-edit/${internshipId}/`
-          : `${base_url}/api/post-internship/`;
-        const method = internshipId ? axios.put : axios.post;
-
-        const response = await method(url, formDataToSend, {
+          ? `${API_BASE_URL}/api/internship-edit/${internshipId}/`
+          : `${API_BASE_URL}/api/post-internship/`;
+          
+        // Changed from axios.put to axios.post for both create and edit modes
+        const response = await axios.post(url, formDataToSend, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "multipart/form-data",
@@ -858,20 +860,13 @@ const InternPostForm = () => {
         });
 
         setMessage(response.data.message);
-
-        const returnUrl = sessionStorage.getItem("returnToPreview");
-
         sessionStorage.removeItem("internshipData");
         sessionStorage.removeItem("internshipId");
-        navigate("/internships");
+        const returnUrl = sessionStorage.getItem("returnToPreview");
         sessionStorage.removeItem("returnToPreview");
-
-        if (returnUrl) {
-          navigate(returnUrl);
-        } else {
-          navigate('/internships');
-        }
+        navigate(returnUrl || "/internships");
       } catch (error) {
+        console.error("API Error:", error);
         setError(
           `Error: ${error.response?.data?.error || "Something went wrong"}`
         );
@@ -885,19 +880,6 @@ const InternPostForm = () => {
     }, 10000);
   };
 
-  useEffect(() => {
-    if (toastMessage) {
-      const timer = setTimeout(() => {
-        setToastMessage("");
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [toastMessage]);
-
-  if (error) {
-    return <div className="text-red-600 p-4">{error}</div>;
-  }
-
   const categoryKeys = Object.keys(categories);
   const activeIndex = categoryKeys.findIndex(
     (key) => categories[key].status === "active"
@@ -906,7 +888,6 @@ const InternPostForm = () => {
   const handleNavigation = (direction) => {
     setCategories((prevCategories) => {
       const updatedCategories = { ...prevCategories };
-
       if (activeIndex !== -1) {
         const currentKey = categoryKeys[activeIndex];
         const nextIndex =
@@ -914,19 +895,16 @@ const InternPostForm = () => {
 
         if (nextIndex >= 0 && nextIndex < categoryKeys.length) {
           const nextKey = categoryKeys[nextIndex];
-
           if (direction === "next") {
             updatedCategories[currentKey] = {
               ...updatedCategories[currentKey],
               status: "completed",
             };
           }
-
           updatedCategories[nextKey] = {
             ...updatedCategories[nextKey],
             status: "active",
           };
-
           if (direction === "prev") {
             for (let i = nextIndex + 1; i < categoryKeys.length; i++) {
               updatedCategories[categoryKeys[i]] = {
@@ -937,188 +915,134 @@ const InternPostForm = () => {
           }
         }
       }
-
       return updatedCategories;
     });
   };
 
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
+  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
   return (
-    <motion.div className="flex flex-col md:flex-row bg-gray-100 min-h-screen">
+    <motion.div className="flex bg-gray-100 min-h-screen">
       {userRole === "admin" && <AdminPageNavbar />}
       {userRole === "superadmin" && <SuperAdminPageNavbar />}
 
       <ToastContainer />
+      <DesktopOnly />
 
-      <div className="flex-1 flex flex-col md:items-center md:justify-center p-3 md:p-6">
-        <div className="w-full max-w-6xl p-4 md:p-8 bg-white rounded-xl flex flex-col shadow-md">
-          <div className="flex justify-between items-center text-xl md:text-2xl pb-4 border-b border-gray-300">
+      <div className="flex-1 flex items-center justify-center p-6">
+        <div className="flex-1 p-8 bg-white rounded-xl flex flex-col h-full max-w-[1400px] mx-auto shadow-lg">
+          <div className="flex justify-between items-center text-2xl pb-4 border-b border-gray-300 mb-4">
             <p className="font-semibold">Post an Internship</p>
             <button
-              className="px-3 py-1.5 border rounded-lg text-sm hover:bg-gray-100 transition-colors"
+              className="px-4 py-2 border rounded-lg text-sm hover:bg-gray-100 transition-colors"
               onClick={() => navigate(-1)}
             >
               Cancel
             </button>
           </div>
 
+          {error && (
+            <div className="fixed top-4 right-4 bg-red-500 text-white p-3 rounded-md shadow-lg z-50">
+              {error}
+            </div>
+          )}
+
           {toastMessage && (
-            <div className="fixed top-4 right-4 bg-red-500 text-white p-2 rounded shadow z-50">
+            <div className="fixed top-4 right-4 bg-red-500 text-white p-3 rounded-md shadow-lg z-50">
               {toastMessage}
             </div>
           )}
 
-          <div className="flex flex-col md:flex-row mt-4">
-            <button
-              className="md:hidden flex items-center justify-center p-2 mb-4 bg-gray-200 rounded-md"
-              onClick={toggleSidebar}
+          <div className="flex items-stretch gap-6 flex-1">
+            {/* Sidebar */}
+            <div
+              className={`w-1/4 flex flex-col p-4 bg-gray-50 rounded-xl ${
+                isSidebarOpen ? "block" : "hidden md:block"
+              }`}
             >
-              {isSidebarOpen ? "Hide Steps" : "Show Steps"}
-            </button>
-
-            {isSidebarOpen && (
-              <div className="w-full md:w-1/4 md:border-r border-gray-300 flex flex-col p-2 md:p-4 mb-4 md:mb-0">
-                <div className="border-y border-r border-gray-300 flex flex-col rounded-lg mb-4">
-                  <Loader
-                    loadingStates={loadingStates}
-                    loading={loading}
-                    duration={2000}
-                  />
-                  {Object.entries(categories).map(
-                    ([category, prop], key, array) => (
-                      <div
-                        key={category}
-                        className={`border-l-4 flex items-center p-2 border-b border-gray-300
-                          ${key === 0 ? "rounded-tl-lg" : ""}
-                          ${key === array.length - 1
-                            ? "rounded-bl-lg border-b-transparent"
-                            : ""
-                          }
-                          ${prop.status === "active"
-                            ? "border-l-yellow-400 bg-yellow-50"
-                            : prop.status === "completed"
-                              ? "border-l-[#00B69B] bg-green-50"
-                              : "border-l-gray-300"
-                          }`}
-                      >
-                        <span className="text-gray-900 p-2 inline-block">
-                          {prop.icon}
-                        </span>
-                        <span className="text-sm md:text-base">{category}</span>
-                      </div>
-                    )
-                  )}
-                </div>
-
-                <div className="flex justify-between">
-                  <button
-                    className={`px-3 py-1.5 border rounded text-sm ${activeIndex === 0
-                        ? "bg-gray-100 cursor-not-allowed"
-                        : "hover:bg-gray-100 cursor-pointer"
-                      }`}
-                    disabled={activeIndex === 0}
-                    onClick={() => handleNavigation("prev")}
+              <button
+                className="md:hidden mb-4 px-4 py-2 bg-gray-200 rounded-md text-sm"
+                onClick={toggleSidebar}
+              >
+                {isSidebarOpen ? "Hide Steps" : "Show Steps"}
+              </button>
+              <div className="border border-gray-200 flex flex-col rounded-lg bg-white shadow-sm mb-6">
+                <Loader loadingStates={loadingStates} loading={loading} duration={2000} />
+                {Object.entries(categories).map(([category, prop], key, array) => (
+                  <div
+                    key={category}
+                    className={`border-l-6 flex items-center p-4 border-b border-gray-200
+                      ${key === 0 ? "rounded-tl-lg" : ""}
+                      ${key === array.length - 1 ? "rounded-bl-lg border-b-transparent" : ""}
+                      ${prop.status === "active" 
+                        ? "border-l-yellow-400 bg-yellow-50" 
+                        : prop.status === "completed" 
+                          ? "border-l-[#00B69B] bg-green-50" 
+                          : "border-l-gray-300"}`}
                   >
-                    <span className="flex items-center">
-                      <FaChevronLeft className="mr-1" /> Previous
-                    </span>
-                  </button>
-
-                  {activeIndex === categoryKeys.length - 1 ? (
-                    <button
-                      className="rounded bg-green-500 hover:bg-green-600 text-white text-sm px-5 py-1.5 cursor-pointer transition-colors"
-                      onClick={handleSubmit}
-                      disabled={isSubmitting}
-                    >
-                      {isSubmitting ? "Submitting..." : "Finish"}
-                    </button>
-                  ) : (
-                    <button
-                      className="rounded bg-yellow-400 hover:bg-yellow-500 text-sm px-5 py-1.5 cursor-pointer transition-colors"
-                      disabled={activeIndex === categoryKeys.length - 1}
-                      onClick={() => handleNavigation("next")}
-                    >
-                      <span className="flex items-center">
-                        Next <FaChevronRight className="ml-1" />
-                      </span>
-                    </button>
-                  )}
-                </div>
+                    <span className="text-gray-900 p-2 inline-block">{prop.icon}</span>
+                    <span className="font-medium">{category}</span>
+                  </div>
+                ))}
               </div>
-            )}
 
-            <div className="flex-1 p-2 md:p-4 grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 items-start">
-              {
-                {
-                  "Internship Details": (
-                    <InternshipDetails
-                      formData={formData}
-                      setFormData={setFormData}
-                    />
-                  ),
-                  "Internship Requirements": (
-                    <InternshipRequirements
-                      formData={formData}
-                      setFormData={setFormData}
-                    />
-                  ),
-                  "Application Process": (
-                    <ApplicationProcess
-                      formData={formData}
-                      setFormData={setFormData}
-                    />
-                  ),
-                  Summary: (
-                    <InternshipPreview
-                      formData={formData}
-                      setFormData={setFormData}
-                    />
-                  ),
-                }[
-                Object.entries(categories).find(
-                  ([_, prop]) => prop.status === "active"
-                )?.[0]
-                ]
-              }
+              <div className="flex justify-between mb-3">
+                <button
+                  className={`px-4 py-2 border rounded-lg text-sm transition-colors ${
+                    activeIndex === 0 
+                      ? "bg-gray-100 text-gray-400 cursor-not-allowed" 
+                      : "hover:bg-gray-100 cursor-pointer"
+                  }`}
+                  disabled={activeIndex === 0}
+                  onClick={() => handleNavigation("prev")}
+                >
+                  Previous
+                </button>
+                {activeIndex === categoryKeys.length - 1 ? (
+                  <button
+                    className="rounded-lg bg-green-500 hover:bg-green-600 text-white text-sm px-6 py-2 transition-colors"
+                    onClick={handleSubmit}
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? "Submitting..." : "Finish"}
+                  </button>
+                ) : (
+                  <button
+                    className="rounded-lg bg-yellow-400 hover:bg-yellow-500 text-sm px-6 py-2 transition-colors"
+                    disabled={activeIndex === categoryKeys.length - 1}
+                    onClick={() => handleNavigation("next")}
+                  >
+                    Next
+                  </button>
+                )}
+              </div>
             </div>
-          </div>
 
-          <div className="flex justify-between mt-6 md:hidden">
-            <button
-              className={`px-3 py-1.5 border rounded text-sm ${activeIndex === 0
-                  ? "bg-gray-100 cursor-not-allowed"
-                  : "hover:bg-gray-100 cursor-pointer"
-                }`}
-              disabled={activeIndex === 0}
-              onClick={() => handleNavigation("prev")}
-            >
-              <span className="flex items-center">
-                <FaChevronLeft className="mr-1" /> Previous
-              </span>
-            </button>
-
-            {activeIndex === categoryKeys.length - 1 ? (
-              <button
-                className="rounded bg-green-500 hover:bg-green-600 text-white text-sm px-5 py-1.5 cursor-pointer transition-colors"
-                onClick={handleSubmit}
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? "Submitting..." : "Finish"}
-              </button>
-            ) : (
-              <button
-                className="rounded bg-yellow-400 hover:bg-yellow-500 text-sm px-5 py-1.5 cursor-pointer transition-colors"
-                disabled={activeIndex === categoryKeys.length - 1}
-                onClick={() => handleNavigation("next")}
-              >
-                <span className="flex items-center">
-                  Next <FaChevronRight className="ml-1" />
-                </span>
-              </button>
-            )}
+            {/* Form Content */}
+            <div className="flex-1 bg-white rounded-xl p-8 border border-gray-200 shadow-sm">
+              <div className="grid grid-cols-2 gap-6 items-start h-full">
+                {
+                  {
+                    "Internship Details": (
+                      <InternshipDetails formData={formData} setFormData={setFormData} />
+                    ),
+                    "Internship Requirements": (
+                      <InternshipRequirements formData={formData} setFormData={setFormData} />
+                    ),
+                    "Application Process": (
+                      <ApplicationProcess formData={formData} setFormData={setFormData} />
+                    ),
+                    Summary: (
+                      <InternshipPreview formData={formData} setFormData={setFormData} />
+                    ),
+                  }[
+                    Object.entries(categories).find(
+                      ([_, prop]) => prop.status === "active"
+                    )?.[0]
+                  ]
+                }
+              </div>
+            </div>
           </div>
         </div>
       </div>

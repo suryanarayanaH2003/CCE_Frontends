@@ -5,7 +5,6 @@ import { useDropzone } from "react-dropzone";
 import Cookies from "js-cookie";
 import AdminPageNavbar from "../../components/Admin/AdminNavBar";
 import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
-import { base_url } from "../../App";
 
 const JobEntrySelection = () => {
   const navigate = useNavigate();
@@ -13,6 +12,7 @@ const JobEntrySelection = () => {
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState("");
   const [jobData, setJobData] = useState(null);
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
   const [selectedFile, setSelectedFile] = useState(null);
   const [userRole, setUserRole] = useState(null);
 
@@ -40,7 +40,7 @@ const JobEntrySelection = () => {
     formData.append("image", file);
 
     try {
-      const response = await axios.post(`${base_url}/api/upload_job_image/`, formData, {
+      const response = await axios.post(`${API_BASE_URL}/api/upload_job_image/`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
         onUploadProgress: (progressEvent) => {
           const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
@@ -55,7 +55,16 @@ const JobEntrySelection = () => {
       }
     } catch (err) {
       console.error("Error uploading image:", err);
-      setError("Failed to process image. Try again.");
+    
+      // 🔥 Extract backend error message if available
+      let errorMessage = "Failed to process image. Try again.";
+      if (err.response && err.response.data && err.response.data.error) {
+        errorMessage = err.response.data.error; // Backend error message
+      } else if (err.message) {
+        errorMessage = err.message; // Generic error message
+      }
+    
+      setError(errorMessage); // Display error to user
     } finally {
       setUploading(false);
     }

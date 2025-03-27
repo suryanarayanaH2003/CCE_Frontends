@@ -5,7 +5,7 @@ import { ToastContainer, toast } from "react-toastify"; // Import ToastContainer
 import "react-toastify/dist/ReactToastify.css"; // Import Toastify styles
 import LoginCard from "../../components/Cards/LoginCard";
 import { AppPages } from "../../utils/constants";
-import { base_url } from "../../App";
+
 export default function SuperAdminLogin() {
     const [formData, setFormData] = useState({
         email: "",
@@ -15,6 +15,7 @@ export default function SuperAdminLogin() {
     const [lockoutTime, setLockoutTime] = useState(0); // Track remaining lockout time
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
     // Clear cookies when entering the login page
     useEffect(() => {
@@ -42,8 +43,7 @@ export default function SuperAdminLogin() {
         setIsLoading(true);
     
         try {
-            console.log("base_url", `${base_url}/api/superadmin_login/`);
-            const response = await fetch(`${base_url}/api/superadmin_login/`, {
+            const response = await fetch(`${API_BASE_URL}/api/superadmin_login/`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -76,7 +76,7 @@ export default function SuperAdminLogin() {
     const handleGoogleSuccess = async (credentialResponse) => {
                 setIsLoading(true);
                 try {
-                    const response = await fetch(`${base_url}/api/superadmin/google/login/`, {
+                    const response = await fetch(`${API_BASE_URL}/api/superadmin/google/login/`, {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json",

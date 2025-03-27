@@ -6,7 +6,7 @@ import { FaTrashAlt } from "react-icons/fa";
 import Pagination from "../../../components/Admin/pagination";
 import backIcon from '../../../assets/icons/back-icon.svg';
 import nextIcon from '../../../assets/icons/next-icon.svg';
-import { formatDate } from "date-fns";
+import { format } from "date-fns";
 
 const JobTable = ({
   jobs,
@@ -35,6 +35,13 @@ const JobTable = ({
     } else {
       setSelectedJobs(jobs.map((job) => job._id));
     }
+  };
+
+  const truncateString = (str, num) => {
+    if (str.length <= num) {
+      return str;
+    }
+    return str.slice(0, num) + '...';
   };
 
   return (
@@ -66,14 +73,14 @@ const JobTable = ({
           </div>
 
           <button
-            className="px-5 py-1 bg-[#00b69b] text-white rounded text-sm flex items-center space-x-2"
+            className="px-5 py-1 hover:bg-green-50 border border-green text-green-800 rounded text-sm flex items-center space-x-2"
             onClick={() => handleBulkApprove("job")} // Use the prop here
           >
             <p> Approve all </p>
             <FaCheck />
           </button>
           <button
-            className="px-5 py-1 bg-[#ef3826] text-white rounded text-sm flex items-center space-x-2"
+            className="px-5 py-1 hover:bg-red-50 border border-red text-red-500 rounded text-sm flex items-center space-x-2"
             onClick={() => handleBulkDelete("job")} // Use the prop here
           >
             <p> Delete all </p>
@@ -92,13 +99,13 @@ const JobTable = ({
                   type="checkbox"
                   checked={selectedJobs.length === jobs.length}
                   onChange={handleSelectAll}
-                  className="form-checkbox h-4 w-4 text-blue-600 mr-2"
-                /> Select</th>
-                <th className="py-3 border-b border-gray-200">Title</th>
-                <th className="py-3 border-b border-gray-200">Company</th>
-                <th className="py-3 border-b border-gray-200">Staff Name</th>
-                <th className="py-3 border-b border-gray-200">Deadline</th>
-                <th className="py-3 border-b border-gray-200">Status</th>
+                  className="form-checkbox h-4 w-4 text-blue-600"
+                /></th>
+                <th className="py-3 border-b text-left border-gray-200">Title</th>
+                <th className="py-3 border-b text-left border-gray-200">Company</th>
+                <th className="py-3 border-b text-left border-gray-200">Staff Name</th>
+                <th className="py-3 border-b text-left border-gray-200">Deadline</th>
+                <th className="py-3 border-b text-left border-gray-200">Status</th>
                 <th className="py-3 border-b border-gray-200">Actions</th>
               </tr>
             </thead>
@@ -119,11 +126,11 @@ const JobTable = ({
                       className="form-checkbox h-4 w-4 text-blue-600"
                     />
                   </td>
-                  <td className="text-center py-3 py-1">{job.job_data.title}</td>
-                  <td className="text-center py-3 py-1">{job.job_data.company_name}</td>
-                  <td className="text-center py-3 py-1">{job.admin_name}</td>
-                  <td className="text-center py-3 py-1">{job.job_data.application_deadline}</td>
-                  <td className="text-center py-3 py-1 font-semibold">
+                  <td className="text-left py-3 py-1">{truncateString(job.job_data.title, 20)}</td>
+                  <td className="text-left py-3 py-1">{truncateString(job.job_data.company_name, 20)}</td>
+                  <td className="text-left py-3 py-1">{job.admin_name}</td>
+                  <td className="text-left py-3 py-1">{format(new Date(job.job_data.application_deadline), 'yyyy-MM-dd')}</td>
+                  <td className="text-left py-3 py-1 font-semibold">
                     {job.is_publish === true ? (
                       <span className="text-green-800 px-1 py-0.5 rounded-full text-xs">
                         Approved
@@ -139,7 +146,7 @@ const JobTable = ({
                     )}
                   </td>
                   <td className="text-center py-3 py-1">
-                    <div className="flex justify-center space-x-1">
+                    <div className="flex justify-center space-x-2">
                       {job.is_publish === null && (
                         <>
                           <IoMdCheckmark
@@ -173,12 +180,14 @@ const JobTable = ({
 
         </div>
       )}
+      {jobs.length > itemsPerPage && (
       <Pagination
         currentPage={currentPage}
         totalItems={jobs.length}
         itemsPerPage={itemsPerPage}
         onPageChange={handlePageChange}
       />
+    )}
     </div>
   );
 };

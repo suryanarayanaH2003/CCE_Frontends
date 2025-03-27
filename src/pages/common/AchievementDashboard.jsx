@@ -7,7 +7,7 @@ import { LoaderContext } from "../../components/Common/Loader";
 import Squares from "../../components/ui/GridLogin";
 import Pagination from "../../components/Admin/pagination";
 import Footer from "../../components/Common/Footer";
-import { base_url } from "../../App";
+
 export default function AchievementDashboard() {
   // State management
   const [achievements, setAchievements] = useState([]);
@@ -24,6 +24,7 @@ export default function AchievementDashboard() {
 
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
   const [carouselFilter, setCarouselFilter] = useState("");
   const [isCarouselPaused, setIsCarouselPaused] = useState(false);
@@ -39,7 +40,7 @@ export default function AchievementDashboard() {
       setIsLoading(true);
       try {
         const response = await axios.get(
-          `${base_url}/api/published-achievement/`
+          `${API_BASE_URL}/api/published-achievement/`
         );
         const sortedAchievements = response.data.achievements.sort(
           (a, b) => new Date(b.updated_at) - new Date(a.updated_at)
@@ -167,6 +168,16 @@ export default function AchievementDashboard() {
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
+  // Add this helper function before the return statement
+  const getInitials = (name) => {
+    if (!name) return "";
+    return name
+      .split(" ")
+      .map((word) => word[0])
+      .join("")
+      .toUpperCase();
+  };
+
   return (
     <div className="flex flex-col min-h-screen">
       {/* Background */}
@@ -195,14 +206,14 @@ export default function AchievementDashboard() {
       {/* Featured Achievements Carousel - Enhanced with Continuous Marquee Effect */}
       <div
         ref={carouselInView}
-        className="w-full py-6 md:py-10 relative overflow-hidden from-amber-50 via-white to-amber-50"
+        className="w-full py-4 md:py-2 relative overflow-hidden from-amber-50 via-white to-amber-50"
       >
         <div className="max-w-8xl mx-auto px-4">
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-6 md:mb-1">
             <h2 className="text-2xl font-bold">
               {/* <span className="bg-clip-text text-transparent bg-gradient-to-r from-amber-600 to-amber-400">
-                Featured Achievements
-              </span> */}
+          Featured Achievements
+        </span> */}
             </h2>
           </div>
           {error ? (
@@ -225,7 +236,7 @@ export default function AchievementDashboard() {
                   }}
                   transition={{
                     ease: "linear",
-                    duration: 20,
+                    duration: 100,
                     repeat: Number.POSITIVE_INFINITY,
                     repeatType: "loop",
                   }}
@@ -233,7 +244,7 @@ export default function AchievementDashboard() {
                   {recentAchievements.map((achievement, index) => (
                     <motion.div
                       key={`${achievement._id}-${index}`}
-                      className="flex-shrink-0 w-[220px] md:w-[250px]"
+                      className="flex-shrink-0 w-[280px] md:w-[320px]"
                       whileHover={{ y: -8, scale: 1.03 }}
                       transition={{
                         type: "spring",
@@ -241,36 +252,42 @@ export default function AchievementDashboard() {
                         damping: 17,
                       }}
                     >
-                      <div className="bg-white rounded-xl shadow-lg overflow-hidden h-full border border-amber-100">
-                        <div className="relative h-64 overflow-hidden">
-                          {achievement.photo && (
+                      <div className="bg-white rounded-xl shadow-lg overflow-hidden h-full md:h-[450px] border border-gray-100">
+                        <div className="relative h-full">
+                          {achievement.photo ? (
                             <img
                               src={`data:image/jpeg;base64,${achievement.photo}`}
                               alt={achievement.name}
-                              className="w-full h-full object-cover transition-transform duration-700 hover:scale-110"
+                              className="w-full h-full object-cover"
                             />
+                          ) : (
+                            <div className="w-full h-full bg-yellow-500 flex items-center justify-center text-4xl font-bold text-white">
+                              {getInitials(achievement.name)}
+                            </div>
                           )}
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                          <div className="absolute top-2 right-2"></div>
-                        </div>
 
-                        <div className="p-2 ">
-                          <span className="inline-block px-2 py-1 bg-amber-500 text-white text-xs font-medium rounded-full">
-                            {achievement.achievement_type}
-                          </span>
-                          <h3 className="font-bold text-gray-800 mb-1 line-clamp-1">
-                            {achievement.name}
-                          </h3>
-                          <p className="text-amber-500 text-xs mb-2">
-                            {achievement.batch}
-                          </p>
-                          <p className="text-gray-600 text-xs line-clamp-2 mb-2">
-                            {achievement.achievement_description}
-                          </p>
-                          <div className="pt-2 border-t border-gray-100">
-                            {/* <p className="text-xs text-gray-500 truncate">
-                              {achievement.email}
-                            </p> */}
+                          {/* White overlay for information - fixed height */}
+                          <div className="absolute bottom-3 left-3 right-3 bg-white p-2 rounded-lg h-26 overflow-hidden">
+                            <div className="flex flex-col h-full">
+                              <h3 className="text-sm font-bold text-gray-800 truncate">
+                                {achievement.name}{" "}
+                                <span className="text-red-500 text-sm font-normal ml-1">
+                                  {achievement.batch}
+                                </span>
+                              </h3>
+                              <div className="text-yellow-500 text-sm my-1">
+                                {achievement.achievement_type && (
+                                  <span className="truncate block">
+                                    {achievement.achievement_type}
+                                  </span>
+                                )}
+                              </div>
+                              <div className="mt-1 flex-1 overflow-hidden">
+                                <p className="text-gray-500 text-sm line-clamp-3">
+                                  {achievement.achievement_description}
+                                </p>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -285,7 +302,7 @@ export default function AchievementDashboard() {
                   }}
                   transition={{
                     ease: "linear",
-                    duration: 20,
+                    duration: 200,
                     repeat: Number.POSITIVE_INFINITY,
                     repeatType: "loop",
                   }}
@@ -293,7 +310,7 @@ export default function AchievementDashboard() {
                   {recentAchievements.map((achievement, index) => (
                     <motion.div
                       key={`${achievement._id}-duplicate-${index}`}
-                      className="flex-shrink-0 w-[220px] md:w-[250px]"
+                      className="flex-shrink-0 w-[280px] md:w-[350px]"
                       whileHover={{ y: -8, scale: 1.03 }}
                       transition={{
                         type: "spring",
@@ -301,36 +318,42 @@ export default function AchievementDashboard() {
                         damping: 17,
                       }}
                     >
-                      <div className="bg-white rounded-xl shadow-lg overflow-hidden h-full border border-amber-100">
-                        <div className="relative h-64 overflow-hidden">
-                          {achievement.photo && (
+                      <div className="bg-white rounded-xl shadow-lg overflow-hidden h-full md:h-[450px]  border border-gray-100">
+                        <div className="relative h-full">
+                          {achievement.photo ? (
                             <img
                               src={`data:image/jpeg;base64,${achievement.photo}`}
                               alt={achievement.name}
-                              className="w-full h-full object-cover transition-transform duration-700 hover:scale-110"
+                              className="w-full h-full object-scale-cover"
                             />
+                          ) : (
+                            <div className="w-full h-full bg-yellow-500 flex items-center justify-center text-4xl font-bold text-white">
+                              {getInitials(achievement.name)}
+                            </div>
                           )}
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                          <div className="absolute top-2 right-2"></div>
-                        </div>
 
-                        <div className="p-2 ">
-                          <span className="inline-block px-2 py-1 bg-amber-500 text-white text-xs font-medium rounded-full">
-                            {achievement.achievement_type}
-                          </span>
-                          <h3 className="font-bold text-gray-800 mb-1 line-clamp-1">
-                            {achievement.name}
-                          </h3>
-                          <p className="text-amber-500 text-xs mb-2">
-                            {achievement.batch}
-                          </p>
-                          <p className="text-gray-600 text-xs line-clamp-2 mb-2">
-                            {achievement.achievement_description}
-                          </p>
-                          <div className="pt-2 border-t border-gray-100">
-                            {/* <p className="text-xs text-gray-500 truncate">
-                              {achievement.email}
-                            </p> */}
+                          {/* White overlay for information - fixed height */}
+                          <div className="absolute bottom-3 left-3 right-3 bg-white p-2 rounded-lg h-26 overflow-hidden">
+                            <div className="flex flex-col h-full">
+                              <h3 className="text-sm font-bold text-gray-800 truncate">
+                                {achievement.name}{" "}
+                                <span className="text-red-500 text-sm font-normal ml-1">
+                                  {achievement.batch}
+                                </span>
+                              </h3>
+                              <div className="text-yellow-500 text-sm my-1">
+                                {achievement.achievement_type && (
+                                  <span className="truncate block">
+                                    {achievement.achievement_type}
+                                  </span>
+                                )}
+                              </div>
+                              <div className="mt-1 flex-1 overflow-hidden">
+                                <p className="text-gray-500 text-sm line-clamp-3">
+                                  {achievement.achievement_description}
+                                </p>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -443,22 +466,26 @@ export default function AchievementDashboard() {
                   }}
                 >
                   {/* Photo with animation */}
-                  {achievement.photo && (
-                    <motion.div
-                      className="relative w-24 h-24 md:w-32 md:h-32 rounded-full mb-4 overflow-hidden"
-                      whileHover={{ scale: 1.05 }}
-                    >
+                  <motion.div
+                    className="relative w-24 h-24 md:w-32 md:h-32 rounded-full mb-4 overflow-hidden"
+                    whileHover={{ scale: 1.05 }}
+                  >
+                    {achievement.photo ? (
                       <img
                         src={`data:image/jpeg;base64,${achievement.photo}`}
                         alt={achievement.name}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-fill"
                       />
-                      <motion.div
-                        className="absolute inset-0 bg-amber-500 mix-blend-overlay opacity-0"
-                        whileHover={{ opacity: 0.3 }}
-                      />
-                    </motion.div>
-                  )}
+                    ) : (
+                      <div className="w-full h-full bg-yellow-500 flex items-center justify-center text-2xl font-bold text-white">
+                        {getInitials(achievement.name)}
+                      </div>
+                    )}
+                    <motion.div
+                      className="absolute inset-0 bg-amber-500 mix-blend-overlay opacity-0"
+                      whileHover={{ opacity: 0.3 }}
+                    />
+                  </motion.div>
 
                   {/* Name and Role */}
                   <h2 className="text-lg md:text-xl font-semibold text-gray-800 mb-1">

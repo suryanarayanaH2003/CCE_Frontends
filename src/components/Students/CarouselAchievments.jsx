@@ -1,4 +1,4 @@
-
+// "use client";
 // import { useState, useEffect, useContext, useMemo, useRef } from "react";
 // import axios from "axios";
 // import { motion, useInView } from "framer-motion";
@@ -34,7 +34,7 @@
 //       setIsLoading(true);
 //       try {
 //         const response = await axios.get(
-//           `${base_url}/api/published-achievement/`
+//           "http://localhost:8000/api/published-achievement/"
 //         );
 //         const sortedAchievements = response.data.achievements.sort(
 //           (a, b) => new Date(b.updated_at) - new Date(a.updated_at)
@@ -300,12 +300,11 @@
 // };
 
 
-
+"use client";
 import { useState, useEffect, useContext, useMemo } from "react";
 import axios from "axios";
 import { LoaderContext } from "../Common/Loader";
 import GridLines from "../../assets/images/Grid Lines.png";
-import { base_url } from "../../App";
 
 export default function AchievementDashboard() {
   // State management
@@ -320,6 +319,7 @@ export default function AchievementDashboard() {
   const [userRole, setUserRole] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
   const [isTablet, setIsTablet] = useState(false);
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
   const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false);
 
   const [carouselFilter, setCarouselFilter] = useState("");
@@ -330,7 +330,7 @@ export default function AchievementDashboard() {
       setIsLoading(true);
       try {
         const response = await axios.get(
-          `${base_url}/api/published-achievement/`
+          `${API_BASE_URL}/api/published-achievement/`
         );
         const sortedAchievements = response.data.achievements.sort(
           (a, b) => new Date(b.updated_at) - new Date(a.updated_at)

@@ -13,7 +13,6 @@ import { jwtDecode } from 'jwt-decode';
 import Footer from '../../components/Common/Footer';
 import NoListingImage from "../../assets/images/NoListing.svg"; 
 import StudentPageNavbar from '../../components/Students/StudentPageNavbar';
-import { base_url } from "../../App";
 
 export default function StudyMaterial() {
   const [cards, setCards] = useState([]);
@@ -23,6 +22,7 @@ export default function StudyMaterial() {
   const [selectedType, setSelectedType] = useState('Exam');
   const cardsPerPage = 6;
   const { isLoading, setIsLoading } = useContext(LoaderContext);
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
   const navigate = useNavigate();
   const [userRole, setUserRole] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -39,7 +39,7 @@ export default function StudyMaterial() {
     const fetchStudyMaterials = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch(`${base_url}/api/all-study-material/`);
+        const response = await fetch(`${API_BASE_URL}/api/all-study-material/`);
         const data = await response.json();
         setCards(data.study_materials);
         updateCategories(data.study_materials, selectedType);
@@ -55,15 +55,13 @@ export default function StudyMaterial() {
 
   const updateCategories = (materials, type) => {
     const filteredMaterials = materials.filter(material => material.type === type);
-    const uniqueCategories = [...new Set(filteredMaterials.map(item => item.category))].sort();
+    const uniqueCategories = ['All', ...new Set(filteredMaterials.map(item => item.category))].sort();
     setCategories(uniqueCategories);
-    if (uniqueCategories.length > 0) {
-      setSelectedCategory(uniqueCategories[0]);
-    }
+    setSelectedCategory('All'); // Default to 'All'
   };
 
   const filteredCards = cards.filter((card) => {
-    const categoryMatch = selectedCategory ? card.category === selectedCategory : true;
+    const categoryMatch = selectedCategory === 'All' ? true : card.category === selectedCategory;
     const typeMatch = selectedType ? card.type === selectedType : true;
     const searchMatch = searchQuery
       ? (card.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -113,11 +111,10 @@ export default function StudyMaterial() {
 
         <main className="flex-1 px-4 md:px-6 py-6">
           {/* Header */}
-          <header className="flex flex-col items-center justify-center py-8 px-4 sm:py-14 container mx-auto text-center">
-            <p className="text-3xl sm:text-6xl tracking-[0.8px]">Study Material</p>
+          <header className="flex flex-col items-center justify-center py-8 px-4 sm:py-6 container mx-auto text-center">
+            <p className="text-3xl font-semibold sm:text-6xl tracking-[0.8px]">Study Material</p>
             <p className="text-base sm:text-lg mt-2">
-              Explore comprehensive study materials for exams, subjects, and topics <br />
-              to enhance your learning experience.
+              Explore comprehensive study materials for exams, subjects, and topics to enhance your learning experience.
             </p>
           </header>
           <div className="relative flex items-center w-[70%]">
@@ -177,18 +174,12 @@ export default function StudyMaterial() {
                 </button>
               ))}
             </div>
-            {searchQuery && filteredCards.length === 0 && !isLoading && (
-              <div className="text-center text-gray-600 mt-4">
-                No results found for "{searchQuery}"
-              </div>
-            )}
           </div>
 
           {/* Cards Grid */}
           {currentCards.length === 0 ? (
-            <div className="flex flex-col items-center justify-center mt-8">
-              <img src={NoListingImage} alt="No Study Materials" className="w-80 h-80  mr-30" />
-           
+            <div className="flex flex-col items-center justify-center mt-8 ">
+              <img src={NoListingImage} alt="No Study Materials" className="w-80 h-80" />
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
@@ -217,7 +208,7 @@ export default function StudyMaterial() {
           )}
 
           {/* Pagination */}
-          {filteredCards.length > 0 && (
+          {filteredCards.length > cardsPerPage && (
             <div className="mt-8 flex justify-center">
               <Pagination
                 currentPage={currentPage}

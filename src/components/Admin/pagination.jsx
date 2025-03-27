@@ -2,8 +2,6 @@ import React from "react";
 import backIcon from "../../assets/icons/back-icon.svg";
 import nextIcon from "../../assets/icons/next-icon.svg";
 
-
-
 const Pagination = ({
   currentPage,
   totalItems,

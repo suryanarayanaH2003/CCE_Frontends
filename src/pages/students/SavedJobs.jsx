@@ -5,7 +5,6 @@ import ApplicationCard from "../../components/Students/ApplicationCard";
 import Cookies from "js-cookie";
 import { FiSearch } from "react-icons/fi";
 import { FaCaretLeft, FaCaretRight } from "react-icons/fa";
-import { base_url } from "../../App";
 
 export default function SavedJobs() {
   const [savedJobs, setSavedJobs] = useState([]);
@@ -16,6 +15,7 @@ export default function SavedJobs() {
   const [filter, setFilter] = useState("Still Open");
   const [error, setError] = useState("");
   const [userRole, setUserRole] = useState(null);
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
   const [currentSelected, setCurrentSelected] = useState("jobs");
 
   useEffect(() => {
@@ -24,7 +24,7 @@ export default function SavedJobs() {
         const token = Cookies.get("jwt");
         const userId = JSON.parse(atob(token.split(".")[1])).student_user;
         const response = await axios.get(
-          `${base_url}/api/saved-jobs/${userId}/`
+          `${API_BASE_URL}/api/saved-jobs/${userId}/`
         );
 
         // Access the jobs array within the response data
@@ -51,7 +51,7 @@ export default function SavedJobs() {
         const token = Cookies.get("jwt");
         const userId = JSON.parse(atob(token.split(".")[1])).student_user;
         const response = await axios.get(
-          `${base_url}/api/saved-internships/${userId}/`
+          `${API_BASE_URL}/api/saved-internships/${userId}/`
         );
 
         // Access the jobs array within the response data

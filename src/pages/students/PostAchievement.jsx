@@ -128,7 +128,7 @@
 //       }
 
 //       const response = await axios.post(
-//         `${base_url}/api/studentachievement/`,
+//         "http://localhost:8000/api/studentachievement/",
 //         formDataObj,
 //         {
 //           headers: {
@@ -302,6 +302,7 @@
 //   );
 // }
 
+"use client";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
@@ -310,9 +311,9 @@ import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import StudentPageNavbar from "../../components/Students/StudentPageNavbar";
-import { base_url } from "../../App";
 
 export default function StudentAchievementPostForm() {
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -447,7 +448,7 @@ export default function StudentAchievementPostForm() {
       }
 
       const response = await axios.post(
-        `${base_url}/api/studentachievement/`,
+        `${API_BASE_URL}/api/studentachievement/`,
         formDataObj,
         {
           headers: {

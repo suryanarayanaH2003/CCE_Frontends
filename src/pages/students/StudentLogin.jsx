@@ -7,7 +7,6 @@ import LoginCard from "../../components/Cards/LoginCard";
 import ForgotPasswordCard from "../../components/Cards/ForgotPasswordCard";
 import ResetPasswordCard from "../../components/Cards/ResetPasswordCard";
 import { AppPages } from "../../utils/constants"; 
-import { base_url } from "../../App";
 
 export default function StudentLogin() {
     const [formData, setFormData] = useState({
@@ -24,6 +23,7 @@ export default function StudentLogin() {
     const [isLocked, setIsLocked] = useState(false);
     const [lockoutTime, setLockoutTime] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
     const navigate = useNavigate();
 
     // Timer for lockout countdown
@@ -46,7 +46,7 @@ export default function StudentLogin() {
         setIsLoading(true);
     
         try {
-            const response = await fetch(`${base_url}/api/stud/login/`, {
+            const response = await fetch(`${API_BASE_URL}/api/stud/login/`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -81,7 +81,7 @@ export default function StudentLogin() {
     const handleGoogleSuccess = async (credentialResponse) => {
         setIsLoading(true);
         try {
-            const response = await fetch(`${base_url}/api/student/google/login/`, {
+            const response = await fetch(`${API_BASE_URL}/api/student/google/login/`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -141,7 +141,7 @@ export default function StudentLogin() {
         const email = formData.email;
     
         try {
-            const response = await fetch(`${base_url}/api/student-forgot-password/`, {
+            const response = await fetch(`${API_BASE_URL}/api/student-forgot-password/`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -173,7 +173,7 @@ export default function StudentLogin() {
         const { email, token } = formData;
 
         try {
-            const response = await fetch(`${base_url}/api/student-verify-otp/`, {
+            const response = await fetch(`${API_BASE_URL}/api/student-verify-otp/`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -206,7 +206,7 @@ export default function StudentLogin() {
         }
 
         try {
-            const response = await fetch(`${base_url}/api/student-reset-password/`, {
+            const response = await fetch(`${API_BASE_URL}/api/student-reset-password/`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -241,6 +241,8 @@ export default function StudentLogin() {
                 <ForgotPasswordCard
                     page={AppPages.forgotPassword}
                     formData={formData}
+                    otpSent={otpSent}
+                    setOtpSent={setOtpSent}
                     formDataSetter={setFormData}
                     onSubmit={handleForgotPasswordSubmit}
                     onResendOTP={handleForgotPasswordSubmit}

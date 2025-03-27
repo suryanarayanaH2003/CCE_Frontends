@@ -9,7 +9,8 @@ import InternshipTable from "../../components/SuperAdmin/ManagementTable/Interns
 import ExamTable from "../../components/SuperAdmin/ManagementTable/ExamTable";
 import { LoaderContext } from "../../components/Common/Loader";
 import { toast, ToastContainer } from "react-toastify";
-import { base_url } from "../../App";
+import DesktopOnly from "../../components/Common/DesktopOnly";
+
 export default function MailPage() {
   const [jobs, setJobs] = useState([]);
   const [achievements, setAchievements] = useState([]);
@@ -22,12 +23,14 @@ export default function MailPage() {
   const [autoApproval, setAutoApproval] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [feedback, setFeedback] = useState("");
+  const [feedbackError, setFeedbackError] = useState("");
   const [rejectedItemId, setRejectedItemId] = useState(null);
   const [rejectedItemType, setRejectedItemType] = useState(null);
   const [visibleSection, setVisibleSection] = useState("jobs");
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 8;
+  const itemsPerPage = 10;
   const navigate = useNavigate();
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
   const token = Cookies.get("jwt");
   const { isLoading, setIsLoading } = useContext(LoaderContext);
 
@@ -59,10 +62,10 @@ export default function MailPage() {
         };
 
         const [jobsRes, achievementsRes, internshipsRes, examsRes] = await Promise.all([
-          axios.get(`${base_url}/api/jobs`, config),
-          axios.get(`${base_url}/api/achievements/`, config),
-          axios.get(`${base_url}/api/internship/`, config),
-          axios.get(`${base_url}/api/exams/`, config),
+          axios.get(`${API_BASE_URL}/api/jobs`, config),
+          axios.get(`${API_BASE_URL}/api/achievements/`, config),
+          axios.get(`${API_BASE_URL}/api/internship/`, config),
+          axios.get(`${API_BASE_URL}/api/exams/`, config),
         ]);
 
         setJobs(jobsRes.data.jobs);
@@ -83,7 +86,7 @@ export default function MailPage() {
   useEffect(() => {
     const fetchAutoApproval = async () => {
       try {
-        const response = await axios.get(`${base_url}/api/get-auto-approval-status/`, {
+        const response = await axios.get(`${API_BASE_URL}/api/get-auto-approval-status/`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setAutoApproval(response.data.is_auto_approval);
@@ -97,7 +100,7 @@ export default function MailPage() {
   const toggleAutoApproval = async () => {
     try {
       await axios.post(
-        `${base_url}/api/toggle-auto-approval/`,
+        `${API_BASE_URL}/api/toggle-auto-approval/`,
         { is_auto_approval: !autoApproval },
         {
           headers: {
@@ -123,12 +126,12 @@ export default function MailPage() {
     try {
       const endpoint =
         type === "job"
-          ? `${base_url}/api/review-job/${id}/`
+          ? `${API_BASE_URL}/api/review-job/${id}/`
           : type === "achievement"
-          ? `${base_url}/api/review-achievement/${id}/`
+          ? `${API_BASE_URL}/api/review-achievement/${id}/`
           : type === "internship"
-          ? `${base_url}/api/review-internship/${id}/`
-          : `${base_url}/api/review-exam/${id}/`;
+          ? `${API_BASE_URL}/api/review-internship/${id}/`
+          : `${API_BASE_URL}/api/review-exam/${id}/`;
 
       const response = await axios.post(
         endpoint,
@@ -181,20 +184,19 @@ export default function MailPage() {
     try {
       const endpoint =
         type === "job"
-          ? `${base_url}/api/job-delete/${id}/`
+          ? `${API_BASE_URL}/api/job-delete/${id}/`
           : type === "achievement"
-          ? `${base_url}/api/delete-achievement/${id}/`
+          ? `${API_BASE_URL}/api/delete-achievement/${id}/`
           : type === "internship"
-          ? `${base_url}/api/internship-delete/${id}/`
-          : `${base_url}/api/exam-delete/${id}/`;
-
+          ? `${API_BASE_URL}/api/internship-delete/${id}/`
+          : `${API_BASE_URL}/api/exam-delete/${id}/`;
+  
       const response = await axios.delete(endpoint, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      toast.success(response.data.message);
-
+  
       if (type === "job") {
         setJobs((prev) => prev.filter((job) => job._id !== id));
       } else if (type === "achievement") {
@@ -204,6 +206,8 @@ export default function MailPage() {
       } else {
         setExams((prev) => prev.filter((exam) => exam._id !== id));
       }
+  
+      toast.success(response.data.message);
     } catch (err) {
       console.error(`Error deleting ${type}:`, err);
       toast.error(`Failed to delete ${type}.`);
@@ -212,13 +216,13 @@ export default function MailPage() {
 
   const handleView = (id, type) => {
     if (type === "job") {
-      navigate(`/job-edit/${id}`);
+      navigate(`/job-preview/${id}`);
     } else if (type === "achievement") {
-      navigate(`/achievement-edit/${id}`);
+      navigate(`/achievement-preview/${id}`);
     } else if (type === "internship") {
-      navigate(`/internship-edit/${id}`);
+      navigate(`/internship-preview/${id}`);
     } else {
-      navigate(`/exam-edit/${id}`);
+      navigate(`/exam-preview/${id}`);
     }
   };
 
@@ -255,6 +259,11 @@ export default function MailPage() {
         : type === "internship"
         ? selectedInternships
         : selectedExams;
+    
+    if (ids.length === 0) {
+      toast.warn(`No ${type}s selected for approval.`);
+      return;
+    }
 
     try {
       const promises = ids.map((id) => handleAction(id, "approve", type));
@@ -276,6 +285,11 @@ export default function MailPage() {
         ? selectedInternships
         : selectedExams;
 
+    if (ids.length === 0) {
+      toast.warn(`No ${type}s selected for approval.`);
+      return;
+    }
+
     if (window.confirm(`Are you sure you want to delete all selected ${type}s?`)) {
       try {
         const promises = ids.map((id) => handleDelete(id, type));
@@ -289,9 +303,14 @@ export default function MailPage() {
   };
 
   const handleFeedbackSubmit = async () => {
+    if (!feedback.trim()) {
+      toast.warn("Please fill in the feedback.");
+      return;
+    }
+  
     try {
       const response = await axios.post(
-        `${base_url}/api/submit-feedback/`,
+        `${API_BASE_URL}/api/submit-feedback/`,
         {
           item_id: rejectedItemId,
           item_type: rejectedItemType,
@@ -309,7 +328,8 @@ export default function MailPage() {
       setFeedback("");
       setRejectedItemId(null);
       setRejectedItemType(null);
-
+      setFeedbackError("");
+  
       if (rejectedItemType === "job") {
         setJobs((prev) =>
           prev.map((job) =>
@@ -362,6 +382,7 @@ export default function MailPage() {
         </h1>
 
         <ToastContainer />
+        <DesktopOnly />
 
         {visibleSection === "jobs" && (
           <JobTable
@@ -446,7 +467,7 @@ export default function MailPage() {
 
       {showModal && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white p-6 rounded-lg w-full max-w-md">
+          <div className="bg-white p-6 rounded-lg w-full ml-70 max-w-md">
             <h2 className="text-xl font-bold mb-4">Provide Feedback</h2>
             <textarea
               className="w-full p-2 border border-gray-300 rounded mb-4"
@@ -454,15 +475,16 @@ export default function MailPage() {
               value={feedback}
               onChange={(e) => setFeedback(e.target.value)}
             ></textarea>
+            {feedbackError && <p className="text-red-500 mb-4">{feedbackError}</p>}
             <div className="flex justify-end">
               <button
-                className="px-4 py-2 bg-red-500 text-white rounded mr-2"
+                className="px-4 py-2 hover:bg-red-50 border border-red text-red-800 rounded mr-2"
                 onClick={() => setShowModal(false)}
               >
                 Cancel
               </button>
               <button
-                className="px-4 py-2 bg-green-500 text-white rounded"
+                className="px-4 py-2 hover:bg-green-50 border border-green text-green-800 rounded"
                 onClick={handleFeedbackSubmit}
               >
                 Submit

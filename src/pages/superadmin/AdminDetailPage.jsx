@@ -12,13 +12,14 @@ import Loginpng from "../../assets/icons/mdi_recent.png";
 import EmailPng from "../../assets/icons/material-symbols_mail-outline.png";
 import PhonePng from "../../assets/icons/Vector.png";
 import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
-import { base_url } from "../../App";
+
 const AdminProfile = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const [editMode, setEditMode] = useState(false);
   const [admin, setAdmin] = useState(null);
   const [loading, setLoading] = useState(true);
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
   const [error, setError] = useState(null);
   const [editedName, setEditedName] = useState("");
   const [editableAdmin, setEditableAdmin] = useState({});
@@ -69,7 +70,7 @@ const AdminProfile = () => {
   
   
     try {
-      const response = await axios.post(`${base_url}/api/admin-status/${id}/`, {
+      const response = await axios.post(`${API_BASE_URL}/api/admin-status/${id}/`, {
         status: newStatus,
       });
   
@@ -98,7 +99,7 @@ const AdminProfile = () => {
             return;
           }
 
-          const response = await axios.get(`${base_url}/api/get-admin/${id}/`);
+          const response = await axios.get(`${API_BASE_URL}/api/get-admin/${id}/`);
           const adminData = response.data.data;
 
           setAdmin(adminData);
@@ -120,7 +121,7 @@ const AdminProfile = () => {
           if (!token) return;
 
           // Fetch jobs and internships
-          const jobsResponse = await axios.get(`${base_url}/api/get-items/${id}/`, {
+          const jobsResponse = await axios.get(`${API_BASE_URL}/api/get-items/${id}/`, {
             headers: {
               Authorization: `Bearer ${token}`,
             },
@@ -237,12 +238,12 @@ const AdminProfile = () => {
         department: editableAdmin.department,
       };
 
-      await axios.put(`${base_url}/api/update-admin/${id}/`, updatedData);
+      await axios.put(`${API_BASE_URL}/api/update-admin/${id}/`, updatedData);
 
       setEditMode(false);
       setShowAdminPopup(false); // Hide pop-up after saving
       // Refresh admin data
-      const response = await axios.get(`${base_url}/api/get-admin/${id}/`);
+      const response = await axios.get(`${API_BASE_URL}/api/get-admin/${id}/`);
       setAdmin(response.data.data);
     } catch (error) {
       console.error("Error updating profile:", error);
@@ -355,6 +356,13 @@ const AdminProfile = () => {
 
   // Check if admin status is active
   const isActive = admin?.status === "Active";
+
+  const truncateString = (str, num) => {
+    if (str.length <= num) {
+      return str;
+    }
+    return str.slice(0, num) + '...';
+  };
 
   return (
     <div className="flex min-h-screen w-full">
@@ -570,7 +578,7 @@ const AdminProfile = () => {
                             {item.title}
                           </td>
                           <td className="px-3 md:px-6 py-2 md:py-4 whitespace-nowrap text-xs md:text-sm text-gray-500">
-                            {item.company}
+                            {truncateString(item.company,10)}
                           </td>
                           <td className="px-3 md:px-6 py-2 md:py-4 whitespace-nowrap text-xs md:text-sm text-gray-500">
                             {item.posted_date}

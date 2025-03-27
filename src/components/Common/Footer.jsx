@@ -7,7 +7,6 @@ import InstagramIcon from "../../assets/icons/Instagram.png";
 import TwitterXIcon from "../../assets/icons/TwitterX.png";
 import SnsIcon from "../../assets/images/SNS Group Logo 1.png";
 
-
 const Footer = () => {
   const categories = {
     Home: [
@@ -196,7 +195,7 @@ const Footer = () => {
                       <li key={index}>
                         <Link
                           to={item.link}
-                          className="text-xs relative group cursor-pointer"
+                          className="text-md relative group cursor-pointer"
                         >
                           <span className="transition-colors duration-200 hover:text-gray-700">
                             {item.name}

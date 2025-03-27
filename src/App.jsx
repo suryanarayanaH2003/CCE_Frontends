@@ -51,10 +51,11 @@ import ExamDashboard from "./pages/common/ExamDashboard";
 import AdminInbox from "./pages/admin/Admininbox";
 import ExamPreview from "./pages/students/ExamPreview";
 import StudentRegister from "./pages/superadmin/StudentRegister";
+import AppliedStudents from "./pages/admin/AppliedStudents";
 
 
 
-export const base_url = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -99,10 +100,11 @@ function App() {
         <Route path="/home" element={<ProtectedRoute> <HomeDashboard /> </ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute> <Profile /> </ProtectedRoute>} />
         <Route path="/achievements" element={ <ProtectedRoute> <AchievementDashboard /> </ProtectedRoute>} />
-        <Route path="/contact" element= {<ProtectedRoute><ContactForm /> </ProtectedRoute>} />
+        <Route path="/contact" element= {<ProtectedRoute> <ContactForm /> </ProtectedRoute>} />
         <Route path="/student/mail" element={<ProtectedRoute> <StudentMail /> </ProtectedRoute>} />
         <Route path="/job-preview/:id" element={<JobPreview />} />
         <Route path="/internship-preview/:id" element={<InternshipPreview />} />
+        <Route path="/applied-students/:entityType/:entityId" element={<AppliedStudents />} />
       
         <Route path="/studentachievement" element= {<ProtectedRoute><StudentAchievementPostForm /> </ProtectedRoute>} />
         <Route path="/saved-jobs" element={<ProtectedRoute> <SavedJobs /> </ProtectedRoute>} />

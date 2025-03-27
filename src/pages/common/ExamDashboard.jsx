@@ -11,7 +11,6 @@ import Pagination from "../../components/Admin/pagination";
 import { FiSearch } from "react-icons/fi";
 import { LoaderContext } from "../../components/Common/Loader";
 import NoListingImage from "../../assets/images/NoListing.svg"; // Import the image
-import { base_url } from "../../App";
 
 export default function ExamDashboard() {
   const [exams, setExams] = useState([]);
@@ -24,6 +23,7 @@ export default function ExamDashboard() {
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 12;
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
   const [selectedFilter, setSelectedFilter] = useState("");
   const filters = ["Newest", "Oldest"];
 
@@ -47,14 +47,20 @@ export default function ExamDashboard() {
     }
   }, []);
 
-  // Fetch published exams
   useEffect(() => {
     const fetchPublishedExams = async () => {
       try {
         setIsLoading(true);
-        const response = await axios.get(
-          `${base_url}/api/published-exams/`
-        );
+        const token = Cookies.get("jwt");
+        const endpoint =
+          userRole === "admin"
+            ? `${API_BASE_URL}/api/manage-exams/`
+          : `${API_BASE_URL}/api/published-exams/`;
+        const response = await axios.get(endpoint, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         const examsWithType = response.data.exams
           .filter(
             (exam, index, self) =>
@@ -78,11 +84,16 @@ export default function ExamDashboard() {
       } catch (err) {
         console.error("Error fetching published exams:", err);
         setError("Failed to load exams.");
+        setIsLoading(false);
       }
     };
-    fetchPublishedExams();
-  }, []);
 
+    if (userRole) {
+      fetchPublishedExams();
+    }
+  }, [userRole, setIsLoading]);
+
+  
   // Set user role
   useEffect(() => {
     const token = Cookies.get("jwt");
@@ -97,7 +108,7 @@ export default function ExamDashboard() {
       const token = Cookies.get("jwt");
       const userId = JSON.parse(atob(token.split(".")[1])).student_user;
       const response = await axios.get(
-        `${base_url}/api/saved-exams/${userId}/`
+        `${API_BASE_URL}/api/saved-exams/${userId}/`
       );
       setSavedExams(response.data.exams.map((exam) => exam._id));
     } catch (err) {
@@ -196,14 +207,13 @@ export default function ExamDashboard() {
     <div className="sm:flex">
       {userRole === "admin" && <AdminPageNavbar />}
       {userRole === "superadmin" && <SuperAdminPageNavbar />}
-      <div className="flex flex-col flex-1">
+      <div className="flex flex-col bg-gray-50 flex-1">
         {userRole === "student" && <StudentPageNavbar />}
 
-        <header className="flex flex-col items-center justify-center py-8 px-4 sm:py-14 container mx-auto text-center">
-          <p className="text-3xl sm:text-6xl tracking-[0.8px]">Exams</p>
+        <header className="flex flex-col items-center justify-center py-8 px-4 sm:py-12 container mx-auto text-center">
+          <p className="text-3xl font-semibold sm:text-6xl tracking-[0.8px]">Exams</p>
           <p className="text-base sm:text-lg mt-2">
-            Explore all the upcoming exams and opportunities <br />
-            to advance your career.
+            Explore all the upcoming exams and opportunities to advance your career.
           </p>
         </header>
 
@@ -249,7 +259,7 @@ export default function ExamDashboard() {
               {error ? (
                 <p className="text-red-600">{error}</p>
               ) : exams.length === 0 ? (
-                <div className="alert alert-danger w-full col-span-full text-center flex flex-col items-center">
+                <div className="mt-30 alert alert-danger w-full col-span-full text-center flex flex-col items-center">
                   <img src={NoListingImage} alt="No Listings" className="mb-4" />
                 </div>
               ) : currentExams.length === 0 ? (

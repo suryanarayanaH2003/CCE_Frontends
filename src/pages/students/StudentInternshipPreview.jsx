@@ -7,7 +7,6 @@ import StudentPageNavbar from "../../components/Students/StudentPageNavbar";
 import { FaBuilding, FaBriefcase, FaMapMarkerAlt, FaGraduationCap, FaUserTie } from "react-icons/fa";
 import { RiMoneyRupeeCircleFill } from "react-icons/ri";
 import { formatDate } from "date-fns";
-import { base_url } from "../../App";
 
 const InternshipPreview = () => {
     const { id } = useParams();
@@ -41,7 +40,7 @@ const InternshipPreview = () => {
     }, []);
 
     useEffect(() => {
-        fetch(`${base_url}/api/internship/${id}/`)
+        fetch(`http://127.0.0.1:8000/api/internship/${id}/`)
             .then((response) => response.json())
             .then((data) => setInternship(data.internship))
             .catch((error) => console.error("Error fetching internship:", error));

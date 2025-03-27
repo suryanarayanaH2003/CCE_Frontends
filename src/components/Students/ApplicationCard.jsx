@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { FiBookmark, FiMapPin, FiEye, FiClock } from "react-icons/fi";
 import Cookies from "js-cookie";
 import axios from "axios";
-import { base_url } from "../../App";
 
 function timeAgo(dateString) {
   const givenDate = new Date(dateString);
@@ -54,6 +53,7 @@ export default function ApplicationCard({
   const [userId, setUserId] = useState(null);
   const [isSaved, setIsSaved] = useState(initialIsSaved);
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
   const [viewCount, setViewCount] = useState(formatViewCount(application.views ? application.views : 0)); 
 
   useEffect(() => {
@@ -83,7 +83,7 @@ export default function ApplicationCard({
 
     try {
       const jobId = application._id || application.id;
-      await axios.post(`${base_url}/api/increment-view-count/${jobId}/`, {
+      await axios.post(`${API_BASE_URL}/api/increment-view-count/${jobId}/`, {
         student_id: userId, // Include the student's ObjectId in the request payload
       });
 
@@ -113,16 +113,16 @@ export default function ApplicationCard({
 
       if (application.type === "exam") {
         endpoint = isSaved
-          ? `${base_url}/api/unsave-exam/${jobId}/`
-          : `${base_url}/api/save-exam/${jobId}/`;
+          ? `${API_BASE_URL}/api/unsave-exam/${jobId}/`
+          : `${API_BASE_URL}/api/save-exam/${jobId}/`;
       } else if (application.type === "internship") {
         endpoint = isSaved
-          ? `${base_url}/api/unsave-internship/${jobId}/`
-          : `${base_url}/api/save-internship/${jobId}/`;
+          ? `${API_BASE_URL}/api/unsave-internship/${jobId}/`
+          : `${API_BASE_URL}/api/save-internship/${jobId}/`;
       } else {
         endpoint = isSaved
-          ? `${base_url}/api/unsave-job/${jobId}/`
-          : `${base_url}/api/save-job/${jobId}/`;
+          ? `${API_BASE_URL}/api/unsave-job/${jobId}/`
+          : `${API_BASE_URL}/api/save-job/${jobId}/`;
       }
 
       const response = await axios.post(endpoint, {

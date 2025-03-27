@@ -1,3 +1,4 @@
+"use client";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
@@ -6,7 +7,6 @@ import StudentPageNavbar from "../../components/Students/StudentPageNavbar";
 import AdminPageNavbar from "../../components/Admin/AdminNavBar";
 import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
 import Footer from "../../components/Common/Footer";
-import { base_url } from "../../App";
 import {
   FaBriefcase,
   FaMapMarkerAlt,
@@ -34,11 +34,12 @@ import {
   FaListOl,
 } from "react-icons/fa";
 import { RiEdit2Fill } from "react-icons/ri";
-import { PiBuildingOfficeBold } from "react-icons/pi";
+import { PiBuildingOfficeBold, PiStudentBold } from "react-icons/pi";
 import { FaUserGraduate } from "react-icons/fa";
 import { IoIosCheckmarkCircleOutline } from "react-icons/io";
 import { MdWorkOutline } from "react-icons/md";
 import { GrCertificate } from "react-icons/gr";
+import { toast } from "react-toastify";
 import { GrUserManager } from "react-icons/gr";
 import { MdPunchClock } from "react-icons/md";
 import { FaUserClock } from "react-icons/fa";
@@ -70,6 +71,8 @@ const JobPreview = () => {
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [publishedJobs, setPublishedJobs] = useState([]);
   const [loadingJobs, setLoadingJobs] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
   const navigate = useNavigate(); // Initialize useNavigate
 
   useEffect(() => {
@@ -93,7 +96,7 @@ const JobPreview = () => {
 
   useEffect(() => {
     setLoading(true);
-    fetch(`${base_url}/api/job/${id}/`)
+    fetch(`${API_BASE_URL}/api/job/${id}/`)
       .then((response) => response.json())
       .then((data) => {
         setJob(data.job);
@@ -110,7 +113,7 @@ const JobPreview = () => {
       setLoadingJobs(true);
       try {
         const response = await axios.get(
-          `${base_url}/api/published-jobs/`
+          `${API_BASE_URL}/api/published-jobs/`
         );
         const jobsData = Array.isArray(response.data)
           ? response.data
@@ -132,15 +135,15 @@ const JobPreview = () => {
 
   useEffect(() => {
     if (location.state?.savedJobs) {
-        setSavedJobs(location.state.savedJobs);
+      setSavedJobs(location.state.savedJobs);
     }
-}, [location.state]);
+  }, [location.state]);
 
   useEffect(() => {
     if (savedJobs.includes(id)) {
-        setSaved(true);   // Job is saved
+      setSaved(true); // Job is saved
     } else {
-        setSaved(false);  // Job is not saved
+      setSaved(false); // Job is not saved
     }
   }, [id, savedJobs]);
 
@@ -148,7 +151,7 @@ const JobPreview = () => {
     try {
       const token = Cookies.get("jwt");
       const userId = JSON.parse(atob(token.split(".")[1])).student_user;
-      await axios.post(`${base_url}/api/apply-job/`, {
+      await axios.post(`${API_BASE_URL}/api/apply-job/`, {
         studentId: userId,
         jobId: id,
       });
@@ -163,70 +166,80 @@ const JobPreview = () => {
   };
 
   const handleSaveJob = async () => {
-
     try {
-        if (!userId) {
-            console.error("User ID is not available");
-            return;
-        }
+      if (!userId) {
+        console.error("User ID is not available");
+        return;
+      }
 
-        // Check if the job is already saved
-        const isJobSaved = savedJobs.includes(id);
+      // Check if the job is already saved
+      const isJobSaved = savedJobs.includes(id);
 
-        const endpoint = isJobSaved
-            ? `${base_url}/api/unsave-job/${id}/`
-            : `${base_url}/api/save-job/${id}/`;
+      const endpoint = isJobSaved
+        ? `${API_BASE_URL}/api/unsave-job/${id}/`
+        : `${API_BASE_URL}/api/save-job/${id}/`;
 
-        const response = await axios.post(endpoint, { userId });
+      const response = await axios.post(endpoint, { userId });
 
-        if (response.status === 200) {
-            // Update savedJobs array in state
-            const updatedJobs = isJobSaved
-                ? savedJobs.filter((jobId) => jobId !== id) // Remove if unsaved
-                : [...savedJobs, id];                       // Add if saved
-            
-            setSavedJobs(updatedJobs); // Update state
-            setSaved(!isJobSaved);     // Toggle saved state
-            setShowSaveSuccess(true);  // Show success message
+      if (response.status === 200) {
+        // Update savedJobs array in state
+        const updatedJobs = isJobSaved
+          ? savedJobs.filter((jobId) => jobId !== id) // Remove if unsaved
+          : [...savedJobs, id]; // Add if saved
 
-            setTimeout(() => {
-                setShowSaveSuccess(false);
-            }, 2000);
-        }
+        setSavedJobs(updatedJobs); // Update state
+        setSaved(!isJobSaved); // Toggle saved state
+        setShowSaveSuccess(true); // Show success message
+
+        setTimeout(() => {
+          setShowSaveSuccess(false);
+        }, 2000);
+      }
     } catch (error) {
-        console.error("Error saving/unsaving job:", error);
-        if (error.response) {
-            console.error("Server response:", error.response.data);
-        }
+      console.error("Error saving/unsaving job:", error);
+      if (error.response) {
+        console.error("Server response:", error.response.data);
+      }
     }
-};
-
+  };
 
   const handleCardClick = (jobId) => {
     window.location.href = `/job-preview/${jobId}`;
   };
+  const truncateString = (str, num) => {
+    if (str.length <= num) {
+      return str;
+    }
+    return str.slice(0, num) + '...';
+  };
 
   const handleDelete = () => {
     if (window.confirm("Are you sure you want to delete this job?")) {
-      fetch(`${base_url}/api/job-delete/${id}/`, {
+      fetch(`${API_BASE_URL}/api/job-delete/${id}/`, {
         method: "DELETE",
       })
         .then((response) => {
           if (response.ok) {
-            // Redirect based on the user role
-            if (userRole === "admin") {
-              navigate("/jobs");
-            } else if (userRole === "superadmin") {
-              navigate("/jobs");
-            }
+            toast.success("Job deleted successfully.");
+            setTimeout(() => {
+              // Redirect based on the user role
+              if (userRole === "admin") {
+                navigate("/jobs");
+              } else if (userRole === "superadmin") {
+                navigate("/jobs");
+              }
+            }, 2000); // Delay navigation to allow the toast message to be seen
           } else {
             console.error("Error deleting job:", response.statusText);
+            toast.error("Failed to delete job.");
           }
         })
-        .catch((error) => console.error("Error deleting job:", error));
+        .catch((error) => {
+          console.error("Error deleting job:", error);
+          toast.error("Failed to delete job.");
+        });
     }
   };
-
   const handleEditJob = () => {
     navigate("/jobpost", { state: { job, id } }); // Navigate to job post page with job details
   };
@@ -237,6 +250,9 @@ const JobPreview = () => {
         {userRole === "admin" && <AdminPageNavbar />}
         {userRole === "superadmin" && <SuperAdminPageNavbar />}
         {userRole === "student" && <StudentPageNavbar />}
+        <div className="flex-grow flex items-center justify-center">
+          <div className="animate-pulse text-xl text-gray-600">Loading...</div>
+        </div>
       </div>
     );
   }
@@ -271,6 +287,42 @@ const JobPreview = () => {
     );
   }
 
+  const ImageModal = ({ imageSrc, onClose }) => {
+    const handleDownload = () => {
+      // Create a temporary anchor element
+      const link = document.createElement("a");
+      link.href = imageSrc;
+      link.download = "image.jpg"; // Set the default filename
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    };
+
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 z-50">
+        <div className="relative w-3/4 h-3/4 max-w-4xl max-h-4xl">
+          <button
+            className="absolute top-4 right-4 text-white text-3xl bg-gray-800 rounded-full p-2"
+            onClick={onClose}
+          >
+            &times;
+          </button>
+          <img
+            src={imageSrc}
+            alt="Preview"
+            className="w-full h-full object-contain rounded-lg"
+          />
+          <button
+            onClick={handleDownload}
+            className="absolute right-4 left-1/2 transform -translate-x-1/2 text-black bg-yellow-500 hover:bg-yellow-600 px-4 py-2 rounded-lg text-lg"
+          >
+            Download
+          </button>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
       {userRole === "admin" && <AdminPageNavbar />}
@@ -280,17 +332,16 @@ const JobPreview = () => {
       {showApplySuccess && (
         <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 bg-green-100 border border-green-200 text-green-800 px-6 py-3 rounded-lg shadow-lg flex items-center">
           <FaCheck className="mr-2" />
-          Application submitted successfully! Redirecting...
+          Redirecting...
         </div>
       )}
 
       {showSaveSuccess && (
         <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 bg-green-100 border border-green-200 text-green-800 px-6 py-3 rounded-lg shadow-lg flex items-center">
           <FaCheck className="mr-2" />
-          Job saved successfully!
+          {saved ? "Job saved successfully!" : "Job unsaved !"}
         </div>
       )}
-
       <div
         className={`flex-grow p-4 sm:p-6 max-w-8xl mx-auto w-full ${
           userRole === "admin" || userRole === "superadmin"
@@ -313,19 +364,24 @@ const JobPreview = () => {
                   }}
                   className="p-6 border-b md:border-b-0 md:border-r border-gray-200 bg-gray-50 flex items-center justify-center"
                 >
-                  <img
-                    src={
-                      job.job_data.image
-                        ? `data:image/jpeg;base64,${job.job_data.image}`
-                        : placeholderImage
-                    }
-                    alt={`${job.job_data.company_name} logo`}
-                    className="max-w-full max-h-80 object-contain rounded-lg"
-                    onError={(e) => {
-                      e.target.onerror = null;
-                      e.target.src = placeholderImage;
-                    }}
-                  />
+                  <div className="w-80 h-80 flex items-center justify-center">
+                    {job.job_data.image ? (
+                      <img
+                        src={`data:image/jpeg;base64,${job.job_data.image}`}
+                        alt={`${job.job_data.company_name} logo`}
+                        className="max-w-full max-h-full object-contain rounded-lg"
+                        onClick={() => setIsModalOpen(true)}
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = placeholderImage; // Fallback only if image fails
+                        }}
+                      />
+                    ) : (
+                      <h1 className="text-6xl font-bold text-center">
+                        {truncateString(job.job_data.company_name,30)}
+                      </h1>
+                    )}
+                  </div>
                 </div>
                 <div className="p-6 relative">
                   <img
@@ -339,55 +395,18 @@ const JobPreview = () => {
                       {job.job_data.title}
                     </h1>
                   </div>
-                  {/* <p className="relative z-10 text-lg sm:text-xl text-gray-600 mb-4 flex items-center">
-                    <FaBuilding className="mr-2 text-gray-500" />
-                    {job.job_data.company_name}
-                  </p> */}
                   <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                     <div className="flex items-center">
-                      <div className="font-bold text-gray-800 mr-5">
+                      <div className="font-bold text-gray-800 mr-3">
                         {/* <FaMapMarkerAlt className="text-gray-600" /> */}
-                        Company Name :
+                        Location :
                       </div>
                       <span className="text-gray-700 capitalize">
                         {job.job_data.job_location}
                       </span>
                     </div>
-                    {/* <div className="flex items-center">
-                      <div className="bg-gray-100 p-2 rounded-full mr-3">
-                        <FaBriefcase className="text-gray-600" />
-                      </div>
-                      <span className="text-gray-700">
-                        {job.job_data.work_type}
-                      </span>
-                    </div>
-                    <div className="flex items-center">
-                      <div className="bg-gray-100 p-2 rounded-full mr-3">
-                        <FaGraduationCap className="text-gray-600" />
-                      </div>
-                      <span className="text-gray-700">
-                        {job.job_data.education_requirements}
-                      </span>
-                    </div>
-                    <div className="flex items-center">
-                      <div className="bg-gray-100 p-2 rounded-full mr-3">
-                        <FaUserTie className="text-gray-600" />
-                      </div>
-                      <span className="text-gray-700">
-                        {job.job_data.experience_level}
-                      </span>
-                    </div>
-                    <div className="flex items-center">
-                      <div className="bg-gray-100 p-2 rounded-full mr-3">
-                        <FaMoneyBillWave className="text-gray-600" />
-                      </div>
-                      <span className="text-gray-700">
-                        ₹ {job.job_data.salary_range} per annum
-                      </span>
-                    </div> */}
                     <div className="flex items-center">
                       <div className="font-bold text-gray-800 mr-3">
-                        {/* <FaCalendarAlt className="text-gray-600" /> */}
                         Application Deadline :
                       </div>
                       <span className="text-gray-700">
@@ -404,8 +423,8 @@ const JobPreview = () => {
                         userRole === "student"
                           ? "hover:bg-yellow-600"
                           : "opacity-60 cursor-not-allowed"
-                      } 
-                                text-white font-semibold py-3 px-8 rounded-lg transition duration-300 ease-in-out 
+                      }
+                                text-white font-semibold py-3 px-8 rounded-lg transition duration-300 ease-in-out
                                 flex items-center shadow-md ${
                                   userRole === "student" && "hover:shadow-lg"
                                 }`}
@@ -418,26 +437,36 @@ const JobPreview = () => {
                       Apply Now <FaExternalLinkAlt className="ml-2 text-sm" />
                     </button>
                     <button
-                        onClick={userRole === "student" ? handleSaveJob : undefined}
-                        className={`${
-                            saved
-                                ? "bg-gray-100 text-gray-800"
-                                : "border-2 border-gray-300 text-gray-700"
-                        } 
+                      onClick={
+                        userRole === "student" ? handleSaveJob : undefined
+                      }
+                      className={`${
+                        saved
+                          ? "bg-gray-100 text-gray-800"
+                          : "border-2 border-gray-300 text-gray-700"
+                      } 
                         font-semibold py-3 px-8 rounded-lg 
-                        ${userRole === "student" ? "hover:bg-gray-100" : "opacity-60 cursor-not-allowed"}
+                        ${
+                          userRole === "student"
+                            ? "hover:bg-gray-100"
+                            : "opacity-60 cursor-not-allowed"
+                        }
                         transition duration-300 ease-in-out flex items-center justify-center`}
-                        title={userRole !== "student" ? "Only students can save jobs" : ""}
+                      title={
+                        userRole !== "student"
+                          ? "Only students can save jobs"
+                          : ""
+                      }
                     >
-                        {saved ? (
-                            <>
-                                Saved <FaBookmark className="ml-2 text-yellow-500" />
-                            </>
-                        ) : (
-                            <>
-                                Save Job <FaBookmark className="ml-2" />
-                            </>
-                        )}
+                      {saved ? (
+                        <>
+                          Saved <FaBookmark className="ml-2 text-yellow-500" />
+                        </>
+                      ) : (
+                        <>
+                          Save Job <FaBookmark className="ml-2" />
+                        </>
+                      )}
                     </button>
 
                     {(userRole === "admin" || userRole === "superadmin") && (
@@ -458,160 +487,196 @@ const JobPreview = () => {
                         <FaTrash className="ml-2" />
                       </button>
                     ) : null}
+                    {userRole === "admin" || userRole === "superadmin" ? (
+                      <button
+                        onClick={() => navigate(`/applied-students/job/${id}`)}
+                        className="text-gray-800 border-2 border-gray-300 text-gray-700 font-semibold py-3 px-8 rounded-lg hover:bg-gray-100 transition duration-300 ease-in-out flex items-center"
+                      >
+                        Applied students
+                        <PiStudentBold className="ml-2 text-xl" />
+                      </button>
+                    ) : null}
                   </div>
                 </div>
               </div>
             </div>
-            <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100">
-              <div className="p-6">
-                <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center">
-                  <div className="bg-yellow-100 p-2 rounded-full mr-3">
-                    <FaBriefcase className="text-yellow-600" />
-                  </div>
-                  Job Description
-                </h2>
-                <p className="text-gray-700 whitespace-pre-line leading-relaxed text-justify ">
-                  {job.job_data.job_description}
-                </p>
+            {/* Job Description */}
+            {job.job_data.job_description && (
+              <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100">
+                <div className="p-6">
+                  <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center">
+                    <div className="bg-yellow-100 p-2 rounded-full mr-3">
+                      <FaBriefcase className="text-yellow-600" />
+                    </div>
+                    Job Description
+                  </h2>
+                  <p className="text-gray-700 whitespace-pre-line leading-relaxed text-justify">
+                    {job.job_data.job_description}
+                  </p>
+                </div>
               </div>
-            </div>
-            <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100">
-              <div className="p-6">
-                <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center">
-                  <div className="bg-yellow-100 p-2 rounded-full mr-3">
-                    <FaClipboardList className="text-yellow-600" />
+            )}
+            {job.job_data.key_responsibilities &&
+              job.job_data.key_responsibilities.length > 0 && (
+                <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100">
+                  <div className="p-6">
+                    <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center">
+                      <div className="bg-yellow-100 p-2 rounded-full mr-3">
+                        <FaClipboardList className="text-yellow-600" />
+                      </div>
+                      Key Responsibilities
+                    </h2>
+                    <ul className="space-y-3 text-gray-700 text-justify">
+                      {job.job_data.key_responsibilities.map(
+                        (responsibility, index) => (
+                          <li key={index} className="flex items-start">
+                            <span className="inline-flex items-center justify-center bg-yellow-100 text-yellow-800 w-6 h-6 rounded-full mr-3 flex-shrink-0 text-sm text-justify">
+                              {index + 1}
+                            </span>
+                            <span className="leading-relaxed">
+                              {responsibility}
+                            </span>
+                          </li>
+                        )
+                      )}
+                    </ul>
                   </div>
-                  Key Responsibilities
-                </h2>
-                <ul className="space-y-3 text-gray-700 text-justify">
-                  {job.job_data.key_responsibilities.map(
-                    (responsibility, index) => (
-                      <li key={index} className="flex items-start">
-                        <span className="inline-flex items-center justify-center bg-yellow-100 text-yellow-800 w-6 h-6 rounded-full mr-3 flex-shrink-0 text-sm text-justify">
-                          {index + 1}
+                </div>
+              )}
+
+            {job.job_data.technical_skills &&
+              job.job_data.technical_skills.length > 0 && (
+                <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100">
+                  <div className="p-6">
+                    <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center">
+                      <div className="bg-yellow-100 p-2 rounded-full mr-3">
+                        <FaCode className="text-yellow-600" />
+                      </div>
+                      Technical Skills
+                    </h2>
+                    <div className="flex flex-wrap gap-2">
+                      {job.job_data.technical_skills.map((skill, index) => (
+                        <span
+                          key={index}
+                          className="bg-yellow-50 text-gray-800 px-4 py-2 rounded-lg text-sm font-medium border border-yellow-100"
+                        >
+                          {skill}
                         </span>
-                        <span className="leading-relaxed">
-                          {responsibility}
-                        </span>
-                      </li>
-                    )
-                  )}
-                </ul>
-              </div>
-            </div>
-            <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100">
-              <div className="p-6">
-                <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center">
-                  <div className="bg-yellow-100 p-2 rounded-full mr-3">
-                    <FaCode className="text-yellow-600" />
+                      ))}
+                    </div>
                   </div>
-                  Technical Skills
-                </h2>
-                <div className="flex flex-wrap gap-2">
-                  {job.job_data.technical_skills.map((skill, index) => (
-                    <span
-                      key={index}
-                      className="bg-yellow-50 text-gray-800 px-4 py-2 rounded-lg text-sm font-medium border border-yellow-100"
-                    >
-                      {skill}
-                    </span>
-                  ))}
                 </div>
-              </div>
-            </div>
-            <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100">
-              <div className="p-6">
-                <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center">
-                  <div className="bg-yellow-100 p-2 rounded-full mr-3">
-                    <FaPlus className="text-yellow-600" />
+              )}
+
+            {job.job_data.additional_skills &&
+              job.job_data.additional_skills.length > 0 && (
+                <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100">
+                  <div className="p-6">
+                    <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center">
+                      <div className="bg-yellow-100 p-2 rounded-full mr-3">
+                        <FaPlus className="text-yellow-600" />
+                      </div>
+                      Additional Skills
+                    </h2>
+                    <ul className="grid grid-cols-1 md:grid-cols-2 gap-3 text-gray-700">
+                      {job.job_data.additional_skills.map((skill, index) => (
+                        <li key={index} className="flex items-center">
+                          <div className="w-2 h-2 bg-yellow-500 rounded-full mr-3"></div>
+                          {skill}
+                        </li>
+                      ))}
+                    </ul>
                   </div>
-                  Additional Skills
-                </h2>
-                <ul className="grid grid-cols-1 md:grid-cols-2 gap-3 text-gray-700">
-                  {job.job_data.additional_skills.map((skill, index) => (
-                    <li key={index} className="flex items-center">
-                      <div className="w-2 h-2 bg-yellow-500 rounded-full mr-3"></div>
-                      {skill}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-            <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100">
-              <div className="p-6">
-                <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center">
-                  <div className="bg-yellow-100 p-2 rounded-full mr-3">
-                    <FaSmile className="text-yellow-600" />
+                </div>
+              )}
+
+            {job.job_data.soft_skills &&
+              job.job_data.soft_skills.length > 0 && (
+                <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100">
+                  <div className="p-6">
+                    <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center">
+                      <div className="bg-yellow-100 p-2 rounded-full mr-3">
+                        <FaSmile className="text-yellow-600" />
+                      </div>
+                      Soft Skills
+                    </h2>
+                    <ul className="grid grid-cols-1 md:grid-cols-2 gap-3 text-gray-700">
+                      {job.job_data.soft_skills.map((skill, index) => (
+                        <li key={index} className="flex items-center">
+                          <div className="w-2 h-2 bg-yellow-500 rounded-full mr-3"></div>
+                          {skill}
+                        </li>
+                      ))}
+                    </ul>
                   </div>
-                  Soft Skills
-                </h2>
-                <ul className="grid grid-cols-1 md:grid-cols-2 gap-3 text-gray-700">
-                  {job.job_data.soft_skills.map((skill, index) => (
-                    <li key={index} className="flex items-center">
-                      <div className="w-2 h-2 bg-yellow-500 rounded-full mr-3"></div>
-                      {skill}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-            <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100">
-              <div className="p-6">
-                <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center">
-                  <div className="bg-yellow-100 p-2 rounded-full mr-3">
-                    <FaGraduationCap className="text-yellow-600" />
-                  </div>
-                  Education and Experience
-                </h2>
-                <div className="space-y-1">
-                  <div className="flex flex-col sm:flex-row sm:items-center py-2 border-b border-gray-100">
-                    <div className=" flex  items-center font-medium w-full sm:w-1/3 text-gray-600 mb-1 sm:mb-0">
-                      <FaUserGraduate className="inline-block mr-1 text-gray-500" />
-                      Education:
+                </div>
+              )}
+
+            {/* Education and Experience */}
+            {(job.job_data.education_requirements !== "NA" ||
+              job.job_data.minimum_marks_requirement !== "NA" ||
+              job.job_data.work_experience_requirement !== "NA" ||
+              job.job_data.age_limit !== "NA" ||
+              job.job_data.professional_certifications !== "NA") && (
+              <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100">
+                <div className="p-6">
+                  <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center">
+                    <div className="bg-yellow-100 p-2 rounded-full mr-3">
+                      <FaGraduationCap className="text-yellow-600" />
                     </div>
-                    <div className="text-gray-700 w-full sm:w-2/3 bg-gray-50 p-2 rounded">
-                      {job.job_data.education_requirements}
+                    Education and Experience
+                  </h2>
+                  <div className="space-y-1">
+                    <div className="flex flex-col sm:flex-row sm:items-center py-2 border-b border-gray-100">
+                      <div className=" flex  items-center font-medium w-full sm:w-1/3 text-gray-600 mb-1 sm:mb-0">
+                        <FaUserGraduate className="inline-block mr-1 text-gray-500" />
+                        Education:
+                      </div>
+                      <div className="text-gray-700 w-full sm:w-2/3 bg-gray-50 p-2 rounded">
+                        {job.job_data.education_requirements}
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex flex-col sm:flex-row sm:items-center py-2 border-b border-gray-100">
-                    <div className=" flex  items-center font-medium w-full sm:w-1/3 text-gray-600 mb-1 sm:mb-0">
-                      <IoIosCheckmarkCircleOutline className="inline-block mr-1 text-gray-500" />
-                      Minimum Marks:
+                    <div className="flex flex-col sm:flex-row sm:items-center py-2 border-b border-gray-100">
+                      <div className=" flex  items-center font-medium w-full sm:w-1/3 text-gray-600 mb-1 sm:mb-0">
+                        <IoIosCheckmarkCircleOutline className="inline-block mr-1 text-gray-500" />
+                        Minimum Marks:
+                      </div>
+                      <div className="text-gray-700 w-full sm:w-2/3 bg-gray-50 p-2 rounded">
+                        {job.job_data.minimum_marks_requirement}
+                      </div>
                     </div>
-                    <div className="text-gray-700 w-full sm:w-2/3 bg-gray-50 p-2 rounded">
-                      {job.job_data.minimum_marks_requirement}
+                    <div className="flex flex-col sm:flex-row sm:items-center py-2 border-b border-gray-100">
+                      <div className="flex  items-center font-medium w-full sm:w-1/3 text-gray-600 mb-1 sm:mb-0">
+                        <MdWorkOutline className="inline-block mr-1 text-gray-500" />
+                        Experience:
+                      </div>
+                      <div className="text-gray-700 w-full sm:w-2/3 bg-gray-50 p-2 rounded">
+                        {job.job_data.work_experience_requirement}
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex flex-col sm:flex-row sm:items-center py-2 border-b border-gray-100">
-                    <div className="flex  items-center font-medium w-full sm:w-1/3 text-gray-600 mb-1 sm:mb-0">
-                      <MdWorkOutline className="inline-block mr-1 text-gray-500" />
-                      Experience:
+                    <div className="flex flex-col sm:flex-row sm:items-center py-2 border-b border-gray-100">
+                      <div className="flex  items-center font-medium w-full sm:w-1/3 text-gray-600 mb-1 sm:mb-0">
+                        <GrUserManager className="inline-block mr-1 text-gray-500" />
+                        Age Limit:
+                      </div>
+                      <div className="text-gray-700 w-full sm:w-2/3 bg-gray-50 p-2 rounded">
+                        {job.job_data.age_limit}
+                      </div>
                     </div>
-                    <div className="text-gray-700 w-full sm:w-2/3 bg-gray-50 p-2 rounded">
-                      {job.job_data.work_experience_requirement}
-                    </div>
-                  </div>
-                  <div className="flex flex-col sm:flex-row sm:items-center py-2 border-b border-gray-100">
-                    <div className="flex  items-center font-medium w-full sm:w-1/3 text-gray-600 mb-1 sm:mb-0">
-                      <GrUserManager className="inline-block mr-1 text-gray-500" />
-                      Age Limit:
-                    </div>
-                    <div className="text-gray-700 w-full sm:w-2/3 bg-gray-50 p-2 rounded">
-                      {job.job_data.age_limit}
-                    </div>
-                  </div>
-                  <div className="flex flex-col sm:flex-row sm:items-center py-2">
-                    <div className=" flex  items-center font-medium w-full sm:w-1/3 text-gray-600 mb-1 sm:mb-0">
-                      <GrCertificate className="inline-block mr-1 text-gray-500" />
-                      Certifications:
-                    </div>
-                    <div className="text-gray-700 w-full sm:w-2/3 bg-gray-50 p-2 rounded">
-                      {job.job_data.professional_certifications}
+                    <div className="flex flex-col sm:flex-row sm:items-center py-2">
+                      <div className=" flex  items-center font-medium w-full sm:w-1/3 text-gray-600 mb-1 sm:mb-0">
+                        <GrCertificate className="inline-block mr-1 text-gray-500" />
+                        Certifications:
+                      </div>
+                      <div className="text-gray-700 w-full sm:w-2/3 bg-gray-50 p-2 rounded">
+                        {job.job_data.professional_certifications}
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
+            )}
+
             <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100">
               <div className="p-6">
                 <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center">
@@ -660,31 +725,35 @@ const JobPreview = () => {
                 </div>
               </div>
             </div>
-            <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100">
-              <div className="p-6">
-                <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center">
-                  <div className="bg-yellow-100 p-2 rounded-full mr-3">
-                    <FaClipboardList className="text-yellow-600" />
-                  </div>
-                  Selection Process
-                </h2>
-                <div className="mt-4 space-y-4">
-                  {job.job_data.selection_process
-                    .split("\n")
-                    .filter((step) => step.trim())
-                    .map((step, index) => (
-                      <div key={index} className="flex items-start">
-                        <div className="flex-shrink-0 w-8 h-8 bg-yellow-50 rounded-full flex items-center justify-center border border-yellow-200 mr-3 mt-0.5">
-                          <span className="text-yellow-700 font-medium text-sm">
-                            {index + 1}
-                          </span>
+            {job.job_data.selection_process !== "NA" && (
+              <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100">
+                <div className="p-6">
+                  <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center">
+                    <div className="bg-yellow-100 p-2 rounded-full mr-3">
+                      <FaClipboardList className="text-yellow-600" />
+                    </div>
+                    Selection Process
+                  </h2>
+                  <div className="mt-4 space-y-4">
+                    {job.job_data.selection_process
+                      .split("\n")
+                      .filter((step) => step.trim())
+                      .map((step, index) => (
+                        <div key={index} className="flex items-start">
+                          <div className="flex-shrink-0 w-8 h-8 bg-yellow-50 rounded-full flex items-center justify-center border border-yellow-200 mr-3 mt-0.5">
+                            <span className="text-yellow-700 font-medium text-sm">
+                              {index + 1}
+                            </span>
+                          </div>
+                          <p className="text-gray-700 leading-relaxed">
+                            {step}
+                          </p>
                         </div>
-                        <p className="text-gray-700 leading-relaxed">{step}</p>
-                      </div>
-                    ))}
+                      ))}
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
             <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100">
               <div className="p-6">
                 <h2 className="text-xl font-semibold mb-6 text-gray-800 border-b pb-2 flex items-center">
@@ -693,28 +762,37 @@ const JobPreview = () => {
                   </div>
                   Application Process
                 </h2>
+
                 <div className="space-y-6">
-                  <div className="bg-gradient-to-r from-yellow-50 to-white p-4 rounded-lg border border-yellow-200">
-                    <h3 className="font-semibold text-lg mb-3 text-gray-800 flex items-center">
-                      <FaListOl className="mr-2 text-yellow-600" />
-                      Steps to Apply
-                    </h3>
-                    <ol className="list-decimal list-inside space-y-2 text-gray-700">
-                      {job.job_data.steps_to_apply
-                        .split("\n")
-                        .map((step, index) => (
-                          <li key={index} className="pl-2">
-                            {step.trim()}
-                          </li>
-                        ))}
-                    </ol>
-                  </div>
+                  {job.job_data.steps_to_apply !== "NA" && (
+                    <div className="bg-gradient-to-r from-yellow-50 to-white p-4 rounded-lg border border-yellow-200">
+                      <h3 className="font-semibold text-lg mb-3 text-gray-800 flex items-center">
+                        <FaListOl className="mr-2 text-yellow-600" />
+                        Steps to Apply
+                      </h3>
+                      <ol className="list-decimal list-inside space-y-2 text-gray-700">
+                        {job.job_data.steps_to_apply
+                          .split("\n")
+                          .map((step, index) => (
+                            <li key={index} className="pl-2">
+                              {step.trim()}
+                            </li>
+                          ))}
+                      </ol>
+                    </div>
+                  )}
                   <div className="bg-gradient-to-r from-yellow-50 to-white p-4 rounded-lg border border-yellow-200">
                     <h3 className="font-semibold text-lg mb-3 text-gray-800 flex items-center">
                       <FaFileAlt className="mr-2 text-blue-600" />
                       Documents Required
                     </h3>
                     <ul className="list-disc list-inside space-y-2 text-gray-700">
+                    {Array.isArray(job.job_data.documents_required)
+                        ? job.job_data.documents_required.map((doc, index) => (
+                          <li key={index} className="pl-2">{doc.trim()}</li>
+                        ))
+                        : job.job_data.documents_required
+                        }
                       {job.job_data.documents_required
                         .split(",")
                         .map((doc, index) => (
@@ -776,19 +854,23 @@ const JobPreview = () => {
                 </div>
               </div>
             </div>
-            <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100">
-              <div className="p-6">
-                <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center">
-                  <div className="bg-yellow-100 p-2 rounded-full mr-3">
-                    <FaLightbulb className="text-yellow-600" />
+            {job.job_data.preparation_tips &&
+              job.job_data.preparation_tips !== "NA" && (
+                <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100">
+                  <div className="p-6">
+                    <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center">
+                      <div className="bg-yellow-100 p-2 rounded-full mr-3">
+                        <FaLightbulb className="text-yellow-600" />
+                      </div>
+                      Preparation Tips
+                    </h2>
+                    <div className="text-gray-700 whitespace-pre-line leading-relaxed bg-yellow-50 p-4 rounded-lg border border-yellow-100 text-justify">
+                      {job.job_data.preparation_tips}
+                    </div>
                   </div>
-                  Preparation Tips
-                </h2>
-                <div className="text-gray-700 whitespace-pre-line leading-relaxed bg-yellow-50 p-4 rounded-lg border border-yellow-100 text-justify">
-                  {job.job_data.preparation_tips}
                 </div>
-              </div>
-            </div>
+              )}
+
             <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100">
               <div className="p-6">
                 <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center">
@@ -979,6 +1061,16 @@ const JobPreview = () => {
                 </div>
               </div>
             </div>
+          )}
+          {isModalOpen && (
+            <ImageModal
+              imageSrc={
+                job.job_data.image
+                  ? `data:image/jpeg;base64,${job.job_data.image}`
+                  : placeholderImage
+              }
+              onClose={() => setIsModalOpen(false)}
+            />
           )}
         </div>
       </div>

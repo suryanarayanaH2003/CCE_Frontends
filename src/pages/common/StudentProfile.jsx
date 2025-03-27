@@ -12,7 +12,6 @@ import EmailPng from "../../assets/icons/material-symbols_mail-outline.png";
 import PhonePng from "../../assets/icons/Vector.png";
 import Saved from "../../assets/icons/Not Saved.png";
 import { useNavigate } from 'react-router-dom';
-import { base_url } from "../../App";
 
 const StudentProfile = () => {
   const [student, setStudent] = useState(null);
@@ -25,6 +24,7 @@ const StudentProfile = () => {
   const [appliedJobs, setAppliedJobs] = useState([]);
   const [appliedInternships, setAppliedInternships] = useState([]);
   const [savedExams, setSavedExams] = useState([]);
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
 
@@ -46,31 +46,31 @@ const StudentProfile = () => {
         const token = Cookies.get("jwt");
         const userId = JSON.parse(atob(token.split(".")[1])).student_user;
 
-        const profileResponse = await axios.get(`${base_url}/api/profile/${userId}/`);
+        const profileResponse = await axios.get(`${API_BASE_URL}/api/profile/${userId}/`);
         const studentData = profileResponse.data.data;
         setStudent(studentData);
 
-        const jobsResponse = await axios.get(`${base_url}/api/saved-jobs/${userId}/`);
+        const jobsResponse = await axios.get(`${API_BASE_URL}/api/saved-jobs/${userId}/`);
         if (jobsResponse.data && jobsResponse.data.jobs) {
           setSavedJobs(jobsResponse.data.jobs);
         }
 
-        const internshipsResponse = await axios.get(`${base_url}/api/saved-internships/${userId}/`);
+        const internshipsResponse = await axios.get(`${API_BASE_URL}/api/saved-internships/${userId}/`);
         if (internshipsResponse.data && internshipsResponse.data.internships) {
           setSavedInternships(internshipsResponse.data.internships);
         } 
 
-        const appliedInternshipsResponse = await axios.get(`${base_url}/api/applied-internships/${userId}/`);
+        const appliedInternshipsResponse = await axios.get(`${API_BASE_URL}/api/applied-internships/${userId}/`);
         if (appliedInternshipsResponse.data && appliedInternshipsResponse.data.internships) {
           setAppliedInternships(appliedInternshipsResponse.data.internships);
         }
 
-        const examsResponse = await axios.get(`${base_url}/api/saved-exams/${userId}/`);
+        const examsResponse = await axios.get(`${API_BASE_URL}/api/saved-exams/${userId}/`);
         if (examsResponse.data && examsResponse.data.exams) {
           setSavedExams(examsResponse.data.exams);
         }
 
-        const appliedJobsResponse = await axios.get(`${base_url}/api/applied-jobs/${userId}/`);
+        const appliedJobsResponse = await axios.get(`${API_BASE_URL}/api/applied-jobs/${userId}/`);
         if (appliedJobsResponse.data && appliedJobsResponse.data.jobs) {
           setAppliedJobs(appliedJobsResponse.data.jobs);
         }

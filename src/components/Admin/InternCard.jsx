@@ -2,8 +2,6 @@ import React from "react";
 import { FiBookmark, FiCircle, FiMapPin } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 
-
-
 function timeAgo(dateString) {
     const givenDate = new Date(dateString);
     const now = new Date();

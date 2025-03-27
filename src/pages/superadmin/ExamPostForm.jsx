@@ -12,7 +12,6 @@ import {
   FaPlus,
   FaTrash,
 } from "react-icons/fa";
-import { base_url } from "../../App";
 import AdminPageNavbar from "../../components/Admin/AdminNavBar";
 import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
 import { FormInputField, FormTextAreaField } from "../../components/Common/InputField";
@@ -20,6 +19,8 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { MultiStepLoader as Loader } from "../../components/ui/multi-step-loader";
 import { max } from "date-fns";
+import DesktopOnly from "../../components/Common/DesktopOnly";
+import { GoOrganization } from "react-icons/go";
 
 const loadingStates = [
   { text: "Gathering exam details" },
@@ -117,13 +118,11 @@ const ExamBasicDetails = ({ formData, setFormData }) => {
         />
         <FormTextAreaField
           label="Eligibility Criteria"
-          required={true}
           args={{ placeholder: "Enter the eligibility criteria here", value: examData.eligibility_criteria, maxLength: 200 }}
           setter={(val) => setFormData((prev) => ({ ...prev, exam_data: { ...prev.exam_data, eligibility_criteria: val } }))}
         />
         <FormTextAreaField
           label="Application Process"
-          required={true}
           args={{ placeholder: "Enter the application process here", value: examData.application_process, maxLength: 200 }}
           setter={(val) => setFormData((prev) => ({ ...prev, exam_data: { ...prev.exam_data, application_process: val } }))}
         />
@@ -131,9 +130,13 @@ const ExamBasicDetails = ({ formData, setFormData }) => {
       <div className="flex flex-col space-y-2">
         <FormTextAreaField
           label="About Exam"
-          required={true}
           args={{ placeholder: "Enter details about the exam here", value: examData.about_exam,maxLength: 200 }}
           setter={(val) => setFormData((prev) => ({ ...prev, exam_data: { ...prev.exam_data, about_exam: val } }))}
+        />
+        <FormInputField
+          label="Organization"
+          args={{ placeholder: "Enter the organization name here", value: examData.organization, maxLength: 40 }}
+          setter={(val) => setFormData((prev) => ({ ...prev, exam_data: { ...prev.exam_data, organization: val } }))}
         />
         <KeyValueInput
           label="Exam Highlights"
@@ -141,6 +144,7 @@ const ExamBasicDetails = ({ formData, setFormData }) => {
           maxItems={5}
           onChange={(newHighlights) => setFormData((prev) => ({ ...prev, exam_data: { ...prev.exam_data, exam_highlights: newHighlights } }))}
         />
+        
       </div>
     </>
   );
@@ -169,12 +173,12 @@ const ExamRequirements = ({ formData, setFormData }) => {
       <div className="flex flex-col space-y-2">
         <FormTextAreaField
           label="Documents Required"
-          required={true}
           args={{ placeholder: "Enter required documents here", value: examData.documents_required }}
           setter={(val) => setFormData((prev) => ({ ...prev, exam_data: { ...prev.exam_data, documents_required: val } }))}
         />
         <FormInputField
           label="Exam Centers"
+          required={true}
           args={{ placeholder: "Enter the exam centers here", value: examData.exam_centers }}
           setter={(val) => setFormData((prev) => ({ ...prev, exam_data: { ...prev.exam_data, exam_centers: val } }))}
         />
@@ -196,8 +200,9 @@ const ExamRequirements = ({ formData, setFormData }) => {
           setter={(val) => setFormData((prev) => ({ ...prev, exam_data: { ...prev.exam_data, admit_card: val } }))}
         />
       </div>
-      <div className="col-span-full border-2 border-gray-300 border-dashed rounded-xl p-4 text-center bg-white mt-8 w-full">
-        <label htmlFor="image" className="cursor-pointer text-gray-500 text-lg">
+      <h2 className="text-base font-semibold ">Photo Upload</h2>
+      <div className="col-span-full border-2 border-gray-300 border-dashed rounded-xl p-4 text-center bg-white mt-1 w-full">  
+        <label htmlFor="image" className="cursor-pointer text-gray-500 text-lg" title="Upload an exam-related photo">
           {imagePreview ? "Change Image" : "Upload an exam-related photo"}
         </label>
 
@@ -237,7 +242,6 @@ const ExamContentDetails = ({ formData, setFormData }) => {
         />
         <FormTextAreaField
           label="Result"
-          required={true}
           args={{ placeholder: "Enter result details here", value: examData.result }}
           setter={(val) => setFormData((prev) => ({ ...prev, exam_data: { ...prev.exam_data, result: val } }))}
         />
@@ -356,12 +360,12 @@ const Summary = ({ formData, setFormData }) => {
           args={{ placeholder: "Enter the exam title here", value: examData.exam_title }}
           setter={(val) => setFormData((prev) => ({ ...prev, exam_data: { ...prev.exam_data, exam_title: val } }))}
         />
-        <FormTextAreaField
-          label="Documents Required"  
-          disabled={true}
+        <FormInputField
+          label="Exam Link"
           required={true}
-          args={{ placeholder: "Enter required documents here", value: examData.documents_required }}
-          setter={(val) => setFormData((prev) => ({ ...prev, exam_data: { ...prev.exam_data, documents_required: val } }))} 
+          disabled={true}
+          args={{ placeholder: "Enter the official exam link here", value: examData.exam_link }}
+          setter={(val) => setFormData((prev) => ({ ...prev, exam_data: { ...prev.exam_data, exam_link: val } }))}
         />
         <FormInputField
           label="Application Deadline"
@@ -370,10 +374,16 @@ const Summary = ({ formData, setFormData }) => {
           args={{ placeholder: "Enter Application Deadline here", value: examData.application_deadline}}
           setter={(val) => setFormData((prev) => ({ ...prev, exam_data: { ...prev.exam_data, application_deadline: val } }))}
         />
+        <FormInputField
+          label="Exam Centers"
+          disabled={true}
+          required={true}
+          args={{ placeholder: "Enter the exam centers here", value: examData.exam_centers }}
+          setter={(val) => setFormData((prev) => ({ ...prev, exam_data: { ...prev.exam_data, exam_centers: val } }))}
+        />
         <FormTextAreaField
           label="Result"
           disabled={true}
-          required={true}
           args={{ placeholder: "Enter result details here", value: examData.result }}
           setter={(val) => setFormData((prev) => ({ ...prev, exam_data: { ...prev.exam_data, result: val } }))}
           />
@@ -381,7 +391,6 @@ const Summary = ({ formData, setFormData }) => {
       <div className="flex flex-col space-y-2">
         <FormTextAreaField
           label="About Exam"
-          required={true}
           disabled={true}
           args={{ placeholder: "Enter details about the exam here", value: examData.about_exam }}
           setter={(val) => setFormData((prev) => ({ ...prev, exam_data: { ...prev.exam_data, about_exam: val } }))}
@@ -389,7 +398,6 @@ const Summary = ({ formData, setFormData }) => {
         <FormInputField
           label="Eligibility Criteria"
           disabled={true}
-          required={true}
           args={{ placeholder: "Enter the eligibility criteria here", value: examData.eligibility_criteria }}
           setter={(val) => setFormData((prev) => ({ ...prev, exam_data: { ...prev.exam_data, eligibility_criteria: val } }))}
         />
@@ -403,7 +411,6 @@ const Summary = ({ formData, setFormData }) => {
         <FormInputField
           label="Application Process"
           disabled={true}
-          required={true}
           args={{ placeholder: "Enter the application process here", value: examData.application_process }}
           setter={(val) => setFormData((prev) => ({ ...prev, exam_data: { ...prev.exam_data, application_process: val } }))}
         />  
@@ -415,6 +422,7 @@ const Summary = ({ formData, setFormData }) => {
 export default function ExamPostForm() {
   const location = useLocation();
   const navigate = useNavigate();
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
   const { examId: urlExamId } = useParams();
 
   const examDataFromLocation = location.state?.exam;
@@ -435,6 +443,7 @@ export default function ExamPostForm() {
       documents_required: "",
       exam_centers: "",
       exam_pattern: "",
+      organization: "",
       mock_test: "",
       admit_card: "",
       preparation_tips: "",
@@ -496,6 +505,7 @@ export default function ExamPostForm() {
       documents_required: initialExamData.documents_required || "",
       exam_centers: initialExamData.exam_centers || "",
       exam_pattern: initialExamData.exam_pattern || "",
+      organization: initialExamData.organization || "",
       mock_test: initialExamData.mock_test || "",
       admit_card: initialExamData.admit_card || "",
       preparation_tips: initialExamData.preparation_tips || "",
@@ -598,21 +608,18 @@ export default function ExamPostForm() {
     if (direction === "next") {
       switch (currentSection) {
         case "Exam Basic Details":
-          if (!formData.exam_data.exam_title || !formData.exam_data.application_process || !formData.exam_data.eligibility_criteria || !formData.exam_data.about_exam ) {
+          if (!formData.exam_data.exam_title || !formData.exam_data.exam_link) {
             toast.error("Please fill in all mandatory fields in Exam Basic Details.");
+            isValid = false;
+          }
+          if (!validateUrl(formData.exam_data.exam_link)) {
+            toast.error("Please enter a valid URL for the Exam Link.");
             isValid = false;
           }
           break;
         case "Exam Requirements":
-          if (!formData.exam_data.documents_required) {
+          if (!formData.exam_data.exam_centers) {
             toast.error("Please fill in all mandatory fields in Exam Requirements.");
-            isValid = false;
-          }
-          break;
-        case "Exam Content Details":
-          if (!formData.exam_data.result) {
-            toast.error("Please fill in all mandatory fields in Exam Content Details.");
-            isValid = false;
           }
           break;
         case "Exam Additional Info":
@@ -620,7 +627,6 @@ export default function ExamPostForm() {
             toast.error("Please fill in all mandatory fields in Exam Additional Info.");
             isValid = false;
           }
-
           break;
         default:
           break;
@@ -662,6 +668,11 @@ export default function ExamPostForm() {
     return true;
   };
 
+  const validateUrl = (url) => {
+    const urlPattern = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
+    return urlPattern.test(url);
+  };
+
   const handleSubmit = async () => {
     setLoading(true);
 
@@ -678,7 +689,7 @@ export default function ExamPostForm() {
       // console.log("Ajay:", examDataFromLocation.exam_data);
 
       // Validate required fields
-      if (!examData.exam_title || !examData.application_process || !examData.application_deadline  || !examData.documents_required ) {
+      if (!examData.exam_title || !examData.exam_link || !examData.application_deadline || !examData.syllabus) {
         toast.error("Please fill in all mandatory fields.");
         setLoading(false);
         return;
@@ -741,6 +752,7 @@ export default function ExamPostForm() {
           application_process: examData.application_process || "NA",
           documents_required: examData.documents_required || "NA",
           exam_centers: examData.exam_centers || "NA",
+          organization : examData.organization || "NA",
           exam_pattern: examData.exam_pattern || "NA",
           mock_test: examData.mock_test || "NA",
           admit_card: examData.admit_card || "NA",
@@ -768,7 +780,7 @@ export default function ExamPostForm() {
         const headers = { Authorization: `Bearer ${token}` };
 
         if (isEditMode) {
-          const response = await fetch(`${base_url}/api/exam-edit/${id || urlExamId}/`, {
+          const response = await fetch(`${API_BASE_URL}/api/exam-edit/${id || urlExamId}/`, {
             method: "POST",  // Change the method to POST
             headers,
             body: formDataToSend,
@@ -780,7 +792,7 @@ export default function ExamPostForm() {
           }
           navigate("/exams");
         } else {
-          const response = await axios.post(`${base_url}/api/exam_post/`, formDataToSend, { headers });
+          const response = await axios.post(`${API_BASE_URL}/api/exam_post/`, formDataToSend, { headers });
           setMessage(response.data.message);
           navigate("/exams");
         }
@@ -798,8 +810,9 @@ export default function ExamPostForm() {
       {userRole === "admin" && <AdminPageNavbar />}
       {userRole === "superadmin" && <SuperAdminPageNavbar />}
       <ToastContainer />
+      <DesktopOnly />
       <div className="flex-1 flex items-center justify-center p-6">
-        <div className="flex-1 flex p-8 bg-white rounded-xl flex flex-col h-[100%]">
+        <div className="flex-1 p-8 bg-white rounded-xl flex flex-col h-full max-w-[1400px] mx-auto shadow-lg">
           <div className="flex justify-between items-center text-2xl pb-4 border-b border-gray-300">
             <p>{isEditMode ? "Edit Exam" : "Post an Exam"}</p>
             <button className="px-3 p-1.5 border rounded-lg text-sm" onClick={() => navigate(-1)}>

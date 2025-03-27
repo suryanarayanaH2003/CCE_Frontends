@@ -9,7 +9,6 @@ import "react-toastify/dist/ReactToastify.css";
 import { GoChecklist } from "react-icons/go"; // Exam icon
 import { RiBookLine } from "react-icons/ri"; // Subject icon
 import { MdOutlineTopic } from "react-icons/md"; // Topic icon
-import { base_url } from "../../App";
 
 const typeIcons = {
   Exam: GoChecklist,
@@ -31,7 +30,7 @@ const CategoryInput = ({ value, onChange, selectedType, onSelect }) => {
     if (token && inputValue && !isSuggestionSelected) {
       axios
         .get(
-          `${base_url}/api/get-categories/?type=${selectedType}&query=${inputValue}`,
+          `${API_BASE_URL}/api/get-categories/?type=${selectedType}&query=${inputValue}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -186,7 +185,7 @@ const handleFileUpload = async (index, file) => {
   try {
     const token = Cookies.get("jwt");
     const response = await axios.post(
-      `${base_url}/api/upload-drive-file/`, // Backend endpoint for Drive upload
+      `${API_BASE_URL}/api/upload-drive-file/`, // Backend endpoint for Drive upload
       formData,
       {
         headers: {
@@ -222,6 +221,7 @@ export default function StudyMaterialForm() {
   const [error, setError] = useState("");
   const [selectedType, setSelectedType] = useState("Exam");
   const [userRole, setUserRole] = useState(null);
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
   const [isCategoryValid, setIsCategoryValid] = useState(false);
   const navigate = useNavigate();
 
@@ -245,14 +245,7 @@ export default function StudyMaterialForm() {
     const { name, value } = e.target;
     const newLinks = [...formData.links];
     newLinks[index][name] = value;
-
-    // Validate URL when type and link are both present
-    if (name === "link" && newLinks[index].type && value) {
-      if (newLinks[index].type !== "TextContent" && !isValidLink(value, newLinks[index].type)) {
-        toast.warning(`Please enter a valid ${newLinks[index].type} link. Ensure it matches the selected platform.`);
-      }
-    }
-
+    
     setFormData((prevData) => ({
       ...prevData,
       links: newLinks,
@@ -260,15 +253,6 @@ export default function StudyMaterialForm() {
   };
 
   const addLinkField = () => {
-    const lastLink = formData.links[formData.links.length - 1];
-    
-    if (lastLink.type && lastLink.link) {
-      if (lastLink.type !== "TextContent" && !isValidLink(lastLink.link, lastLink.type)) {
-        toast.error(`Please fix the invalid ${lastLink.type} link before adding a new one`);
-        return;
-      }
-    }
-  
     setFormData((prevData) => ({
       ...prevData,
       links: [...prevData.links, { type: "", link: "", topic: "", textContent: "" }],
@@ -284,12 +268,32 @@ export default function StudyMaterialForm() {
     }));
   };
 
+  const isFieldEmpty = (value) => {
+    return !value || value.trim() === '';
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const token = Cookies.get("jwt");
       if (!token) {
         toast.error("No token found. Please log in.");
+        return;
+      }
+
+      // Check for empty fields
+      if (isFieldEmpty(formData.title)) {
+        toast.error("Title cannot be empty");
+        return;
+      }
+
+      if (isFieldEmpty(formData.description)) {
+        toast.error("Description cannot be empty");
+        return;
+      }
+
+      if (isFieldEmpty(formData.category)) {
+        toast.error("Category cannot be empty");
         return;
       }
 
@@ -303,20 +307,34 @@ export default function StudyMaterialForm() {
       }
 
       // Validate all links before submission
-      for (const link of formData.links) {
-        if (!link.type || !link.topic) {
-          toast.error("Please fill in all required fields");
+      for (let i = 0; i < formData.links.length; i++) {
+        const link = formData.links[i];
+        
+        if (isFieldEmpty(link.type)) {
+          toast.error(`Please select a link type for Link ${i + 1}`);
           return;
         }
         
-        if (link.type !== LinkTypeOptions.TextContent && !isValidLink(link.link, link.type)) {
-          toast.error(`Invalid ${link.type} link format. Please check the URL format.`);
+        if (isFieldEmpty(link.topic)) {
+          toast.error(`Please enter a topic for Link ${i + 1}`);
           return;
+        }
+
+        if (link.type !== LinkTypeOptions.TextContent) {
+          if (isFieldEmpty(link.link)) {
+            toast.error(`Please enter a URL for Link ${i + 1}`);
+            return;
+          }
+          
+          if (!isValidLink(link.link, link.type)) {
+            toast.error(`Invalid ${link.type} URL format in Link ${i + 1}. Please check the URL format.`);
+            return;
+          }
         }
       }
 
       const response = await axios.post(
-        `${base_url}/api/post-study-material/`,
+        `${API_BASE_URL}/api/post-study-material/`,
         formData,
         {
           headers: {

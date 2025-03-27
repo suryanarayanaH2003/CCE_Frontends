@@ -8,7 +8,8 @@ import Pagination from "../../components/Admin/pagination"; // Import Pagination
 import { Link } from "react-router-dom";
 import { LoaderContext } from "../../components/Common/Loader";
 import yellowBg from "../../assets/images/Yellowbg.png"; // Import the background image
-import { base_url } from "../../App";
+import DesktopOnly from "../../components/Common/DesktopOnly";
+
 const AdminHome = () => {
   const [jobs, setJobs] = useState([]);
   const [internships, setInternships] = useState([]);
@@ -18,6 +19,7 @@ const AdminHome = () => {
   const [searchPhrase, setSearchPhrase] = useState("");
   const [filteredJobs, setFilteredJobs] = useState([]);
   const [filteredInterns, setFilteredInterns] = useState([]);
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
   const { setIsLoading } = useContext(LoaderContext)
 
@@ -39,8 +41,8 @@ const AdminHome = () => {
   const studentCount = students.length;
 
   const cardsData = [
-    { title: "Total Job Listings", count: jobs.length, icon: <FaCheck />, Link: "/jobs" },
-    { title: "Total Internship Listings", count: internships.length, icon: <FaBook />, Link: "/internships" },
+    { title: "Total Job", count: approvedJobs.length, icon: <FaCheck />, Link: "/jobs" },
+    { title: "Total Internship", count: approvedInternships.length, icon: <FaBook />, Link: "/internships" },
     { title: "Rejected Approvals", count: rejectedCount, icon: <FaTrophy />, Link: "/admin/mail" },
     { title: "Pending Approvals", count: pendingCount, icon: <FaUserPlus />, Link: "/manage-jobs  " },
   ];
@@ -57,7 +59,7 @@ const AdminHome = () => {
           return;
         }
 
-        const response = await axios.get(`${base_url}/api/get-jobs/`, {
+        const response = await axios.get(`${API_BASE_URL}/api/get-jobs/`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -165,6 +167,7 @@ const AdminHome = () => {
   return (
     <div className="flex w-full h-screen bg-gray-100 overflow-hidden"> {/* Prevents overflow */}
       <AdminPageNavbar />
+      <DesktopOnly />
 
       <div className="flex flex-col space-y-4 p-4 flex-1 h-full">
         {/* h-full to prevent double height issues */}

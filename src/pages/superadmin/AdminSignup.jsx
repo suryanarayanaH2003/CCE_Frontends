@@ -8,7 +8,7 @@ import login2 from "../../assets/images/LoginImg2.png";
 import login3 from "../../assets/images/LoginImg3.png";
 import Squares from "../../components/ui/GridLogin";
 import "react-toastify/dist/ReactToastify.css";
-import { base_url } from "../../App";
+
 const slideVariants = {
   enter: {
     x: 1000,
@@ -50,6 +50,7 @@ export default function AdminSignup() {
   const images = [login1, login2, login3];
   const [passwordStrength, setPasswordStrength] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
   useEffect(() => {
     const slideInterval = setInterval(() => {
@@ -71,9 +72,10 @@ export default function AdminSignup() {
     }
 
     if (name === "email") {
+      const emailRegex = /^[a-zA-Z0-9._%+-]+@sns[a-zA-Z0-9.-]*\.[a-zA-Z]{2,}$/;
       setErrors((prevErrors) => ({
         ...prevErrors,
-        email: value.includes("@sns") ? "" : "Use your domain id",
+        email: emailRegex.test(value) ? "" : "Please enter a valid SNS email (e.g., example@sns.edu.in)",
       }));
     }
 
@@ -109,8 +111,9 @@ export default function AdminSignup() {
     const { name, email, password, confirmPassword, department, college_name, mobile_number } = formData;
     const newErrors = {};
 
-    if (!email.includes("@sns")) {
-      newErrors.email = "Use your domain id";
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@sns[a-zA-Z0-9.-]*\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(email)) {
+      newErrors.email = "Please enter a valid SNS email (e.g., example@sns.edu.in)";
     }
 
     if (password !== confirmPassword) {
@@ -129,7 +132,7 @@ export default function AdminSignup() {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`${base_url}/api/admin-signup/`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin-signup/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

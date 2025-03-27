@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import StudentPageNavbar from "../../components/Students/StudentPageNavbar";
 import ApplicationCard from "../../components/Students/ApplicationCard";
@@ -11,7 +11,6 @@ import { useNavigate } from "react-router-dom";
 import Pagination from "../../components/Admin/pagination";
 import { LoaderContext } from "../../components/Common/Loader";
 import NoListingImage from "../../assets/images/NoListing.svg"; // Import the image
-import { base_url } from "../../App";
 
 export default function JobDashboard() {
   const [jobs, setJobs] = useState([]);
@@ -22,12 +21,13 @@ export default function JobDashboard() {
     const token = Cookies.get("jwt");
     if (token) {
       const payload = JSON.parse(atob(token.split(".")[1]));
-      // setUserRole(!payload.student_user ? payload.role : "student");
       return !payload.student_user ? payload.role : "student";
     }
+    return null;
   });
+  const { isLoading, setIsLoading } = useContext(LoaderContext);
   const [selectedJob, setSelectedJob] = useState();
-  const [isSalaryOpen, setIsSalaryOpen] = useState(false);
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
   const [isExperienceOpen, setIsExperienceOpen] = useState(false);
   const [isEmployTypeOpen, setIsEmployTypeOpen] = useState(false);
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
@@ -41,18 +41,16 @@ export default function JobDashboard() {
     return savedFilters
       ? JSON.parse(savedFilters)
       : {
-        salaryRange: { min: 10000, max: 1000000 },
-        experience: { value: 0, category: "under" },
-        employmentType: { onSite: false, remote: false, hybrid: false },
-        workingMode: { online: false, offline: false, hybrid: false },
-        sortBy: "Relevance",
-      };
+          salaryRange: { min: 10000, max: 1000000 },
+          experience: { value: 0, category: "under" },
+          employmentType: { onSite: false, remote: false, hybrid: false },
+          workingMode: { online: false, offline: false, hybrid: false },
+          sortBy: "Relevance",
+        };
   });
   const [currentPage, setCurrentPage] = useState(1);
   const [isSavedJobsOpen, setIsSavedJobsOpen] = useState(false);
   const itemsPerPage = 12;
-
-  const { setIsLoading } = useContext(LoaderContext);
 
   const navigate = useNavigate();
 
@@ -136,13 +134,22 @@ export default function JobDashboard() {
 
   useEffect(() => {
     const fetchPublishedJobs = async () => {
+      setIsLoading(true); // Set loading to true before fetching data
       try {
         setIsLoading(true);
-        const response = await axios.get(
-          `${base_url}/api/published-jobs/`
-        );
+        const token = Cookies.get("jwt");
+        const endpoint =
+          userRole === "admin"
+            ? `${API_BASE_URL}/api/manage-jobs/`
+            : `${API_BASE_URL}/api/published-jobs/`;
+            const response = await axios.get(endpoint, {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            });
         const jobsWithType = response.data.jobs.map((job) => ({
           ...job,
+          id: job._id,
           type: "job",
           status: job.status,
           updated_at: job.updated_at,
@@ -151,19 +158,21 @@ export default function JobDashboard() {
         setFilteredJobs(jobsWithType);
         setIsLoading(false);
       } catch (err) {
-        console.error("Error fetching published jobs:", err);
+        console.error("Error fetching jobs:", err);
         setError("Failed to load jobs.");
+        setIsLoading(false);
       }
     };
+
     fetchPublishedJobs();
-  }, []);
+  }, [setIsLoading]);
 
   const fetchSavedJobs = async () => {
     try {
       const token = Cookies.get("jwt");
       const userId = JSON.parse(atob(token.split(".")[1])).student_user;
       const response = await axios.get(
-        `${base_url}/api/saved-jobs/${userId}/`
+        `${API_BASE_URL}/api/saved-jobs/${userId}/`
       );
       setSavedJobs(response.data.jobs.map((job) => job._id));
     } catch (err) {
@@ -215,8 +224,12 @@ export default function JobDashboard() {
     // Save current page to localStorage before navigating
     localStorage.setItem("jobCurrentPage", currentPage.toString());
     setSelectedJob(job);
+    setIsLoading(true); // Set loading to true before navigating
     // Navigate to job details page
     navigate(`/job-preview/${job._id}`, { state: { savedJobs } });
+    setTimeout(() => {
+      setIsLoading(false); // Reset loading state after navigation
+    }, 1000); // Adjust the timeout as needed
   };
 
   useEffect(() => {
@@ -234,21 +247,19 @@ export default function JobDashboard() {
       <div className="flex flex-col flex-1">
         {userRole === "student" && <StudentPageNavbar />}
 
-        <div className="flex flex-col flex-1">
+        <div className="flex flex-col bg-gray-50 flex-1">
           {/* Header */}
-          <header className="flex flex-col items-center justify-center py-8 px-4 sm:py-14 container mx-auto text-center">
-            <p className="text-3xl sm:text-6xl tracking-[0.8px]">Jobs</p>
+          <header className="flex flex-col items-center justify-center py-8 px-4 sm:py-12 mx-auto text-center h-fit">
+            <p className="text-3xl font-semibold sm:text-6xl tracking-[0.8px]">Jobs</p>
             <p className="text-base sm:text-lg mt-2">
-              Explore all the job opportunities in all the existing fields{" "}
-              <br />
-              around the globe.
+              Explore all the job opportunities in all the existing fields around the globe.
             </p>
           </header>
 
           {/* Search Bar */}
-          <div className="top-0 z-10 bg-white px-4 sm:px-10 mb-5">
+          <div className="z-10 px-4 sm:px-10 mb-5">
             <div className="flex flex-col sm:flex-row items-center gap-4">
-              <div className="relative flex items-center w-full">
+              <div className="relative flex items-center bg-white w-full">
                 <FiSearch className="absolute left-3 top-3 text-gray-500" />
                 <input
                   type="text"
@@ -271,13 +282,6 @@ export default function JobDashboard() {
                   <option value="Oldest">Oldest (More than 24 hours)</option>
                 </select>
               </div>
-
-              <button
-                className="sm:hidden h-10 border border-gray-300 rounded-md px-4 flex items-center gap-2"
-                onClick={() => setIsMobileFiltersOpen(!isMobileFiltersOpen)}
-              >
-                Filters {isMobileFiltersOpen ? <FiX size={18} /> : <FiMenu size={18} />}
-              </button>
             </div>
           </div>
 
@@ -286,10 +290,12 @@ export default function JobDashboard() {
             {/* Job Cards */}
             <div className="flex-1 flex flex-col space-y-3">
               <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {error ? (
+                {isLoading ? (
+                  <p className="text-center text-gray-600">Loading...</p>
+                ) : error ? (
                   <p className="text-red-600">{error}</p>
                 ) : jobs.length === 0 ? (
-                  <div className="alert alert-danger w-full col-span-full text-center flex flex-col items-center">
+                  <div className="mt-30 alert alert-danger w-full col-span-full text-center flex flex-col items-center">
                     <img src={NoListingImage} alt="No Listings" className="mb-4" />
                   </div>
                 ) : currentJobs.length === 0 ? (
@@ -297,27 +303,50 @@ export default function JobDashboard() {
                     <img src={NoListingImage} alt="No Listings" className="mb-4" />
                   </div>
                 ) : (
-                  currentJobs.map((job) => (
-                    <ApplicationCard
-                      application={{ ...job, ...job.job_data }}
-                      key={job._id}
-                      handleCardClick={() => handleJobSelection(job)}
-                      isSaved={
-                        userRole === "superadmin" || userRole === "admin"
-                          ? undefined
-                          : savedJobs.includes(job._id)
-                      }
-                      savedJobs={savedJobs}
-                      isSavedJobsOpen={isSavedJobsOpen}
-                      setSavedJobs={setSavedJobs}
-                      setIsSavedJobsOpen={setIsSavedJobsOpen}
-                    />
-                  ))
+                  currentJobs.map((job) => {
+                    // Truncate company name and location to 15 characters
+                    const truncatedCompanyName = job.job_data.company_name.substring(0, 15);
+                    const truncatedLocation = job.job_data.location ? job.job_data.location.substring(0, 15) : '';
+
+                    return (
+                      <ApplicationCard
+                        application={{
+                          ...job,
+                          ...job.job_data,
+                          company_name: truncatedCompanyName,
+                          location: truncatedLocation,
+                        }}
+                        key={job._id}
+                        handleCardClick={() => handleJobSelection(job)}
+                        isSaved={
+                          userRole === "superadmin" || userRole === "admin"
+                            ? undefined
+                            : savedJobs.includes(job._id)
+                        }
+                        savedJobs={savedJobs}
+                        isSavedJobsOpen={isSavedJobsOpen}
+                        setSavedJobs={setSavedJobs}
+                        setIsSavedJobsOpen={setIsSavedJobsOpen}
+                      />
+                    );
+                  })
                 )}
               </div>
-
-              {/* Maintain Pagination but hide when "!! No Jobs Found !!" is displayed */}
-              {filteredJobs.length > itemsPerPage && (
+              {/* Pagination for Admin and Super Admin */}
+              {(userRole === "admin" || userRole === "superadmin") && (
+                <div className="mb-5">
+                  {jobs.length > 0 && currentJobs.length > 0 && (
+                    <Pagination
+                      currentPage={currentPage}
+                      totalItems={filteredJobs.length}
+                      itemsPerPage={itemsPerPage}
+                      onPageChange={handlePageChange}
+                    />
+                  )}
+                </div>
+              )}
+              {/* Pagination at the bottom for Students */}
+              {userRole === "student" && jobs.length > 0 && currentJobs.length > 0 && (
                 <Pagination
                   currentPage={currentPage}
                   totalItems={filteredJobs.length}

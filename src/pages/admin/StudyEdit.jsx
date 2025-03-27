@@ -3,7 +3,6 @@ import { useParams, useNavigate } from "react-router-dom";
 import Cookies from 'js-cookie';
 import AdminPageNavbar from "../../components/Admin/AdminNavBar";
 import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
-import { base_url } from "../../App";
 
 const StudyEdit = () => {
     const { id } = useParams();
@@ -12,6 +11,7 @@ const StudyEdit = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [editedStudyMaterial, setEditedStudyMaterial] = useState(null);
     const [userRole, setUserRole] = useState(null);
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
     useEffect(() => {
         const token = Cookies.get("jwt");
@@ -20,7 +20,7 @@ const StudyEdit = () => {
             setUserRole(payload.role);
         }
         
-        fetch(`${base_url}/api/study-material/${id}/`)
+        fetch(`${API_BASE_URL}/api/study-material/${id}/`)
             .then(response => response.json())
             .then(data => {
                 setStudyMaterial(data.study_material);
@@ -41,7 +41,7 @@ const StudyEdit = () => {
     };
 
     const handleSave = () => {
-        fetch(`${base_url}/api/study-material-edit/${id}/`, {
+        fetch(`${API_BASE_URL}/api/study-material-edit/${id}/`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -58,7 +58,7 @@ const StudyEdit = () => {
 
     const handleDelete = () => {
         if (window.confirm("Are you sure you want to delete this study material?")) {
-            fetch(`${base_url}/api/study-material-delete/${id}/`, {
+            fetch(`${API_BASE_URL}/api/study-material-delete/${id}/`, {
                 method: 'DELETE'
             })
             .then(response => {

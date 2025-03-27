@@ -139,14 +139,14 @@ export default function StudentPageNavbar({ currentPage, transparent, tag }) {
               <div key={index} className="relative group">
                 {item.href ? (
                   <button
-                    className="cursor-pointer hover:underline text-black focus:outline-none"
+                    className="cursor-pointer  text-black focus:outline-none"
                     onClick={() => (window.location.href = item.href)}
                   >
                     {item.label}
                   </button>
                 ) : (
                   <button
-                    className="cursor-pointer hover:underline text-black focus:outline-none"
+                    className="cursor-pointer  text-black focus:outline-none"
                     onClick={() => toggleDropdown(item.dropdownId)}
                     aria-expanded={openDropdown === item.dropdownId}
                     aria-haspopup="true"

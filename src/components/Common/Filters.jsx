@@ -1,6 +1,5 @@
 import { FaCaretDown, FaCaretUp } from "react-icons/fa";
 
-
 const borderColor = "border-gray-300";
 
 export default function Filters({args}) {

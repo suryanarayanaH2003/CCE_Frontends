@@ -36,6 +36,13 @@ const InternshipTable = ({
     }
   };
 
+  const truncateString = (str, num) => {
+    if (str.length <= num) {
+      return str;
+    }
+    return str.slice(0, num) + '...';
+  };
+
   return (
     <div id="internships-section" className="mt-4 w-full flex-col">
       {/* Header */}
@@ -77,14 +84,14 @@ const InternshipTable = ({
           </div>
 
           <button
-            className="px-5 py-1 bg-[#00b69b] text-white rounded text-sm flex items-center space-x-2"
+            className="px-5 py-1 hover:bg-green-50 border border-green text-green-800 rounded text-sm flex items-center space-x-2"
             onClick={() => handleBulkApprove("internship")}
           >
             <p>Approve all</p>
             <FaCheck />
           </button>
           <button
-            className="px-5 py-1 bg-[#ef3826] text-white rounded text-sm flex items-center space-x-2"
+            className="px-5 py-1 hover:bg-red-50 border border-red text-red-500 rounded text-sm flex items-center space-x-2"
             onClick={() => handleBulkDelete("internship")}
           >
             <p>Delete all</p>
@@ -106,16 +113,15 @@ const InternshipTable = ({
                     type="checkbox"
                     checked={selectedInternships.length === internships.length}
                     onChange={handleSelectAll}
-                    className="form-checkbox h-4 w-4 text-blue-600 mr-2"
+                    className="form-checkbox h-4 w-4 text-blue-600"
                   />
-                  Select
                 </th>
-                <th className="py-3 border-b border-gray-200">Title</th>
-                <th className="py-3 border-b border-gray-200">Company</th>
-                <th className="py-3 border-b border-gray-200">Staff Name</th>
-                <th className="py-3 border-b border-gray-200">Deadline</th>
-                <th className="py-3 border-b border-gray-200">Duration</th>
-                <th className="py-3 border-b border-gray-200">Status</th>
+                <th className="py-3 border-b text-left border-gray-200">Title</th>
+                <th className="py-3 border-b text-left border-gray-200">Company</th>
+                <th className="py-3 border-b text-left border-gray-200">Staff Name</th>
+                <th className="py-3 border-b text-left border-gray-200">Deadline</th>
+                <th className="py-3 border-b text-left border-gray-200">Duration</th>
+                <th className="py-3 border-b text-left border-gray-200">Status</th>
                 <th className="py-3 border-b border-gray-200">Actions</th>
               </tr>
             </thead>
@@ -138,16 +144,16 @@ const InternshipTable = ({
                         className="form-checkbox h-4 w-4 text-blue-600"
                       />
                     </td>
-                    <td className="text-center py-3">{data.title || "N/A"}</td>
-                    <td className="text-center py-3">{data.company_name || "N/A"}</td>
-                    <td className="text-center py-3">{internship.admin_name || "N/A"}</td>
-                    <td className="text-center py-3">
+                    <td className="text-left py-3">{truncateString(data.title || "N/A",20)}</td>
+                    <td className="text-left py-3">{truncateString(data.company_name,20 || "N/A")}</td>
+                    <td className="text-left py-3">{internship.admin_name || "N/A"}</td>
+                    <td className="text-left py-3">
                       {data.application_deadline
                         ? format(new Date(data.application_deadline), "yyyy-MM-dd")
                         : "N/A"}
                     </td>
-                    <td className="text-center py-3">{data.duration || "N/A"}</td>
-                    <td className="text-center py-3 font-semibold">
+                    <td className="text-left py-3">{truncateString(data.duration || "N/A",10)}</td>
+                    <td className="text-left py-3 font-semibold">
                       {internship.is_publish === true ? (
                         <span className="text-green-800 px-1 py-0.5 rounded-full text-xs">
                           Approved
@@ -163,7 +169,7 @@ const InternshipTable = ({
                       )}
                     </td>
                     <td className="text-center py-3">
-                      <div className="flex justify-center space-x-1">
+                      <div className="flex justify-center space-x-2">
                         {internship.is_publish === null && (
                           <>
                             <IoMdCheckmark
@@ -198,13 +204,14 @@ const InternshipTable = ({
         </div>
       )}
 
-      {/* Pagination */}
+      {internships.length > itemsPerPage && (
       <Pagination
         currentPage={currentPage}
         totalItems={internships.length}
         itemsPerPage={itemsPerPage}
         onPageChange={handlePageChange}
       />
+    )}
     </div>
   );
 };

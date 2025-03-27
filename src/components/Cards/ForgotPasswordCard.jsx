@@ -8,8 +8,6 @@ import login2 from "../../assets/images/LoginImg2.png";
 import login3 from "../../assets/images/LoginImg3.png";
 import Squares from "../../components/ui/GridLogin";
 
-
-
 export default function ForgotPasswordCard({
   page,
   formDataSetter,
@@ -17,9 +15,10 @@ export default function ForgotPasswordCard({
   onSubmit,
   onResendOTP,
   onVerifyOTP,
+  otpSent,
+  setOtpSent
 }) {
   const [loading, setLoading] = useState(false);
-  const [otpSent, setOtpSent] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [direction, setDirection] = useState(1);
   const [isMobile, setIsMobile] = useState(false);
@@ -72,31 +71,32 @@ export default function ForgotPasswordCard({
     setLoading(true);
 
     try {
-        if (otpSent) {
-            await onVerifyOTP(e);
-            toast.success("OTP verified successfully!");
-        } else {
-            const response = await onSubmit(e);
+      if (otpSent) {
+        await onVerifyOTP(e);
+        toast.success("OTP verified successfully!");
+      } else {
+        const response = await onSubmit(e);
 
-            if (response?.status === 200) {
-                toast.success("OTP sent successfully! Please check your email.");
-                setOtpSent(true);  // Show OTP field only if status = 200
-            } else if (response?.error === "Email not found") {
-                toast.error("Email not found");  // Show error for invalid email
-                setOtpSent(false);  // Ensure OTP field doesn't appear
-            }
+        if (response?.status === 200) {
+          console.log(response);
+          toast.success("OTP sent successfully! Please check your email.");
+          setOtpSent(true);  // Show OTP field only if status = 200
+        } else if (response?.error === "Email not found") {
+          toast.error("Email not found");  // Show error for invalid email
+          setOtpSent(false);  // Ensure OTP field doesn't appear
         }
+      }
     } catch (error) {
-        const errorMessage =
-            error.response?.data?.error ||
-            error.message ||
-            "An error occurred. Please try again.";
-        toast.error(errorMessage);
-        setOtpSent(false);  // Ensure OTP field doesn't appear on failure
+      const errorMessage =
+        error.response?.data?.error ||
+        error.message ||
+        "An error occurred. Please try again.";
+      toast.error(errorMessage);
+      setOtpSent(false);  // Ensure OTP field doesn't appear on failure
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
-};
+  };
 
 
   const handleResendOTP = async (e) => {
@@ -128,9 +128,8 @@ export default function ForgotPasswordCard({
       <div className="w-full max-w-6xl min-h-[600px] bg-white shadow-lg rounded-lg flex flex-col md:flex-row items-stretch p-2 md:p-4 relative">
         {/* Image Slider Section - Responsive height on mobile */}
         <div
-          className={`${
-            isMobile ? "h-100" : "flex-1 "
-          } flex justify-center rounded items-center p-1 overflow-hidden`}
+          className={`${isMobile ? "h-100" : "flex-1 "
+            } flex justify-center rounded items-center p-1 overflow-hidden`}
         >
           <div className="relative w-full h-full rounded-lg">
             <AnimatePresence initial={false} custom={direction}>
@@ -206,11 +205,10 @@ export default function ForgotPasswordCard({
             {/* Submit Button */}
             <button
               type="submit"
-              className={`p-3 rounded-lg w-full font-semibold transition-colors ${
-                loading
+              className={`p-3 rounded-lg w-full font-semibold transition-colors ${loading
                   ? "bg-gray-400 cursor-not-allowed"
                   : "bg-[#FECC00] hover:bg-[#eebc00]"
-              }`}
+                }`}
               disabled={loading}
             >
               {loading
@@ -218,8 +216,8 @@ export default function ForgotPasswordCard({
                   ? "Verifying..."
                   : "Sending..."
                 : otpSent
-                ? "Verify OTP"
-                : "Send OTP"}
+                  ? "Verify OTP"
+                  : "Send OTP"}
             </button>
 
             {/* Resend OTP Button */}

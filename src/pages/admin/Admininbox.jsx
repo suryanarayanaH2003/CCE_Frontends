@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { LoaderContext } from "../../components/Common/Loader"; // Import Loader Context
 import Pagination from "../../components/Admin/pagination"; // Import Pagination Component
-import { base_url } from "../../App";
+
 export default function AdminMail() {
   const [jobs, setJobs] = useState([]);
   const [exams, setExams] = useState([]);
@@ -29,6 +29,7 @@ export default function AdminMail() {
   const [selectedItem, setSelectedItem] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
   const [itemsPerPage] = useState(5); // Set items per page to 5
   const token = Cookies.get("jwt");
   const navigate = useNavigate();
@@ -45,7 +46,7 @@ export default function AdminMail() {
     const fetchData = async () => {
       setIsLoading(true); // Show loader when fetching data
       try {
-        const response = await fetch(`${base_url}/api/mailjobs/`, {
+        const response = await fetch(`${API_BASE_URL}/api/mailjobs/`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -82,7 +83,7 @@ export default function AdminMail() {
     const fetchReview = async () => {
       try {
         const response = await fetch(
-          `${base_url}/api/fetch-review/`,
+          `${API_BASE_URL}/api/fetch-review/`,
           {
             method: "GET",
             headers: {

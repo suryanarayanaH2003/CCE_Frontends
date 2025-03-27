@@ -4,13 +4,15 @@ import { useNavigate } from "react-router-dom";
 import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
 import Pagination from "../../components/Admin/pagination"; // Import Pagination component
 import { FaSearch } from "react-icons/fa";
-import { base_url } from "../../App";
+import DesktopOnly from "../../components/Common/DesktopOnly";
+
 export default function ManagementHomePage() {
     const navigate = useNavigate();
     const [filter, setFilter] = useState("");
     const [statusFilter, setStatusFilter] = useState("");
     const [sortConfig, setSortConfig] = useState({ key: null, direction: null });
     const [admins, setAdmins] = useState([]);
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
     const [error, setError] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
@@ -19,7 +21,7 @@ export default function ManagementHomePage() {
     useEffect(() => {
         const fetchAdminDetails = async () => {
             try {
-                const response = await axios.get(`${base_url}/api/admins-list/`);
+                const response = await axios.get(`${API_BASE_URL}/api/admins-list/`);
                 setAdmins(response.data.admins); // Set admin details
             } catch (err) {
                 console.error("Error fetching admin details:", err);
@@ -97,6 +99,7 @@ export default function ManagementHomePage() {
     return (
         <div className="flex">
             <SuperAdminPageNavbar />
+            <DesktopOnly />
             <main className="p-8 flex-1">
                 <div className="mb-8">
                     <h1 className="text-3xl font-bold mb-6">Admin Management</h1>

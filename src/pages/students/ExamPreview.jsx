@@ -8,7 +8,8 @@ import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
 import Footer from "../../components/Common/Footer";
 import "react-toastify/dist/ReactToastify.css";
 import { toast } from "react-toastify";
-import { base_url } from "../../App";
+import { RiEdit2Fill } from "react-icons/ri";
+
 
 import {
   FaBook,
@@ -22,7 +23,7 @@ import {
   FaClipboardList,
   FaRegCalendarAlt,
   FaLightbulb,
-  FaGlobe,
+  FaBookmark,
   FaPlus,
   FaCheck,
   FaListOl,
@@ -30,7 +31,6 @@ import {
   FaInfoCircle,
   FaTrash,
 } from "react-icons/fa";
-import { LuFileClock } from "react-icons/lu";
 import { TbCalendarClock } from "react-icons/tb";
 import placeholderImage from "../../assets/images/Exam.png"; // Placeholder image
 import ApplicationCard from "../../components/Students/ApplicationCard"; // Reusing ApplicationCard for exams
@@ -49,13 +49,16 @@ const ExamPreview = () => {
   const { id } = useParams();
   const [exam, setExam] = useState(null);
   const [userId, setUserId] = useState(null);
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
   const [loading, setLoading] = useState(true);
   const [userRole, setUserRole] = useState(null);
   const [showApplySuccess, setShowApplySuccess] = useState(false);
-  const [isSaved, setIsSaved] = useState(false);
+  const [saved, setSaved] = useState(false);
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
+  const [savedExams, setSavedExams] = useState([]);
   const [publishedExams, setPublishedExams] = useState([]);
   const [loadingExams, setLoadingExams] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -75,7 +78,7 @@ const ExamPreview = () => {
 
   useEffect(() => {
     setLoading(true);
-    fetch(`${base_url}/api/exam/${id}/`)
+    fetch(`${API_BASE_URL}/api/exam/${id}/`)
       .then((response) => response.json())
       .then((data) => {
         setExam(data.exam);
@@ -92,7 +95,7 @@ const ExamPreview = () => {
       setLoadingExams(true);
       try {
         const response = await axios.get(
-          `${base_url}/api/published-exams/` // Adjust endpoint as needed
+          `${API_BASE_URL}/api/published-exams/` // Adjust endpoint as needed
         );
 
         const examsData = Array.isArray(response.data)
@@ -132,7 +135,7 @@ const ExamPreview = () => {
           return;
         }
         const response = await axios.delete(
-          `${base_url}/api/exam-delete/${id}/`,
+          `${API_BASE_URL}/api/exam-delete/${id}/`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -155,7 +158,7 @@ const ExamPreview = () => {
     try {
       const token = Cookies.get("jwt");
       const userId = JSON.parse(atob(token.split(".")[1])).student_user;
-      await axios.post(`${base_url}/api/apply-exam/`, {
+      await axios.post(`${API_BASE_URL}/api/apply-exam/`, {
         studentId: userId,
         examId: id,
       });
@@ -185,22 +188,45 @@ const ExamPreview = () => {
 
   const handleSaveExam = async () => {
     try {
-      const token = Cookies.get("jwt");
-      const userId = JSON.parse(atob(token.split(".")[1])).student_user;
-      await axios.post(`${base_url}/api/save-exam/${id}/`, {
-        userId: userId,
-        examId: id,
-      });
-      setIsSaved(true);
-      setShowSaveSuccess(true);
-      setTimeout(() => {
-        setShowSaveSuccess(false);
-      }, 2000);
+      if (!userId) {
+        console.error("User ID is not available");
+        return;
+      }
+  
+      const endpoint = saved
+        ? `${API_BASE_URL}/api/unsave-exam/${id}/`
+        : `${API_BASE_URL}/api/save-exam/${id}/`;
+  
+      const response = await axios.post(endpoint, { userId });
+  
+      if (response.status === 200) {
+        const updatedExams = saved
+          ? savedExams.filter((examId) => examId !== id)
+          : [...savedExams, id];
+  
+        setSavedExams(updatedExams);
+        setSaved(!saved);
+        setShowSaveSuccess(true);
+  
+        setTimeout(() => {
+          setShowSaveSuccess(false);
+        }, 2000);
+      }
     } catch (error) {
-      console.error("Error saving exam:", error);
+      console.error("Error saving/unsaving exam:", error);
+      if (error.response) {
+        console.error("Server response:", error.response.data);
+      }
+      toast.error("Error saving exam. Please try again.");
     }
   };
-
+  
+  const truncateString = (str, num) => {
+    if (str.length <= num) {
+      return str;
+    }
+    return str.slice(0, num) + '...';
+  };
   const handleCardClick = (examId) => {
     window.location.href = `/exam-preview/${examId}`;
   };
@@ -245,6 +271,38 @@ const ExamPreview = () => {
     );
   }
 
+  const ImageModal = ({ imageSrc, onClose }) => {
+    const handleDownload = () => {
+      // Create a temporary anchor element
+      const link = document.createElement('a');
+      link.href = imageSrc;
+      link.download = 'image.jpg'; // Set the default filename
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    };
+  
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 z-50">
+        <div className="relative w-3/4 h-3/4 max-w-4xl max-h-4xl">
+          <button
+            className="absolute top-4 right-4 text-white text-3xl bg-gray-800 rounded-full p-2"
+            onClick={onClose}
+          >
+            &times;
+          </button>
+          <img src={imageSrc} alt="Preview" className="w-full h-full object-contain rounded-lg" />
+          <button
+            onClick={handleDownload}
+            className="absolute right-4 left-1/2 transform -translate-x-1/2 text-black bg-yellow-500 hover:bg-yellow-600 px-4 py-2 rounded-lg text-lg"
+          >
+            Download
+          </button>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
       {userRole === "admin" && <AdminPageNavbar />}
@@ -254,14 +312,14 @@ const ExamPreview = () => {
       {showApplySuccess && (
         <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 bg-green-100 border border-green-200 text-green-800 px-6 py-3 rounded-lg shadow-lg flex items-center">
           <FaCheck className="mr-2" />
-          Application submitted successfully! Redirecting...
+          Redirecting...
         </div>
       )}
 
       {showSaveSuccess && (
-        <div className="fixed top-20 left-8/9 transform -translate-x-1/2 z-50 bg-yellow-200 border border-yellow-200 text-yellow-800 px-6 py-3 rounded-lg shadow-lg flex items-center">
+        <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 bg-green-100 border border-green-200 text-green-800 px-6 py-3 rounded-lg shadow-lg flex items-center">
           <FaCheck className="mr-2" />
-          Exam saved successfully!
+          {saved ? "Exam saved successfully!" : "Exam unsaved !"}
         </div>
       )}
 
@@ -297,6 +355,7 @@ const ExamPreview = () => {
                     }
                     alt={`${exam.exam_data.exam_title} image`}
                     className="max-w-full max-h-80 object-contain rounded-lg"
+                    onClick={() => setIsModalOpen(true)}
                     onError={(e) => {
                       e.target.onerror = null;
                       e.target.src = placeholderImage;
@@ -315,7 +374,7 @@ const ExamPreview = () => {
 
                   <div className="relative z-10 flex justify-between items-start">
                     <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">
-                      {exam.exam_data.exam_title}
+                      {truncateString(exam.exam_data.exam_title, 25)}
                     </h1>
                   </div>
 
@@ -358,16 +417,45 @@ const ExamPreview = () => {
                     {userRole === "student" ? (
                       <>
                         <button
-                          onClick={handleSaveExam}
-                          className="bg-gray-100 hover:bg-gray-300 text-black font-semibold py-3 px-8 rounded-lg transition duration-300 ease-in-out flex items-center shadow-md hover:shadow-lg"
+                          onClick={handleApplyClick}
+                          title={
+                            userRole !== "student"
+                              ? "Only students can apply for jobs"
+                              : ""
+                          }
+                          className={`bg-yellow-500 ${
+                            userRole === "student"
+                              ? "hover:bg-yellow-600"
+                              : "opacity-60 cursor-not-allowed"
+                          } 
+                                    text-white font-semibold py-3 px-8 rounded-lg transition duration-300 ease-in-out 
+                                    flex items-center shadow-md ${
+                                      userRole === "student" && "hover:shadow-lg"
+                                    }`}
                         >
-                          Save Exam
+                          Apply Now <FaExternalLinkAlt className="ml-2 text-sm" />
                         </button>
                         <button
-                          onClick={handleApplyClick}
-                          className="bg-yellow-500 hover:bg-yellow-600 text-black font-semibold py-3 px-8 rounded-lg transition duration-300 ease-in-out flex items-center shadow-md hover:shadow-lg"
+                            onClick={userRole === "student" ? handleSaveExam : undefined}
+                            className={`${
+                                saved
+                                    ? "bg-gray-100 text-gray-800"
+                                    : "border-2 border-gray-300 text-gray-700"
+                            } 
+                            font-semibold py-3 px-8 rounded-lg 
+                            ${userRole === "student" ? "hover:bg-gray-100" : "opacity-60 cursor-not-allowed"}
+                            transition duration-300 ease-in-out flex items-center justify-center`}
+                            title={userRole !== "student" ? "Only students can save exams" : ""}
                         >
-                          Apply Now
+                            {saved ? (
+                                <>
+                                    Saved <FaBookmark className="ml-2 text-yellow-500" />
+                                </>
+                            ) : (
+                                <>
+                                    Save Exam <FaBookmark className="ml-2" />
+                                </>
+                            )}
                         </button>
                       </>
                     ) : null}
@@ -379,14 +467,15 @@ const ExamPreview = () => {
                           onClick={handleEditClick}
                           className="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-3 px-8 rounded-lg transition duration-300 ease-in-out flex items-center shadow-md hover:shadow-lg"
                         >
+                          <RiEdit2Fill className="mr-2" />
                           Edit Exam
                         </button>
                         <button
                           onClick={handleDeleteClick}
                           className="bg-gray-100 hover:bg-gray-300 text-black font-semibold py-3 px-8 rounded-lg transition duration-300 ease-in-out flex items-center shadow-md hover:shadow-lg"
                         >
-                          <FaTrash className="mr-2" />
-                          Delete Exam
+                          Delete 
+                          <FaTrash className="ml-2" />
                         </button>
                       </>
                     )}
@@ -449,13 +538,15 @@ const ExamPreview = () => {
                       Documents Required
                     </h3>
                     <ul className="list-disc list-inside space-y-2 text-gray-700">
-                      {exam.exam_data.documents_required
-                        .split(",")
-                        .map((doc, index) => (
-                          <li key={index} className="pl-2">
-                            {doc.trim()}
-                          </li>
-                        ))}
+                    {Array.isArray(exam.exam_data.documents_required)
+                        ? exam.exam_data.documents_required.map((doc, index) => (
+                          <li key={index} className="pl-2">{doc.trim()}</li>
+                        ))
+                        : exam.exam_data.documents_required
+                          ?.split(",")
+                          .map((doc, index) => (
+                            <li key={index} className="pl-2">{doc.trim()}</li>
+                          ))}
                     </ul>
                   </div>
                 </div>
@@ -575,25 +666,49 @@ const ExamPreview = () => {
                 <p className="text-gray-600 mb-4">
                   Don’t miss this opportunity! Apply before the deadline.
                 </p>
-                <div className="relative group">
+                <div className="flex gap-4">
+                  <div className="relative group">
+                    <button
+                      onClick={
+                        userRole === "student" ? handleApplyClick : undefined
+                      }
+                      className={`w-auto bg-yellow-500 ${
+                        userRole === "student"
+                          ? "hover:bg-yellow-600"
+                          : "opacity-60 cursor-not-allowed"
+                      } text-white font-semibold py-3 px-6 rounded-lg transition duration-300 ease-in-out flex items-center justify-center shadow-md ${
+                        userRole === "student" && "hover:shadow-lg"
+                      }`}
+                      title={
+                        userRole !== "student"
+                          ? "Only students can apply for Exam"
+                          : ""
+                      }
+                    >
+                      Apply Now <FaExternalLinkAlt className="ml-2 text-sm" />
+                    </button>
+                  </div>
                   <button
-                    onClick={
-                      userRole === "student" ? handleApplyClick : undefined
-                    }
-                    className={`w-auto bg-yellow-500 ${
-                      userRole === "student"
-                        ? "hover:bg-yellow-600"
-                        : "opacity-60 cursor-not-allowed"
-                    } text-white font-semibold py-3 px-6 rounded-lg transition duration-300 ease-in-out flex items-center justify-center shadow-md ${
-                      userRole === "student" && "hover:shadow-lg"
-                    }`}
-                    title={
-                      userRole !== "student"
-                        ? "Only students can apply for Exam"
-                        : ""
-                    }
+                    onClick={userRole === "student" ? handleSaveExam : undefined}
+                    className={`${
+                      saved
+                        ? "bg-gray-100 text-gray-800"
+                        : "border-2 border-gray-300 text-gray-700"
+                    } 
+                    font-semibold py-3 px-6 rounded-lg 
+                    ${userRole === "student" ? "hover:bg-gray-100" : "opacity-60 cursor-not-allowed"}
+                    transition duration-300 ease-in-out flex items-center justify-center`}
+                    title={userRole !== "student" ? "Only students can save exams" : ""}
                   >
-                    Apply Now <FaExternalLinkAlt className="ml-2 text-sm" />
+                    {saved ? (
+                      <>
+                        Saved <FaBookmark className="ml-2 text-yellow-500" />
+                      </>
+                    ) : (
+                      <>
+                        Save Exam <FaBookmark className="ml-2" />
+                      </>
+                    )}
                   </button>
                 </div>
               </div>
@@ -672,6 +787,16 @@ const ExamPreview = () => {
                 </div>
               </div>
             </div>
+          )}
+          {isModalOpen && (
+            <ImageModal
+              imageSrc={
+                exam.exam_data.image
+                  ? `data:image/jpeg;base64,${exam.exam_data.image}`
+                  : placeholderImage
+              }
+              onClose={() => setIsModalOpen(false)}
+            />
           )}
         </div>
       </div>

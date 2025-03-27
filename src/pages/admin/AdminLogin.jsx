@@ -7,7 +7,7 @@ import LoginCard from "../../components/Cards/LoginCard";
 import ForgotPasswordCard from "../../components/Cards/ForgotPasswordCard";
 import ResetPasswordCard from "../../components/Cards/ResetPasswordCard";
 import { AppPages } from "../../utils/constants";
-import { base_url } from "../../App";
+
 export default function AdminLogin() {
     const [formData, setFormData] = useState({
         email: "",
@@ -16,11 +16,14 @@ export default function AdminLogin() {
         confirmPassword: "",
         token: "",
     });
+
+    const [otpSent, setOtpSent] = useState(false);
     const [isForgotPassword, setIsForgotPassword] = useState(false);
     const [isResetPassword, setIsResetPassword] = useState(false);
     const [isLocked, setIsLocked] = useState(false);
     const [lockoutTime, setLockoutTime] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
     const navigate = useNavigate();
 
     // Clear cookies when entering the login page
@@ -48,7 +51,7 @@ export default function AdminLogin() {
         setIsLoading(true);
     
         try {
-            const response = await fetch(`${base_url}/api/login/`, {
+            const response = await fetch(`${API_BASE_URL}/api/login/`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -85,7 +88,7 @@ export default function AdminLogin() {
     const handleGoogleSuccess = async (credentialResponse) => {
             setIsLoading(true);
             try {
-                const response = await fetch(`${base_url}/api/admin/google/login/`, {
+                const response = await fetch(`${API_BASE_URL}/api/admin/google/login/`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -135,7 +138,7 @@ export default function AdminLogin() {
         const email = formData.email;
 
         try {
-            const response = await fetch(`${base_url}/api/forgot-password/`, {
+            const response = await fetch(`${API_BASE_URL}/api/forgot-password/`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -162,7 +165,7 @@ export default function AdminLogin() {
         const email = formData.email;
         const otp = formData.token;
         try {
-            const response = await fetch(`${base_url}/api/verify-otp/`, {
+            const response = await fetch(`${API_BASE_URL}/api/verify-otp/`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -194,7 +197,7 @@ export default function AdminLogin() {
         }
 
         try {
-            const response = await fetch(`${base_url}/api/reset-password/`, {
+            const response = await fetch(`${API_BASE_URL}/api/reset-password/`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -222,6 +225,8 @@ export default function AdminLogin() {
                 <ForgotPasswordCard
                     page={AppPages.forgotPassword}
                     formData={formData}
+                    otpSent={otpSent}
+                    setOtpSent={setOtpSent}
                     formDataSetter={setFormData}
                     onSubmit={handleForgotPasswordSubmit}
                     onResendOTP={handleForgotPasswordSubmit}

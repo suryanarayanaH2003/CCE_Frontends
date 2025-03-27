@@ -3,7 +3,6 @@ import { useParams, useNavigate } from "react-router-dom";
 import Cookies from 'js-cookie';
 import AdminPageNavbar from "../../components/Admin/AdminNavBar";
 import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
-import { base_url } from "../../App";
 
 const InternshipEdit = () => {
     const { id } = useParams();
@@ -12,9 +11,10 @@ const InternshipEdit = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [editedInternship, setEditedInternship] = useState(null);
     const [userRole, setUserRole] = useState(null);
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
     useEffect(() => {
-        fetch(`${base_url}/api/internship/${id}/`)
+        fetch(`${API_BASE_URL}/api/internship/${id}/`)
             .then(response => response.json())
             .then(data => {
                 setInternship(data.internship.internship_data);
@@ -52,7 +52,7 @@ const InternshipEdit = () => {
             edited: role
         };
     
-        fetch(`${base_url}/api/internship-edit/${id}/`, {
+        fetch(`${API_BASE_URL}/api/internship-edit/${id}/`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -78,7 +78,7 @@ const InternshipEdit = () => {
 
     const handleDelete = () => {
         if (window.confirm("Are you sure you want to delete this internship?")) {
-            fetch(`${base_url}/api/internship-delete/${id}/`, {
+            fetch(`${API_BASE_URL}/api/internship-delete/${id}/`, {
                 method: 'DELETE'
             })
             .then(response => {

@@ -10,7 +10,7 @@ import {
 import { LoaderContext } from "../../components/Common/Loader";
 import Pagination from "../../components/Admin/pagination";
 import { FaEye } from "react-icons/fa";
-import { base_url } from "../../App";
+
 export default function AdminMail() {
   const [jobs, setJobs] = useState([]);
   const [internships, setInternships] = useState([]);
@@ -18,6 +18,7 @@ export default function AdminMail() {
   const [studyMaterials, setStudyMaterials] = useState([]);
   const [error, setError] = useState(null);
   const [reviews, setReviews] = useState([]);
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
   const [activeTab, setActiveTab] = useState("notifications");
   const [selectedItem, setSelectedItem] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -38,7 +39,7 @@ export default function AdminMail() {
     const fetchReview = async () => {
       try {
         const response = await fetch(
-          `${base_url}/api/fetch-review/`,
+          `${API_BASE_URL}/api/fetch-review/`,
           {
             method: "GET",
             headers: {
@@ -323,10 +324,10 @@ export default function AdminMail() {
         <div className="w-3/3 flex flex-col space-y-6">
           <div className="mb-4">
             <div className="relative flex">
-              <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-2 top-3 h-4 w-4 text-gray-400" />
               <input
                 type="text"
-                placeholder=""
+                placeholder="Search For Notifications"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-8 px-4 py-2 border border-gray-400 rounded-md w-3/4 "

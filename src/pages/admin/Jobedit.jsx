@@ -5,7 +5,6 @@ import { RiMoneyRupeeCircleFill } from "react-icons/ri";
 import { FaBuilding, FaBriefcase, FaMapMarkerAlt, FaGraduationCap, FaUserTie } from "react-icons/fa";
 import AdminPageNavbar from "../../components/Admin/AdminNavBar";
 import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
-import { base_url } from "../../App";
 
 const JobEdit = () => {
     const { id } = useParams();
@@ -13,6 +12,7 @@ const JobEdit = () => {
     const [job, setJob] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
     const [editedJob, setEditedJob] = useState(null);
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
     const [userRole, setUserRole] = useState(null);
 
     useEffect(() => {
@@ -22,7 +22,7 @@ const JobEdit = () => {
             setUserRole(payload.role);
         }
 
-        fetch(`${base_url}/api/job/${id}/`)
+        fetch(`${API_BASE_URL}/api/job/${id}/`)
             .then(response => response.json())
             .then(data => {
                 setJob(data.job);
@@ -55,7 +55,7 @@ const JobEdit = () => {
             edited: role // Include the role in the request payload
         };
 
-        fetch(`${base_url}/api/job-edit/${id}/`, {
+        fetch(`${API_BASE_URL}/api/job-edit/${id}/`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -74,7 +74,7 @@ const JobEdit = () => {
 
     const handleDelete = () => {
         if (window.confirm("Are you sure you want to delete this job?")) {
-            fetch(`${base_url}/api/job-delete/${id}/`, {
+            fetch(`${API_BASE_URL}/api/job-delete/${id}/`, {
                 method: 'DELETE'
             })
             .then(response => {

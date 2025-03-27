@@ -7,7 +7,7 @@ import Cookies from "js-cookie"
 import axios from "axios"
 import { useEffect } from 'react';
 import { toast } from 'react-toastify';
-import { base_url } from "../../App";
+
 const borderColor = "border-gray-300";
 
 function getTimeAgo(dateString) {
@@ -68,7 +68,6 @@ function getTimeAgo(dateString) {
 // }
 
 
-
 export default function SidePreview({ selectedItem, handleViewItem, setSelectedItem, isSaved, fetchSavedJobs }) {
     useEffect(() => {
     }, [selectedItem])
@@ -81,7 +80,7 @@ export default function SidePreview({ selectedItem, handleViewItem, setSelectedI
             const userId = JSON.parse(atob(token.split(".")[1])).student_user;
             if (selectedItem.job_data) {
                 const res = await axios.post(
-                    `${base_url}/api/save-job/${selectedItem._id}/`,
+                    `http://localhost:8000/api/save-job/${selectedItem._id}/`,
                     { applicationId: selectedItem._id, userId }
                 );
                 if (res.status === 200) {
@@ -90,7 +89,7 @@ export default function SidePreview({ selectedItem, handleViewItem, setSelectedI
                 }
             } else {
                 const res = await axios.post(
-                    `${base_url}/api/save-internship/${selectedItem.id}/`,
+                    `http://localhost:8000/api/save-internship/${selectedItem.id}/`,
                     { applicationId: selectedItem.id, userId }
                 );
                 if (res.status === 200) {
@@ -111,7 +110,7 @@ export default function SidePreview({ selectedItem, handleViewItem, setSelectedI
             const userId = JSON.parse(atob(token.split(".")[1])).student_user;
             if (selectedItem.job_data) {
                 const res = await axios.post(
-                    `${base_url}/api/unsave-job/${selectedItem._id}/`,
+                    `http://localhost:8000/api/unsave-job/${selectedItem._id}/`,
                     { applicationId: selectedItem._id, userId }
                 );
                 if (res.status === 200) {
@@ -120,7 +119,7 @@ export default function SidePreview({ selectedItem, handleViewItem, setSelectedI
                 }
             } else {
                 const res = await axios.post(
-                    `${base_url}/api/unsave-internship/${selectedItem.id}/`,
+                    `http://localhost:8000/api/unsave-internship/${selectedItem.id}/`,
                     { applicationId: selectedItem.id, userId }
                 );
                 if (res.status === 200) {

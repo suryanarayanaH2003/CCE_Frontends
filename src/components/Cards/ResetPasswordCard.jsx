@@ -9,8 +9,6 @@ import login2 from "../../assets/images/LoginImg2.png";
 import login3 from "../../assets/images/LoginImg3.png";
 import Squares from "../../components/ui/GridLogin";
 
-
-
 // Animation variants defined outside component to prevent recreation on each render
 const slideVariants = {
   enter: (direction) => ({

@@ -11,7 +11,6 @@ import Adminpng from "../../assets/icons/mdi_account-outline.png";
 import Loginpng from "../../assets/icons/mdi_recent.png";
 import EmailPng from "../../assets/icons/material-symbols_mail-outline.png";
 import PhonePng from "../../assets/icons/Vector.png";
-import { base_url } from "../../App";
 
 const AdminProfile = () => {
   const navigate = useNavigate();
@@ -29,7 +28,8 @@ const AdminProfile = () => {
   const [itemsPerPage] = useState(10);
   const [activeTab, setActiveTab] = useState("jobs");
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [showAdminPopup, setShowAdminPopup] = useState(false); // State for admin pop-up visibility
+  const [showAdminPopup, setShowAdminPopup] = useState(false);
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
   // Format date to match the design
   const formatDate = (dateString) => {
@@ -74,7 +74,7 @@ const AdminProfile = () => {
         }
 
         const userId = JSON.parse(atob(token.split(".")[1])).admin_user;
-        const response = await axios.get(`${base_url}/api/get-admin/${userId}/`);
+        const response = await axios.get(`${API_BASE_URL}/api/get-admin/${userId}/`);
         const adminData = response.data.data;
 
         setAdmin(adminData);
@@ -93,7 +93,7 @@ const AdminProfile = () => {
         if (!token) return;
 
         // Fetch jobs and internships
-        const jobsResponse = await axios.get(`${base_url}/api/get-jobs/`, {
+        const jobsResponse = await axios.get(`${API_BASE_URL}/api/get-jobs/`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -209,12 +209,12 @@ const AdminProfile = () => {
         department: editableAdmin.department,
       };
 
-      await axios.put(`${base_url}/api/update-admin/${userId}/`, updatedData);
+      await axios.put(`${API_BASE_URL}/api/update-admin/${userId}/`, updatedData);
 
       setEditMode(false);
       setShowAdminPopup(false); // Hide pop-up after saving
       // Refresh admin data
-      const response = await axios.get(`${base_url}/api/get-admin/${userId}/`);
+      const response = await axios.get(`${API_BASE_URL}/api/get-admin/${userId}/`);
       setAdmin(response.data.data);
     } catch (error) {
       console.error("Error updating profile:", error);
@@ -327,6 +327,14 @@ const AdminProfile = () => {
 
   // Check if admin status is active
   const isActive = admin?.status === "Active";
+
+  const truncateString = (str, num) => {
+    if (str.length <= num) {
+      return str;
+    }
+    return str.slice(0, num) + '...';
+  };
+
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-gray-50 ml-0 md:ml-65">
@@ -540,10 +548,10 @@ const AdminProfile = () => {
                           </td>
                         )}
                         <td className="px-3 md:px-6 py-2 md:py-4 whitespace-nowrap text-xs md:text-sm font-medium text-gray-900">
-                          {item.title}
+                        {truncateString(item.title,10)}
                         </td>
                         <td className="px-3 md:px-6 py-2 md:py-4 whitespace-nowrap text-xs md:text-sm text-gray-500">
-                          {item.company}
+                          {truncateString(item.company,10)}
                         </td>
                         <td className="px-3 md:px-6 py-2 md:py-4 whitespace-nowrap text-xs md:text-sm text-gray-500">
                           {item.posted_date}

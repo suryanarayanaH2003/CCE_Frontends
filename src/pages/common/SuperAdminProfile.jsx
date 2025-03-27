@@ -1,3 +1,4 @@
+"use client";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -5,7 +6,6 @@ import { Button } from "../../components/ui/button";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { School, UserCircle, Clock, Mail, Award } from "lucide-react";
-import { base_url } from "../../App";
 
 const SuperAdminProfile = () => {
   const navigate = useNavigate();
@@ -13,6 +13,7 @@ const SuperAdminProfile = () => {
   const [superAdmin, setSuperAdmin] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
   const [editedName, setEditedName] = useState("");
 
   useEffect(() => {
@@ -21,7 +22,7 @@ const SuperAdminProfile = () => {
         const token = Cookies.get("jwt");
         const userId = JSON.parse(atob(token.split(".")[1])).superadmin_user;
         const response = await axios.get(
-          `${base_url}/api/get-superadmin/${userId}/`
+          `${API_BASE_URL}/api/get-superadmin/${userId}/`
         );
         const superAdminData = response.data.data;
 
@@ -48,7 +49,7 @@ const SuperAdminProfile = () => {
       };
 
       await axios.put(
-        `${base_url}/api/update-superadmin/${userId}/`,
+        `${API_BASE_URL}/api/update-superadmin/${userId}/`,
         updatedData
       );
 

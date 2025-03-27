@@ -8,7 +8,6 @@ import nextIcon from "../../../assets/icons/next-icon.svg";
 import axios from "axios";
 import { toast } from "react-toastify";
 import Cookies from "js-cookie";
-import { base_url } from "../../../App";
 
 const AchievementTable = ({
   achievements,
@@ -59,7 +58,7 @@ const AchievementTable = ({
   
     try {
       await axios.put(
-        `${base_url}/api/edit-achievement/${id}/`,
+        `${API_BASE_URL}/api/edit-achievement/${id}/`,
         { starred: !isStarred },
         {
           headers: {
@@ -78,6 +77,13 @@ const AchievementTable = ({
       );
       toast.error("Failed to update star status. Please try again.");
     }
+  };
+
+  const truncateString = (str, num) => {
+    if (str.length <= num) {
+      return str;
+    }
+    return str.slice(0, num) + '...';
   };
   
 
@@ -116,14 +122,14 @@ const AchievementTable = ({
           </div>
 
           <button
-            className="px-5 py-1 bg-[#00b69b] text-white rounded text-sm flex items-center space-x-2"
+            className="px-5 py-1 hover:bg-green-50 border border-green text-green-800 rounded text-sm flex items-center space-x-2"
             onClick={() => handleBulkApprove("achievement")}
           >
             <p>Approve all</p>
             <FaCheck />
           </button>
           <button
-            className="px-5 py-1 bg-[#ef3826] text-white rounded text-sm flex items-center space-x-2"
+            className="px-5 py-1 hover:bg-red-50 border border-red text-red-500 rounded text-sm flex items-center space-x-2"
             onClick={() => handleBulkDelete("achievement")}
           >
             <p>Delete all</p>
@@ -144,15 +150,14 @@ const AchievementTable = ({
                     type="checkbox"
                     checked={selectedAchievements.length === achievements.length}
                     onChange={handleSelectAll}
-                    className="form-checkbox h-4 w-4 text-blue-600 mr-2"
+                    className="form-checkbox h-4 w-4 text-blue-600"
                   />
-                  Select
                 </th>
-                <th className="py-3 border-b border-gray-200">Name</th>
-                <th className="py-3 border-b border-gray-200">Type</th>
-                <th className="py-3 border-b border-gray-200">Company</th>
-                <th className="py-3 border-b border-gray-200">Batch</th>
-                <th className="py-3 border-b border-gray-200">Status</th>
+                <th className="py-3 border-b text-left border-gray-200">Name</th>
+                <th className="py-3 border-b text-left border-gray-200">Type</th>
+                <th className="py-3 border-b text-left border-gray-200">Company</th>
+                <th className="py-3 border-b text-left border-gray-200">Batch</th>
+                <th className="py-3 border-b text-left border-gray-200">Status</th>
                 <th className="py-3 border-b border-gray-200">Actions</th>
               </tr>
             </thead>
@@ -173,11 +178,11 @@ const AchievementTable = ({
                       className="form-checkbox h-4 w-4 text-blue-600"
                     />
                   </td>
-                  <td className="text-center py-3 py-1">{achievement.name}</td>
-                  <td className="text-center py-3 py-1">{achievement.achievement_type}</td>
-                  <td className="text-center py-3 py-1">{achievement.company_name}</td>
-                  <td className="text-center py-3 py-1">{achievement.batch}</td>
-                  <td className="text-center py-3 py-1 font-semibold">
+                  <td className="text-left py-3 py-1">{truncateString(achievement.name,20)}</td>
+                  <td className="text-left py-3 py-1">{achievement.achievement_type}</td>
+                  <td className="text-left py-3 py-1">{truncateString(achievement.company_name,20)}</td>
+                  <td className="text-left py-3 py-1">{achievement.batch}</td>
+                  <td className="text-left py-3 py-1 font-semibold">
                     {achievement.is_publish === true ? (
                       <span className="text-green-800 px-1 py-0.5 rounded-full text-xs">Approved</span>
                     ) : achievement.is_publish === false ? (
@@ -186,8 +191,8 @@ const AchievementTable = ({
                       <span className="text-yellow-800 px-1 py-0.5 rounded-full text-xs">Pending</span>
                     )}
                   </td>
-                  <td className="text-center py-3 py-1">
-                    <div className="flex justify-center space-x-1">
+                  <td className="text-left py-3 py-1">
+                    <div className="flex justify-center space-x-2">
                       {achievement.is_publish === null && (
                         <>
                           <IoMdCheckmark
@@ -212,11 +217,6 @@ const AchievementTable = ({
                         size={16}
                         onClick={() => handleDelete(achievement._id, "achievement")}
                       />
-                      <FaStar
-                        className={`cursor-pointer ${achievement.starred ? "text-amber-500" : "text-gray-400"}`}
-                        size={18}
-                        onClick={() => handleStar(achievement._id, achievement.starred)}
-                      />
                     </div>
                   </td>
                 </tr>
@@ -225,13 +225,14 @@ const AchievementTable = ({
           </table>
         </div>
       )}
-
+      {achievements.length > itemsPerPage && (
       <Pagination
         currentPage={currentPage}
         totalItems={achievements.length}
         itemsPerPage={itemsPerPage}
         onPageChange={handlePageChange}
       />
+    )}
     </div>
   );
 };

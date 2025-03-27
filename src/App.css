@@ -3,11 +3,11 @@
 }
 
 @font-face {
-    font-family: 'Britti Sans Trial';
-    src: url('path-to-font/BrittiSansTrial-Regular.woff2') format('woff2'),
-         url('path-to-font/BrittiSansTrial-Regular.woff') format('woff');
-    font-weight: normal;
-    font-style: normal;
+  font-family: 'Britti Sans Trial';
+  src: url('fonts/BrittiSansTrial-Regular-BF6757bfd47ffbf.otf') format('woff2'),
+       url('fonts/BrittiSansTrial-Regular-BF6757bfd47ffbf.otf') format('woff');
+  font-weight: normal;
+  font-style: normal;
 }
 
 body {

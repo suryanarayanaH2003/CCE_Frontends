@@ -8,7 +8,7 @@ import login1 from "../../assets/images/LoginImg1.png";
 import login2 from "../../assets/images/LoginImg2.png";
 import login3 from "../../assets/images/LoginImg3.png";
 import Squares from "../../components/ui/GridLogin";
-import { base_url } from "../../App";
+
 // Animation variants defined outside component to prevent recreation on each render
 const slideVariants = {
   enter: {
@@ -51,6 +51,7 @@ export default function StudentSignup() {
   const [index, setIndex] = useState(0);
   const images = [login1, login2, login3];
   const [passwordStrength, setPasswordStrength] = useState(0);
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -69,9 +70,10 @@ export default function StudentSignup() {
 
     // Real-time validation
     if (name === "email") {
+      const emailRegex = /^[a-zA-Z0-9._%+-]+@sns[a-zA-Z0-9.-]*\.[a-zA-Z]{2,}$/;
       setErrors((prevErrors) => ({
         ...prevErrors,
-        email: value.includes("@sns") ? "" : "Use your domain id",
+        email: emailRegex.test(value) ? "" : "Please enter a valid SNS email (e.g., example@sns.edu.in)",
       }));
     }
     if (name === "confirmPassword") {
@@ -113,9 +115,9 @@ export default function StudentSignup() {
     } = formData;
 
     const newErrors = {};
-
-    if (!email.includes("@sns")) {
-      newErrors.email = "Use your domain id";
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@sns[a-zA-Z0-9.-]*\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(email)) {
+      newErrors.email = "Please enter a valid SNS email (e.g., example@sns.edu.in)";
     }
 
     if (password !== confirmPassword) {
@@ -131,7 +133,7 @@ export default function StudentSignup() {
 
     try {
       const response = await fetch(
-        `${base_url}/api/student-signup/`,
+        `${API_BASE_URL}/api/student-signup/`,
         {
           method: "POST",
           headers: {

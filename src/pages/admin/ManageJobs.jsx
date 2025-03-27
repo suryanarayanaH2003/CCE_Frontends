@@ -10,7 +10,7 @@ import approvedIcon from "../../assets/icons/Approved 1.png";
 import rejectedIcon from "../../assets/icons/Rejected 1.png";
 import pendingIcon from "../../assets/icons/Pending 1.png"; // Corrected import for pending icon
 import NoListing from "../../assets/images/NoListing.svg";
-import { base_url } from "../../App";
+
 import {
   CheckCircle2,
   XCircle,
@@ -126,6 +126,7 @@ const ManageJobs = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
   const navigate = useNavigate();
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
   const { setIsLoading } = useContext(LoaderContext)
 
@@ -135,7 +136,7 @@ const ManageJobs = () => {
         setIsLoading(true);
         const token = Cookies.get("jwt");
         const response = await axios.get(
-          `${base_url}/api/${endpoint}/`,
+          `${API_BASE_URL}/api/${endpoint}/`,
           {
             headers: { Authorization: `Bearer ${token}` },
             withCredentials: true,

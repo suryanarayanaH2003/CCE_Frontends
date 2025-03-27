@@ -9,7 +9,8 @@ import Pagination from "../../components/Admin/pagination"; // Import Pagination
 import { Link } from "react-router-dom";
 import { LoaderContext } from "../../components/Common/Loader";
 import yellowBg from "../../assets/images/Yellowbg.png"; // Import the background image
-import { base_url } from "../../App";
+import DesktopOnly from "../../components/Common/DesktopOnly";
+
 const SuperAdminHome = () => {
   const navigate = useNavigate();
   const [jobs, setJobs] = useState([]);
@@ -18,6 +19,7 @@ const SuperAdminHome = () => {
   const [filter, setFilter] = useState("All");
   const [error, setError] = useState("");
   const [searchPhrase, setSearchPhrase] = useState("");
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
   const [filteredJobs, setFilteredJobs] = useState([]);
   const [filteredInterns, setFilteredInterns] = useState([]);
 
@@ -41,8 +43,8 @@ const SuperAdminHome = () => {
   const studentCount = students.length;
 
   const cardsData = [
-    { title: "Total Job Listings", count: jobs.length, icon: <FaCheck />, Link: "/jobs" },
-    { title: "Total Internship Listings", count: internships.length, icon: <FaBook />, Link: "/internships" },
+    { title: "Total Job", count: approvedJobs.length, icon: <FaCheck />, Link: "/jobs" },
+    { title: "Total Internship", count: approvedInternships.length, icon: <FaBook />, Link: "/internships" },
     { title: "Rejected Approvals", count: rejectedCount, icon: <FaTrophy />, Link: "/contact-inbox" },
     { title: "Pending Approvals", count: pendingCount, icon: <FaUserPlus />, Link: "/superadmin-manage-jobs" },
   ];
@@ -59,7 +61,7 @@ const SuperAdminHome = () => {
           return;
         }
 
-        const response = await axios.get(`${base_url}/api/all-jobs-internships/`, {
+        const response = await axios.get(`${API_BASE_URL}/api/all-jobs-internships/`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -177,6 +179,7 @@ const SuperAdminHome = () => {
   return (
     <div className="flex w-full h-screen bg-gray-100 overflow-hidden"> {/* Prevents overflow */}
       <SuperAdminPageNavbar />
+      <DesktopOnly />
 
       <div className="flex flex-col space-y-4 p-4 flex-1 h-full">
         {/* h-full to prevent double height issues */}
@@ -184,7 +187,7 @@ const SuperAdminHome = () => {
         {/* Counts Container */}
         <div className="bg-white rounded-xl p-4 mb-4 ml-2 relative overflow-hidden mr-2">
           <div className="flex justify-between items-center mb-4 relative z-10">
-            <p className="text-3xl text-white"><strong> Welcome Back Super Admin! </strong></p>
+            <p className="text-3xl text-white"><strong> Center For Competitive Exams </strong></p>
           </div>
           <div className="grid grid-cols-4 gap-4 relative z-10">
             {cardsData.map((category, key) => (
@@ -208,6 +211,7 @@ const SuperAdminHome = () => {
         <div className="bg-gray-100 rounded-xl p-2 flex space-x-4 flex-1 overflow-hidden"> {/* Prevents overflow */}
           {/* Approval Requests Table */}
           <div className="flex flex-col rounded-lg bg-white flex-1 px-3">
+            
             <div className="flex justify-between py-2">
               <p className="font-semibold">Recent Approval Requests</p>
               <p className="text-yellow-400 cursor-pointer" onClick={() => navigate("/superadmin-manage-jobs")}>View All</p>
@@ -215,60 +219,69 @@ const SuperAdminHome = () => {
 
             {/* Scrollable Table */}
             <div className="flex flex-col justify-between flex-1">
-              <table className="w-full rounded-lg flex-col">
-                <thead>
-                  <tr className="text-left border-t border-b border-gray-400">
-                    <th className="px-3 py-2 font-normal text-sm">Title</th>
-                    <th className="px-3 py-2 font-normal text-sm">Company</th>
-                    <th className="px-3 py-2 font-normal text-sm">Work Time</th>
-                    <th className="px-3 py-2 font-normal text-sm">Job / Internship</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {getPaginatedApprovalRequests(pendingJobs).map((item, index) => (
-                    <tr
-                      key={index}
-                      className="text-left border-b border-gray-200 cursor-pointer hover:bg-gray-100 capitalize"
-                      onClick={() =>
-                        item.internship_data
-                          ? navigate(`/internship-preview/${item._id}`)
-                          : navigate(`/job-preview/${item._id}`)
-                      }
-                    >
-                      <td className="px-3 py-3 font-normal text-sm">
-                        {item.internship_data?.title ?? item.job_data?.title}
-                      </td>
-                      <td className="px-3 py-3 font-normal text-sm">
-                        {item.internship_data?.company_name ?? item.job_data?.company_name}
-                      </td>
-                      <td className="px-3 py-3 font-normal text-sm">
-                        {item.internship_data?.internship_type ?? item.job_data?.work_type}
-                      </td>
-                      <td className="px-3 py-3 font-normal text-sm">
-                        {item.internship_data ? "Internship" : item.job_data ? "Job" : "Unknown"}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              <div className="my-2">
-              {pendingJobs.length > 0 && (
-                <Pagination
-                  currentPage={currentPage}
-                  totalItems={pendingJobs.length}
-                  itemsPerPage={itemsPerPage}
-                  onPageChange={handlePageChange}
-                />
+              {pendingJobs.length === 0 ? (
+                <div className="flex flex-col items-center justify-center h-full text-gray-500">
+                  <p className="text-lg font-medium">No Recent Approval Requests</p>
+                  <p className="text-sm">All posts have been reviewed</p>
+                </div>
+              ) : (
+                <>
+                  <table className="w-full rounded-lg flex-col">
+                    <thead>
+                      <tr className="text-left border-t border-b border-gray-400">
+                        <th className="px-3 py-2 font-normal text-sm">Title</th>
+                        <th className="px-3 py-2 font-normal text-sm">Company</th>
+                        <th className="px-3 py-2 font-normal text-sm">Work Time</th>
+                        <th className="px-3 py-2 font-normal text-sm">Job / Internship</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {getPaginatedApprovalRequests(pendingJobs).map((item, index) => (
+                        <tr
+                          key={index}
+                          className="text-left border-b border-gray-200 cursor-pointer hover:bg-gray-100 capitalize"
+                          onClick={() =>
+                            item.internship_data
+                              ? navigate(`/internship-preview/${item._id}`)
+                              : navigate(`/job-preview/${item._id}`)
+                          }
+                        >
+                          <td className="px-3 py-3 font-normal text-sm">
+                            {item.internship_data?.title ?? item.job_data?.title}
+                          </td>
+                          <td className="px-3 py-3 font-normal text-sm">
+                            {item.internship_data?.company_name ?? item.job_data?.company_name}
+                          </td>
+                          <td className="px-3 py-3 font-normal text-sm">
+                            {item.internship_data?.internship_type ?? item.job_data?.work_type}
+                          </td>
+                          <td className="px-3 py-3 font-normal text-sm">
+                            {item.internship_data ? "Internship" : item.job_data ? "Job" : "Unknown"}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  {pendingJobs.length > itemsPerPage && (
+                    <div className="my-2">
+                      <Pagination
+                        currentPage={currentPage}
+                        totalItems={pendingJobs.length}
+                        itemsPerPage={itemsPerPage}
+                        onPageChange={handlePageChange}
+                      />
+                    </div>
+                  )}
+                </>
               )}
-              </div>
             </div>
           </div>
 
           {/* Inbox */}
           <div className="w-1/3 bg-white rounded-lg h-full px-3 overflow-y-auto space-y-4 relative"> {/* Fixed height issue */}
             <div className="flex justify-between items-center py-2 border-b border-gray-400 px-1 sticky top-0 bg-white">
-              <p className="font-semibold"> Inbox </p>
-              <p className="text-yellow-400 cursor-pointer" onClick={() => navigate("/message")}>View All</p>
+              <p className="font-semibold"> Approvals </p>
+              <p className="text-yellow-400 cursor-pointer" onClick={() => navigate("/contact-inbox")}>View All</p>
             </div>
 
             <div className="flex flex-col space-y-3">
@@ -279,7 +292,7 @@ const SuperAdminHome = () => {
                       <span className="p-2"> <FaUserAlt /></span>
                       <div className="flex flex-col">
                         <div className="flex items-center space-x-3 text-lg">
-                          <p>Super Admin</p>
+                          <p>Admin</p>
                           <FaCircle color={listing.is_publish ? "#009946" : "#EF3826"} size={6} />
                         </div>
                         <p className="text-xs">

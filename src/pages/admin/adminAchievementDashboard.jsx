@@ -6,7 +6,6 @@ import { LoaderContext } from "../../components/Common/Loader"; // Import Loader
 import bgimage from "../../assets/icons/Group 1.svg";
 import { FiSearch } from "react-icons/fi";
 import Pagination from "../../components/Admin/pagination"; // Assuming Pagination is in this path
-import { base_url } from "../../App";
 
 export default function AchievementDashboard() {
   const [achievements, setAchievements] = useState([]);
@@ -16,6 +15,7 @@ export default function AchievementDashboard() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("");
   const [currentPage, setCurrentPage] = useState(1); // Current page state
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
   const [itemsPerPage] = useState(8); // Items per page (can adjust as needed)
   const navigate = useNavigate();
 
@@ -23,7 +23,7 @@ export default function AchievementDashboard() {
     const fetchPublishedAchievements = async () => {
       setIsLoading(true); // Show loader when fetching data
       try {
-        const response = await axios.get(`${base_url}/api/published-achievement/`);
+        const response = await axios.get(`${API_BASE_URL}/api/published-achievement/`);
         setAchievements(response.data.achievements);
         setFilteredAchievements(response.data.achievements);
       } catch (err) {

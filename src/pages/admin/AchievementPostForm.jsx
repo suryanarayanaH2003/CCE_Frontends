@@ -7,7 +7,7 @@ import AdminPageNavbar from "../../components/Admin/AdminNavBar";
 import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { base_url } from "../../App";
+import DesktopOnly from "../../components/Common/DesktopOnly";
 
 export default function AchievementPostForm() {
   const [formData, setFormData] = useState({
@@ -23,6 +23,7 @@ export default function AchievementPostForm() {
   const [imagePreview, setImagePreview] = useState(null);
   const [loading, setLoading] = useState(false);
   const [userRole, setUserRole] = useState(null);
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
   const [userId, setUserId] = useState(null);
   const navigate = useNavigate();
 
@@ -152,7 +153,7 @@ export default function AchievementPostForm() {
       formDataObj.append("role", userRole);
 
       const response = await axios.post(
-        `${base_url}/api/upload_achievement/`,
+        `${API_BASE_URL}/api/upload_achievement/`,
         formDataObj,
         {
           headers: {
@@ -209,6 +210,7 @@ export default function AchievementPostForm() {
       {userRole === "superadmin" && (
         <SuperAdminPageNavbar className="fixed left-0 top-0 h-full" />
       )}
+      <DesktopOnly />
 
       <div className="flex-1 p-6 max-w-6xl w-full mx-auto bg-white rounded-lg shadow-lg my-auto md:m-10 ml-64">
         {/* Adjusted margin-left to account for the fixed navbar */}

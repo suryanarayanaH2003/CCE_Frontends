@@ -11,8 +11,6 @@ import { useNavigate } from "react-router-dom";
 import Pagination from "../../components/Admin/pagination";
 import { LoaderContext } from "../../components/Common/Loader";
 import NoListingImage from "../../assets/images/NoListing.svg"; // Import the image
-import { base_url } from "../../App";
-
 
 export default function InternshipDashboard() {
   const [internships, setInternships] = useState([]);
@@ -20,6 +18,7 @@ export default function InternshipDashboard() {
   const [error, setError] = useState("");
   const [searchPhrase, setSearchPhrase] = useState("");
   const [userRole, setUserRole] = useState(null);
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
   const [selectedIntern, setSelectedIntern] = useState(null);
   const [savedInterns, setSavedInterns] = useState([]);
   const [isSavedInternsOpen, setIsSavedInternsOpen] = useState(false);
@@ -60,10 +59,18 @@ export default function InternshipDashboard() {
 
   useEffect(() => {
     const fetchPublishedInternships = async () => {
-      setIsLoading(true); // Set loading to true before fetching data
       try {
         setIsLoading(true);
-        const response = await axios.get(`${base_url}/api/published-internship/`);
+        const token = Cookies.get("jwt");
+        const endpoint =
+          userRole === "admin"
+            ? `${API_BASE_URL}/api/manage-internships/`
+            : `${API_BASE_URL}/api/published-internship/`;
+        const response = await axios.get(endpoint, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         const internshipsWithType = response.data.internships.map((internship) => ({
           ...internship.internship_data,
           id: internship._id,
@@ -81,9 +88,11 @@ export default function InternshipDashboard() {
         setIsLoading(false);
       }
     };
-    fetchPublishedInternships();
-  }, [setIsLoading]);
 
+    if (userRole) {
+      fetchPublishedInternships();
+    }
+  }, [userRole, setIsLoading]);
   useEffect(() => {
     if (internships.length > 0) {
       applyFilters();
@@ -113,7 +122,7 @@ export default function InternshipDashboard() {
       const token = Cookies.get("jwt");
       if (!token) return;
       const userId = JSON.parse(atob(token.split(".")[1])).student_user;
-      const response = await axios.get(`${base_url}/api/saved-internships/${userId}/`);
+      const response = await axios.get(`${API_BASE_URL}/api/saved-internships/${userId}/`);
       setSavedInterns(response.data.internships.map((internship) => internship._id));
     } catch (err) {
       console.error("Error fetching saved internships:", err);
@@ -251,7 +260,7 @@ export default function InternshipDashboard() {
     };
     localStorage.setItem("internshipFilters", JSON.stringify(filtersToSave));
 
-    navigate(`/internship-details/${intern.id}`);
+    navigate(`/internship-preview/${intern.id}`);
   };
 
   return (
@@ -261,17 +270,16 @@ export default function InternshipDashboard() {
       <div className="flex flex-col flex-1">
         {userRole === "student" && <StudentPageNavbar />}
 
-        <div className="flex flex-col flex-1">
-          <header className="flex flex-col items-center justify-center py-8 px-4 sm:py-14 container mx-auto text-center">
-            <p className="text-3xl sm:text-6xl tracking-[0.8px]">Internships</p>
+        <div className="flex flex-col bg-gray-50 flex-1">
+          <header className="flex flex-col items-center justify-center py-8 px-4 sm:py-12 container mx-auto text-center">
+            <p className="text-3xl font-semibold sm:text-6xl tracking-[0.8px]">Internships</p>
             <p className="text-base sm:text-lg mt-2">
-              Explore all the internship opportunities in all the existing fields <br />
-              around the globe.
+              Explore all the internship opportunities in all the existing fields around the globe.
             </p>
           </header>
 
-          <div className="top-0 z-10 bg-white px-4 sm:px-10 mb-5">
-            <div className="flex flex-col sm:flex-row items-center gap-4">
+          <div className="top-0 z-10  px-4 sm:px-10 mb-5">
+            <div className="flex flex-col sm:flex-row items-center bg-white gap-4">
               <div className="relative flex items-center w-full">
                 <FiSearch className="absolute left-3 top-3 text-gray-500" />
                 <input
@@ -313,7 +321,7 @@ export default function InternshipDashboard() {
                 ) : error ? (
                   <p className="text-red-600">{error}</p>
                 ) : internships.length === 0 ? (
-                  <div className="alert alert-danger w-full col-span-full text-center flex flex-col items-center">
+                  <div className="mt-30 alert alert-danger w-full col-span-full text-center flex flex-col items-center">
                     <img src={NoListingImage} alt="No Listings" className="mb-4" />
                   </div>
                 ) : currentInterns.length === 0 ? (

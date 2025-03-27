@@ -4,11 +4,14 @@ import StudentPageNavbar from "../../components/Students/StudentPageNavbar";
 import Cookies from "js-cookie";
 import { LoaderContext } from "../../components/Common/Loader";
 import gridImg from "../../assets/images/Grid Lines.png";
-import ApplicationCard from "../../components/Students/ApplicationCard";
+import HomeCard from "../../components/Students/HomeCard";
 import CarouselAchievments from "../../components/Students/CarouselAchievments";
 import Image from "../../assets/images/AboutCCE1.png";
 import Image1 from "../../assets/images/AboutCCE2.png";
-import { base_url } from "../../App";
+import { Link } from 'react-router-dom';
+
+import { FiBookmark, FiMapPin, FiEye, FiClock } from "react-icons/fi";
+
 
 // icon imports
 import codeSandBoxIcon from "../../assets/icons/codesandbox.png";
@@ -21,7 +24,7 @@ import fileIcon from "../../assets/icons/file.png";
 import { toast, ToastContainer } from "react-toastify";
 
 const themeButton =
-  "px-7 py-[6px] rounded w-fit text-sm bg-[#FFCC00] cursor-pointer";
+  "px-7 py-[8px]  rounded w-fit text-md bg-[#FFCC00] cursor-pointer";
 
 import { IoIosArrowForward } from "react-icons/io";
 import { IoMdClose, IoMdAdd } from "react-icons/io";
@@ -33,7 +36,6 @@ import mentor1 from "../../assets/images/mentors (1).jpeg";
 import mentor2 from "../../assets/images/mentors (2).jpeg";
 import mentor3 from "../../assets/images/user.png";
 import { jwtDecode } from "jwt-decode";
-
 const ContactSection = ({ formData, setFormData, handleSubmit }) => {
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -47,11 +49,11 @@ const ContactSection = ({ formData, setFormData, handleSubmit }) => {
         alt=""
       />
 
-      <div className="px-[5%] w-full flex flex-col md:flex-row gap-6 md:gap-0">
+      <div className="w-full flex flex-col md:flex-row gap-6 md:gap-0">
         {/* Left Section */}
-        <div className="w-full md:w-1/2 space-y-4 px-[4%]">
+        <div className="w-full md:w-1/2 space-y-4 px-4 md:px-10">
           <h2 className="text-2xl md:text-3xl font-bold">
-            Get in Touch with Us!
+            Get in Touch with Us Today!
           </h2>
           <p className="text-gray-600">
             Your Questions Matter – We’re Here to Support You Every Step of the
@@ -61,7 +63,7 @@ const ContactSection = ({ formData, setFormData, handleSubmit }) => {
             <div className="flex flex-col items-stretch space-y-2 sm:space-y-0 sm:space-x-3 pb-2 flex-1">
               <div className="border-b pb-2.5 mb-2.5">
                 <FiMail className="w-8 h-8 p-1.5 border rounded-lg border-gray-500 mb-1" />
-                <p className="text-xl">Message Us</p>
+                <p className="text-xl font-bold mt-1">Message Us</p>
               </div>
 
               <p className="text-gray-500">support@gmail.com</p>
@@ -69,7 +71,7 @@ const ContactSection = ({ formData, setFormData, handleSubmit }) => {
             <div className="flex flex-col items-stretch space-y-2 sm:space-y-0 sm:space-x-3 pb-2 flex-1">
               <div className="border-b pb-2.5 mb-2.5">
                 <FiPhone className="w-8 h-8 p-1.5 border rounded-lg border-gray-500 mb-1" />
-                <p className="text-xl">Call Us</p>
+                <p className="text-xl font-bold mt-1">Call Us</p>
               </div>
 
               <p className="text-gray-500">+91 98765 54321</p>
@@ -78,7 +80,7 @@ const ContactSection = ({ formData, setFormData, handleSubmit }) => {
         </div>
 
         {/* Right Section (Form) */}
-        <div className="w-full md:flex-1 px-[4%] md:px-[8%]">
+        <div className="w-full md:flex-1 px-4 md:px-0">
           <div className="bg-white shadow-lg rounded-lg p-6 w-full mt-0 md:mt-0">
             <form className="space-y-4" onSubmit={handleSubmit}>
               <input
@@ -104,7 +106,8 @@ const ContactSection = ({ formData, setFormData, handleSubmit }) => {
                 placeholder="How can we help..."
                 value={formData.message}
                 onChange={handleChange}
-                className="w-full p-3 rounded bg-yellow-100 focus:outline-none h-32"
+                className="w-full p-3 rounded bg-yellow-100 focus:outline-none h-32 resize-none"
+                maxLength="300"
               ></textarea>
               <button
                 type="submit"
@@ -127,16 +130,26 @@ const FAQSection = () => {
       answer:
         "Yes, all study materials provided on our platform are free for students. You can download PDFs, presentations, and other resources to help with your exam and job preparation.",
       linkText: "Explore the Study Materials",
+      linkTo: "/study-material"
     },
     {
-      question: "Can I apply for multiple jobs at once?",
+      question: "Where can I find job opportunities?",
+      answer: "You can explore a wide range of job opportunities on our platform. Filter by industry, role, and location to find the perfect fit for you.",
+      linkText: "Explore the Jobs",
+      linkTo: "/jobs"
     },
     {
-      question: "How do I showcase my achievements on the platform?",
+      question: "How can I find internship opportunities?",
+      answer: "Our platform provides a dedicated section for internships. Browse through various opportunities and apply to gain valuable experience in your field.",
+      linkText: "Explore the Internships",
+      linkTo: "/internships"
     },
     {
-      question: "Will I get notifications for new job postings?",
-    },
+      question: "How will I know about upcoming exams?",
+      answer: "You will receive timely notifications about new exam postings. Stay updated by enabling notifications in your account settings.",
+      linkText: "Explore the Exams",
+      linkTo: "/exams"
+    }
   ];
 
   const [openIndex, setOpenIndex] = useState(null);
@@ -154,9 +167,6 @@ const FAQSection = () => {
           <p className="text-gray-500">
             Your Questions, Answered – Everything You Need to Know
           </p>
-          <button className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100 w-fit">
-            See All FAQs
-          </button>
         </div>
 
         {/* Right Side - FAQ List */}
@@ -174,17 +184,21 @@ const FAQSection = () => {
                   {faq.question}
                 </p>
                 <button className="p-2 rounded-full bg-yellow-300">
-                  {openIndex === index ? <IoMdClose /> : <IoMdAdd />}
+                  {openIndex === index ? (
+                    <IoIosArrowForward className="transform rotate-90" />
+                  ) : (
+                    <IoIosArrowForward />
+                  )}
                 </button>
               </div>
               {openIndex === index && faq.answer && (
                 <div className="mt-2 text-gray-600">
                   <p>{faq.answer}</p>
                   {faq.linkText && (
-                    <div className="flex items-center mt-2 p-3 bg-gray-100 rounded-md cursor-pointer">
+                    <Link to={faq.linkTo} className="flex items-center mt-2 p-3 bg-gray-100 rounded-md cursor-pointer">
                       <p>{faq.linkText}</p>
                       <IoIosArrowForward className="ml-auto" />
-                    </div>
+                    </Link>
                   )}
                 </div>
               )}
@@ -196,7 +210,44 @@ const FAQSection = () => {
   );
 };
 
-const Header = ({ jobs }) => {
+const Header = () => {
+  // Define static job data directly within the Header component
+  const staticJobs = [
+    {
+      _id: "1",
+      title: "Software Engineer",
+      company_name: "Tech Corp",
+      location: "Bangalore",
+      job_description: "Develop and maintain software applications.",
+      updated_at: "Just now",
+      views: 150,
+      status: "Active",
+      type: "job"
+    },
+    {
+      _id: "2",
+      title: "Data Scientist",
+      company_name: "Data Solutions",
+      location: "Mumbai",
+      job_description: "Analyze data and build predictive models.",
+      updated_at: "2025-09-25T09:30:00Z",
+      views: 200,
+      status: "Active",
+      type: "job"
+    },
+    {
+      _id: "3",
+      title: "Product Manager",
+      company_name: "Innovate Inc",
+      location: "Delhi",
+      job_description: "Manage product lifecycle and roadmap.",
+      updated_at: "old",
+      views: 180,
+      status: "Active",
+      type: "job"
+    }
+  ];
+
   return (
     <header className="w-full relative" id="hero">
       <img
@@ -211,47 +262,161 @@ const Header = ({ jobs }) => {
         <StudentPageNavbar transparent={true} />
       </div>
 
-        {jobs.length > 0 && (
-          <div className="w-full h-full absolute hidden md:flex">
-            <div className="flex-1 flex flex-col">
-              <div className="flex-1 flex items-center px-20 pt-10">
-                <div className="w-70 rotate-[-20deg] hover:rotate-[0deg] hover:scale-[1.2] cursor-pointer">
-                  <ApplicationCard
-                    small={true}
-                    application={{ ...jobs[0], ...jobs[0]?.job_data }}
-                    key={jobs[0]?._id}
-                    handleCardClick={() => {}}
-                    isSaved={undefined}
-                  />
-                </div>
-              </div>
-
-              <div className="flex-1 flex justify-end px-30 pb-30">
-                <div className="w-70 scale-[0.5] rotate-[-50deg] relative hover:rotate-[0deg] hover:scale-[1.1]">
-                  <ApplicationCard
-                    small={true}
-                    application={{ ...jobs[1], ...jobs[1]?.job_data }}
-                    key={jobs[1]?._id}
-                    handleCardClick={() => {}}
-                    isSaved={undefined}
-                  />
+      {staticJobs.length > 0 && (
+        <div className="w-full h-full absolute hidden md:flex">
+          <div className="flex-1 flex flex-col">
+            <div className="flex-1 flex items-center px-20 pt-10">
+              <div className="w-70 rotate-[-20deg] hover:rotate-[0deg] hover:scale-[1.2] cursor-pointer">
+                <div className="relative bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 border border-gray-200 flex flex-col justify-between p-2 text-[10px]">
+                  <div className="flex flex-col">
+                    <div className="flex justify-between items-start mb-2">
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-gray-900 mb-1 line-clamp-2 text-sm">
+                          {staticJobs[0].title}
+                        </h3>
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-gray-600 text-[13px]">
+                          <span className="flex items-center">
+                            <i className="bi bi-building mr-1 opacity-75 text-[12px]"></i>
+                            {staticJobs[0].company_name}
+                          </span>
+                          <span className="flex items-center">
+                            <FiMapPin className="mr-1 opacity-75 text-[12px]" />
+                            {staticJobs[0].location}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <p className="text-gray-600 mb-2 line-clamp-2 leading-snug text-[13px]">
+                      {staticJobs[0].job_description}
+                    </p>
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-gray-500 text-[13px]">
+                      <div className="flex items-center">
+                        <FiClock className="mr-1 opacity-75 text-[12px]" />
+                        {timeAgo(staticJobs[0].updated_at)}
+                      </div>
+                      <div className="flex items-center">
+                        <FiEye className="mr-1 opacity-75 text-[12px]" />
+                        {formatViewCount(staticJobs[0].views)} views
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mt-3 pt-2 border-t border-gray-100">
+                    <span className="inline-flex items-center rounded-full font-medium text-[10px] py-0.5 px-1 text-green-800">
+                      <span className="mr-1 inline-block w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                      ON GOING
+                    </span>
+                    <div className="w-full sm:w-auto mt-2 sm:mt-0">
+                      <button className="w-full sm:w-auto bg-yellow-400 hover:bg-yellow-500 text-black rounded-sm text-[11px] py-1 px-2">
+                        View Details
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div className="flex-1 flex items-center justify-end -mt-30 px-30">
-              <div className="w-70 rotate-[20deg] scale-[0.8] relative hover:rotate-[0deg] hover:scale-[1.2] cursor-pointer">
-                <ApplicationCard
-                  small={true}
-                  application={{ ...jobs[2], ...jobs[2]?.job_data }}
-                  key={jobs[2]?._id}
-                  handleCardClick={() => {}}
-                  isSaved={undefined}
-                />
+            <div className="flex-1 flex justify-end px-30 pb-30">
+              <div className="w-70 scale-[0.5] rotate-[-50deg] relative hover:rotate-[0deg] hover:scale-[1.1]">
+                <div className="relative bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 border border-gray-200 flex flex-col justify-between p-2 text-[10px]">
+                  <div className="flex flex-col">
+                    <div className="flex justify-between items-start mb-2">
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-gray-900 mb-1 line-clamp-2 text-sm">
+                          {staticJobs[1].title}
+                        </h3>
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-gray-600 text-[13px]">
+                          <span className="flex items-center">
+                            <i className="bi bi-building mr-1 opacity-75 text-[12px]"></i>
+                            {staticJobs[1].company_name}
+                          </span>
+                          <span className="flex items-center">
+                            <FiMapPin className="mr-1 opacity-75 text-[12px]" />
+                            {staticJobs[1].location}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <p className="text-gray-600 mb-2 line-clamp-2 leading-snug text-[13px]">
+                      {staticJobs[1].job_description}
+                    </p>
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-gray-500 text-[13px]">
+                      <div className="flex items-center">
+                        <FiClock className="mr-1 opacity-75 text-[12px]" />
+                        {timeAgo(staticJobs[1].updated_at)}
+                      </div>
+                      <div className="flex items-center">
+                        <FiEye className="mr-1 opacity-75 text-[12px]" />
+                        {formatViewCount(staticJobs[1].views)} views
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mt-3 pt-2 border-t border-gray-100">
+                    <span className="inline-flex items-center rounded-full font-medium text-[10px] py-0.5 px-1 text-green-800">
+                      <span className="mr-1 inline-block w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                      ON GOING
+                    </span>
+                    <div className="w-full sm:w-auto mt-2 sm:mt-0">
+                      <button className="w-full sm:w-auto bg-yellow-400 hover:bg-yellow-500 text-black rounded-sm text-[11px] py-1 px-2">
+                        View Details
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        )}
+
+          <div className="flex-1 flex items-center justify-end -mt-30 px-30">
+            <div className="w-70 rotate-[20deg] scale-[0.8] relative hover:rotate-[0deg] hover:scale-[1.2] cursor-pointer">
+              <div className="relative bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 border border-gray-200 flex flex-col justify-between p-2 text-[10px]">
+                <div className="flex flex-col">
+                  <div className="flex justify-between items-start mb-2">
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-gray-900 mb-1 line-clamp-2 text-sm">
+                        {staticJobs[2].title}
+                      </h3>
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-gray-600 text-[13px]">
+                        <span className="flex items-center">
+                          <i className="bi bi-building mr-1 opacity-75 text-[12px]"></i>
+                          {staticJobs[2].company_name}
+                        </span>
+                        <span className="flex items-center">
+                          <FiMapPin className="mr-1 opacity-75 text-[12px]" />
+                          {staticJobs[2].location}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <p className="text-gray-600 mb-2 line-clamp-2 leading-snug text-[13px]">
+                    {staticJobs[2].job_description}
+                  </p>
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-gray-500 text-[13px]">
+                    <div className="flex items-center">
+                      <FiClock className="mr-1 opacity-75 text-[12px]" />
+                      {timeAgo(staticJobs[2].updated_at)}
+                    </div>
+                    <div className="flex items-center">
+                      <FiEye className="mr-1 opacity-75 text-[12px]" />
+                      {formatViewCount(staticJobs[2].views)} views
+                    </div>
+                  </div>
+                </div>
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mt-3 pt-2 border-t border-gray-100">
+                  <span className="inline-flex items-center rounded-full font-medium text-[10px] py-0.5 px-1 text-green-800">
+                    <span className="mr-1 inline-block w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                    ON GOING
+                  </span>
+                  <div className="w-full sm:w-auto mt-2 sm:mt-0">
+                    <button className="w-full sm:w-auto bg-yellow-400 hover:bg-yellow-500 text-black rounded-sm text-[11px] py-1 px-2">
+                      View Details
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="w-full flex flex-col items-center text-center py-12 md:py-20 lg:py-34 space-y-3 md:space-y-5 z-20">
         <p className="text-3xl md:text-5xl lg:text-7xl font-semibold">
@@ -286,11 +451,56 @@ const Header = ({ jobs }) => {
   );
 };
 
+// Helper functions
+function timeAgo(dateString) {
+  const givenDate = new Date(dateString);
+  const now = new Date();
+  const secondsDiff = Math.floor((now - givenDate) / 1000);
+
+  const years = Math.floor(secondsDiff / 31536000);
+  if (years >= 1) return `${years} year${years > 1 ? "s" : ""} ago`;
+
+  const months = Math.floor(secondsDiff / 2592000);
+  if (months >= 1) return `${months} month${months > 1 ? "s" : ""} ago`;
+
+  const days = Math.floor(secondsDiff / 86400);
+  if (days >= 1) return `${days} day${days > 1 ? "s" : ""} ago`;
+
+  const hours = Math.floor(secondsDiff / 3600);
+  if (hours >= 1) return `${hours} hour${hours > 1 ? "s" : ""} ago`;
+
+  const minutes = Math.floor(secondsDiff / 60);
+  if (minutes >= 1) return `${minutes} minute${minutes > 1 ? "s" : ""} ago`;
+
+  return "Just now";
+}
+
+function formatViewCount(count) {
+  if (count === undefined || count === null) {
+    return "0";
+  }
+
+  if (count >= 1000) {
+    return (count / 1000).toFixed(1) + "k";
+  }
+
+  return count.toString();
+}
+
+
+
 const Insights = () => {
   return (
     <section className="w-[90%] md:w-[85%] self-center flex flex-col items-center space-y-10 md:space-y-20 px-4 md:px-0 ]">
-      <div>
-        <CarouselAchievments />
+      <div className="relative w-full h-full shadow-2xl rounded-lg shadow-white">
+        <video
+          src="/video.MOV"
+          autoPlay
+          loop
+          muted
+          className="w-full h-full object-cover rounded-lg"
+        />
+        <div className="absolute bottom-0 left-0 w-full h-1/4 bg-gradient-to-t from-white to-transparent rounded-b-lg"></div>
       </div>
       <div className="bg-[#070E20] w-screen min-h-screen px-4 py-8 md:px-20">
         <div className="flex flex-col items-center space-y-2 text-center md:mt-10 ">
@@ -307,31 +517,31 @@ const Insights = () => {
           {[
             {
               icon: fileIcon,
-              title: "Access Verified Study Materials",
+              title: "Verified Study Materials",
               content:
                 "Prepare for competitive exams and job applications with high-quality resources.",
             },
             {
               icon: mailIcon,
-              title: "Explore Job & Internship Listings",
+              title: "Job and Internship Listings",
               content:
                 "Find categorized opportunities based on your skills, industry, and career goals.",
             },
             {
               icon: pullIcon,
-              title: "Expert Guidance & Student Support",
+              title: "Guidance and Student Support",
               content:
                 "Get personalized advice, career mentorship, and assistance through our support team.",
             },
             {
               icon: sendIcon,
-              title: "Achievement Showcase",
+              title: "Achievements",
               content:
                 "Highlight your career milestones, job placements, and exam successes to inspire others.",
             },
             {
               icon: gridIcon,
-              title: "Real-Time Job Alerts",
+              title: "Job and Internship Alerts",
               content:
                 " Get instant notifications for new job openings and internship opportunities.",
             },
@@ -406,8 +616,9 @@ const Insights = () => {
   );
 };
 
-const ThatOnePainInTheA__ = ({ achieversImages }) => {
+const Thatabout = ({ achieversImages, achievements }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [hoveredIndex, setHoveredIndex] = useState(null);
 
   useEffect(() => {
     const user = Cookies.get("username");
@@ -439,105 +650,242 @@ const ThatOnePainInTheA__ = ({ achieversImages }) => {
           {!isLoggedIn ? "Log In" : "Visit Achievements"}
         </button>
       </div>
-
+  
       {/* Image Section */}
       <div className="w-full lg:w-2/3 flex justify-center lg:justify-end">
         <div className="h-[250px] sm:h-[300px] md:h-[400px] lg:h-[600px] aspect-square border-dashed border border-[#ffcc00] rounded-full flex items-center justify-center relative">
-          {/* Outer Circle Avatars */}
-          <img
-            src={
-              !achieversImages[0]
-                ? "https://smitg.ukzn.ac.za/wp-content/uploads/2022/07/default-profie-image-m.jpg"
-                : `data:image/jpeg;base64,${achieversImages[0]}`
-            }
-            alt="Achiever 1"
-            className="w-8 sm:w-10 md:w-16 rounded-full object-cover aspect-square absolute -top-4 sm:-top-5 md:-top-8"
-          />
-          <img
-            src={
-              !achieversImages[1]
-                ? "https://smitg.ukzn.ac.za/wp-content/uploads/2022/07/default-profie-image-m.jpg"
-                : `data:image/jpeg;base64,${achieversImages[1]}`
-            }
-            alt="Achiever 2"
-            className="w-8 sm:w-10 md:w-16 rounded-full object-cover aspect-square absolute bottom-10 sm:bottom-14 md:bottom-18 right-6 sm:right-8 md:right-10"
-          />
-          <img
-            src={
-              !achieversImages[2]
-                ? "https://smitg.ukzn.ac.za/wp-content/uploads/2022/07/default-profie-image-m.jpg"
-                : `data:image/jpeg;base64,${achieversImages[2]}`
-            }
-            alt="Achiever 3"
-            className="w-8 sm:w-10 md:w-16 rounded-full object-cover aspect-square absolute bottom-10 sm:bottom-14 md:bottom-18 left-6 sm:left-8 md:left-12"
-          />
-          <img
-            src={
-              !achieversImages[3]
-                ? "https://smitg.ukzn.ac.za/wp-content/uploads/2022/07/default-profie-image-m.jpg"
-                : `data:image/jpeg;base64,${achieversImages[3]}`
-            }
-            alt="Achiever 4"
-            className="w-8 sm:w-10 md:w-16 rounded-full object-cover aspect-square absolute top-14 sm:top-20 md:top-30 left-0"
-          />
-          <img
-            src={
-              !achieversImages[4]
-                ? "https://smitg.ukzn.ac.za/wp-content/uploads/2022/07/default-profie-image-m.jpg"
-                : `data:image/jpeg;base64,${achieversImages[4]}`
-            }
-            alt="Achiever 5"
-            className="w-8 sm:w-10 md:w-16 rounded-full object-cover aspect-square absolute top-14 sm:top-20 md:top-30 right-0"
-          />
-
-          {/* Inner Circle */}
+          {/* Animation containers for outer circle */}
+          <div className="absolute inset-0 rounded-full" style={{ animation: 'spin 45s linear infinite' }}>
+            {/* Image 1 - Fixed positioning to be like others */}
+            <div className="absolute -top-4 md:-top-6 left-1/2 transform -translate-x-1/2" style={{ animation: 'counterSpin 45s linear infinite' }}>
+              <img
+                src={
+                  !achieversImages[0]
+                    ? "https://smitg.ukzn.ac.za/wp-content/uploads/2022/07/default-profie-image-m.jpg"
+                    : `data:image/jpeg;base64,${achieversImages[0]}`
+                }
+                alt="Achiever 1"
+                className="w-8 sm:w-10 md:w-16 rounded-full object-cover aspect-square transition-transform duration-300 hover:scale-150 hover:z-50"
+                onMouseEnter={() => setHoveredIndex(0)}
+                onMouseLeave={() => setHoveredIndex(null)}
+              />
+              {hoveredIndex === 0 && achievements && achievements[0] && (
+                <div className="absolute bg-white p-2 rounded shadow-md z-50 w-40 text-xs -top-16 left-1/2 transform -translate-x-1/2">
+                  <p className="font-bold">{achievements[0].name}</p>
+                  <p>{achievements[0].achievement_type}</p>
+                </div>
+              )}
+            </div>
+  
+            {/* Image 2 */}
+            <div className="absolute bottom-6 sm:bottom-14 md:bottom-18 right-6 sm:right-8 md:right-10" style={{ animation: 'counterSpin 45s linear infinite' }}>
+              <img
+                src={
+                  !achieversImages[1]
+                    ? "https://smitg.ukzn.ac.za/wp-content/uploads/2022/07/default-profie-image-m.jpg"
+                    : `data:image/jpeg;base64,${achieversImages[1]}`
+                }
+                alt="Achiever 2"
+                className="w-8 sm:w-10 md:w-16 rounded-full object-cover aspect-square transition-transform duration-300 hover:scale-150 hover:z-50"
+                onMouseEnter={() => setHoveredIndex(1)}
+                onMouseLeave={() => setHoveredIndex(null)}
+              />
+              {hoveredIndex === 1 && achievements && achievements[1] && (
+                <div className="absolute bg-white p-2 rounded shadow-md z-50 w-40 text-xs right-0 -top-16">
+                  <p className="font-bold">{achievements[1].name}</p>
+                  <p>{achievements[1].achievement_type}</p>
+                </div>
+              )}
+            </div>
+  
+            {/* Image 3 */}
+            <div className="absolute bottom-6 sm:bottom-14 md:bottom-18 left-6 sm:left-8 md:left-12" style={{ animation: 'counterSpin 45s linear infinite' }}>
+              <img
+                src={
+                  !achieversImages[2]
+                    ? "https://smitg.ukzn.ac.za/wp-content/uploads/2022/07/default-profie-image-m.jpg"
+                    : `data:image/jpeg;base64,${achieversImages[2]}`
+                }
+                alt="Achiever 3"
+                className="w-8 sm:w-10 md:w-16 rounded-full object-cover aspect-square transition-transform duration-300 hover:scale-150 hover:z-50"
+                onMouseEnter={() => setHoveredIndex(2)}
+                onMouseLeave={() => setHoveredIndex(null)}
+              />
+              {hoveredIndex === 2 && achievements && achievements[2] && (
+                <div className="absolute bg-white p-2 rounded shadow-md z-50 w-40 text-xs left-0 -top-16">
+                  <p className="font-bold">{achievements[2].name}</p>
+                  <p>{achievements[2].achievement_type}</p>
+                </div>
+              )}
+            </div>
+  
+            {/* Image 4 */}
+            <div className="absolute top-14 sm:top-20 md:top-30 left-0" style={{ animation: 'counterSpin 45s linear infinite' }}>
+              <img
+                src={
+                  !achieversImages[3]
+                    ? "https://smitg.ukzn.ac.za/wp-content/uploads/2022/07/default-profie-image-m.jpg"
+                    : `data:image/jpeg;base64,${achieversImages[3]}`
+                }
+                alt="Achiever 4"
+                className="w-8 sm:w-10 md:w-16 rounded-full object-cover aspect-square transition-transform duration-300 hover:scale-150 hover:z-50"
+                onMouseEnter={() => setHoveredIndex(3)}
+                onMouseLeave={() => setHoveredIndex(null)}
+              />
+              {hoveredIndex === 3 && achievements && achievements[3] && (
+                <div className="absolute bg-white p-2 rounded shadow-md z-50 w-40 text-xs right-0 -top-16">
+                  <p className="font-bold">{achievements[3].name}</p>
+                  <p>{achievements[3].achievement_type}</p>
+                </div>
+              )}
+            </div>
+  
+            {/* Image 5 */}
+            <div className="absolute top-14 sm:top-20 md:top-30 right-0" style={{ animation: 'counterSpin 45s linear infinite' }}>
+              <img
+                src={
+                  !achieversImages[4]
+                    ? "https://smitg.ukzn.ac.za/wp-content/uploads/2022/07/default-profie-image-m.jpg"
+                    : `data:image/jpeg;base64,${achieversImages[4]}`
+                }
+                alt="Achiever 5"
+                className="w-8 sm:w-10 md:w-16 rounded-full object-cover aspect-square transition-transform duration-300 hover:scale-150 hover:z-50"
+                onMouseEnter={() => setHoveredIndex(4)}
+                onMouseLeave={() => setHoveredIndex(null)}
+              />
+              {hoveredIndex === 4 && achievements && achievements[4] && (
+                <div className="absolute bg-white p-2 rounded shadow-md z-50 w-40 text-xs left-0 -top-16">
+                  <p className="font-bold">{achievements[4].name}</p>
+                  <p>{achievements[4].achievement_type}</p>
+                </div>
+              )}
+            </div>
+          </div>
+  
+          {/* Inner Circle with Animation */}
           <div className="h-[120px] sm:h-[150px] md:h-[300px] aspect-square border-dashed border border-[#ffcc00] rounded-full flex items-center justify-center relative">
-            {/* Inner Circle Avatars */}
-            <img
-              src={
-                !achieversImages[5]
-                  ? "https://smitg.ukzn.ac.za/wp-content/uploads/2022/07/default-profie-image-m.jpg"
-                  : `data:image/jpeg;base64,${achieversImages[5]}`
-              }
-              alt="Achiever 6"
-              className="w-8 sm:w-10 md:w-16 rounded-full object-cover aspect-square absolute -top-4 sm:-top-5 md:-top-7"
-            />
-            <img
-              src={
-                !achieversImages[6]
-                  ? "https://smitg.ukzn.ac.za/wp-content/uploads/2022/07/default-profie-image-m.jpg"
-                  : `data:image/jpeg;base64,${achieversImages[6]}`
-              }
-              alt="Achiever 7"
-              className="w-8 sm:w-10 md:w-16 rounded-full object-cover aspect-square absolute bottom-3 sm:bottom-4 md:bottom-7 left-0"
-            />
-            <img
-              src={
-                !achieversImages[7]
-                  ? "https://smitg.ukzn.ac.za/wp-content/uploads/2022/07/default-profie-image-m.jpg"
-                  : `data:image/jpeg;base64,${achieversImages[7]}`
-              }
-              alt="Achiever 8"
-              className="w-8 sm:w-10 md:w-16 rounded-full object-cover aspect-square absolute bottom-3 sm:bottom-4 md:bottom-7 right-0"
-            />
-
-            {/* Center Image */}
-            <img
-              src={
-                !achieversImages[8]
-                  ? "https://smitg.ukzn.ac.za/wp-content/uploads/2022/07/default-profie-image-m.jpg"
-                  : `data:image/jpeg;base64,${achieversImages[8]}`
-              }
-              alt="Achiever 9"
-              className="w-8 sm:w-10 md:w-16 rounded-full object-cover aspect-square"
-            />
+            {/* Inner Circle Animation */}
+            <div className="absolute inset-0 rounded-full" style={{ animation: 'spinReverse 45s linear infinite' }}>
+              {/* Image 6 - Fixed positioning to be like others */}
+              <div className="absolute -top-4 md:-top-6 left-1/2 transform -translate-x-1/2" style={{ animation: 'spin 45s linear infinite' }}>
+                <img
+                  src={
+                    !achieversImages[5]
+                      ? "https://smitg.ukzn.ac.za/wp-content/uploads/2022/07/default-profie-image-m.jpg"
+                      : `data:image/jpeg;base64,${achieversImages[5]}`
+                  }
+                  alt="Achiever 6"
+                  className="w-8 sm:w-10 md:w-16 rounded-full object-cover aspect-square transition-transform duration-300 hover:scale-150 hover:z-50"
+                  onMouseEnter={() => setHoveredIndex(5)}
+                  onMouseLeave={() => setHoveredIndex(null)}
+                />
+                {hoveredIndex === 5 && achievements && achievements[5] && (
+                  <div className="absolute bg-white p-2 rounded shadow-md z-50 w-40 text-xs left-1/2 transform -translate-x-1/2 -top-16">
+                    <p className="font-bold">{achievements[5].name}</p>
+                    <p>{achievements[5].achievement_type}</p>
+                  </div>
+                )}
+              </div>
+  
+              {/* Image 7 */}
+              <div className="absolute bottom-3 sm:bottom-4 md:bottom-7 left-0" style={{ animation: 'spin 45s linear infinite' }}>
+                <img
+                  src={
+                    !achieversImages[6]
+                      ? "https://smitg.ukzn.ac.za/wp-content/uploads/2022/07/default-profie-image-m.jpg"
+                      : `data:image/jpeg;base64,${achieversImages[6]}`
+                  }
+                  alt="Achiever 7"
+                  className="w-8 sm:w-10 md:w-16 rounded-full object-cover aspect-square transition-transform duration-300 hover:scale-150 hover:z-50"
+                  onMouseEnter={() => setHoveredIndex(6)}
+                  onMouseLeave={() => setHoveredIndex(null)}
+                />
+                {hoveredIndex === 6 && achievements && achievements[6] && (
+                  <div className="absolute bg-white p-2 rounded shadow-md z-50 w-40 text-xs right-0 -top-16">
+                    <p className="font-bold">{achievements[6].name}</p>
+                    <p>{achievements[6].achievement_type}</p>
+                  </div>
+                )}
+              </div>
+  
+              {/* Image 8 */}
+              <div className="absolute bottom-3 sm:bottom-4 md:bottom-7 right-0" style={{ animation: 'spin 45s linear infinite' }}>
+                <img
+                  src={
+                    !achieversImages[7]
+                      ? "https://smitg.ukzn.ac.za/wp-content/uploads/2022/07/default-profie-image-m.jpg"
+                      : `data:image/jpeg;base64,${achieversImages[7]}`
+                  }
+                  alt="Achiever 8"
+                  className="w-8 sm:w-10 md:w-16 rounded-full object-cover aspect-square transition-transform duration-300 hover:scale-150 hover:z-50"
+                  onMouseEnter={() => setHoveredIndex(7)}
+                  onMouseLeave={() => setHoveredIndex(null)}
+                />
+                {hoveredIndex === 7 && achievements && achievements[7] && (
+                  <div className="absolute bg-white p-2 rounded shadow-md z-50 w-40 text-xs left-0 -top-16">
+                    <p className="font-bold">{achievements[7].name}</p>
+                    <p>{achievements[7].achievement_type}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+  
+            {/* Center Image (Not Rotating) - Fixed hover effect */}
+            <div className="relative">
+              <img
+                src={
+                  !achieversImages[8]
+                    ? "https://smitg.ukzn.ac.za/wp-content/uploads/2022/07/default-profie-image-m.jpg"
+                    : `data:image/jpeg;base64,${achieversImages[8]}`
+                }
+                alt="Achiever 9"
+                className="w-8 sm:w-10 md:w-16 rounded-full object-cover aspect-square transition-transform duration-300 hover:scale-150 hover:z-50"
+                onMouseEnter={() => setHoveredIndex(8)}
+                onMouseLeave={() => setHoveredIndex(null)}
+              />
+              {hoveredIndex === 8 && achievements && achievements[8] && (
+                <div className="absolute bg-white p-2 rounded shadow-md z-50 w-40 text-xs left-1/2 transform -translate-x-1/2 -top-16">
+                  <p className="font-bold">{achievements[8].name}</p>
+                  <p>{achievements[8].achievement_type}</p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
+  
+      {/* CSS for animations */}
+      <style jsx>{`
+        @keyframes spin {
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
+          }
+        }
+        
+        @keyframes spinReverse {
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(-360deg);
+          }
+        }
+        
+        @keyframes counterSpin {
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(-360deg);
+          }
+        }
+      `}</style>
     </section>
   );
 };
-
 const AboutCCE = () => {
   return (
     <section className="flex flex-col w-[90%] space-y-10 md:space-y-20 items-center px-4 md:px-0">
@@ -604,7 +952,7 @@ const AboutCCE = () => {
           <div className="bg-white rounded-l-lg md:col-span-6 space-y-6 md:-mt-16 z-10">
             <div className="p-6">
               <h3 className="text-lg md:text-xl font-bold mb-4">
-                Dummy Content As Of Now.
+                About the Head of CCE
               </h3>
               <p className="text-sm mb-4 text-justify">
                 Commander (Dr.) D K Karthik (Retd.) has completed his BE from
@@ -656,20 +1004,20 @@ const AboutCCE = () => {
           {[
             {
               name: "Dr. Karthik",
-              post: "COMMANDER CHIEF",
+              post: "BE, M.Tech, Ph.D",
               title: "Head of CCE",
-              photo: mentor3,
+              photo: "https://smitg.ukzn.ac.za/wp-content/uploads/2022/07/default-profie-image-m.jpg",
             },
             {
-              name: "Sindhuja",
-              post: "M.Tech, Ph.D (Maths)",
-              title: "CCE Support Staff",
+              name: "Mohana Priya",
+              //post: "M.Tech, Ph.D (Maths)",
+              title: "CCE Admin Executive",
               photo: mentor1,
             },
             {
-              name: "Sindhuja",
+              name: "Sindhuja S",
               post: "M.Tech, Ph.D (Maths)",
-              title: "CCE Support Staff",
+              title: "Asstitant Professor (Maths)",
               photo: mentor2,
             },
           ].map((person, key) => {
@@ -696,7 +1044,7 @@ const AboutCCE = () => {
             return (
               <div
                 key={key}
-                className="relative w-full md:w-auto md:flex-1 aspect-[3/4] sm:aspect-[2/3] max-w-[280px] sm:max-w-[320px] md:max-w-none rounded-lg overflow-hidden"
+                className="relative w-full md:w-auto md:flex-1 aspect-[3/4] sm:aspect-[2/3] max-w-[280px] sm:max-w-[320px]  rounded-lg overflow-hidden"
                 style={{
                   position: "relative",
                   padding: "3px",
@@ -713,7 +1061,7 @@ const AboutCCE = () => {
                 <div className="absolute bottom-4 left-4 right-4 z-10">
                   <div className="flex flex-col items-start w-full bg-[#ffffffde] p-2 sm:p-3 rounded-lg">
                     <div className="flex flex-col w-full">
-                      <div className="flex flex-col sm:flex-row sm:items-end gap-1">
+                      <div className="flex flex-col  gap-1">
                         <p className="text-lg sm:text-xl md:text-2xl leading-tight font-medium">
                           {person.name}
                         </p>
@@ -738,26 +1086,30 @@ export default function HomeDashboard() {
   const [jobs, setJobs] = useState([]);
   const [achievements, setAchievements] = useState([]);
   const [internships, setInternships] = useState([]);
+  const [exams, setExams] = useState([]);
   const [error, setError] = useState("");
   const [showPopup, setShowPopup] = useState(false);
   const [unconfirmedJob, setUnconfirmedJob] = useState(null);
+  const [unconfirmedApplications, setUnconfirmedApplications] = useState([]);
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
   const { setIsLoading } = useContext(LoaderContext);
 
   useEffect(() => {
-    // setIsLoading(true)
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const [jobsRes, achievementsRes, internshipsRes] = await Promise.all([
-          axios.get(`${base_url}/api/published-jobs/`),
-          axios.get(`${base_url}/api/published-achievement/`),
-          axios.get(`${base_url}/api/published-internship/`),
+        const [jobsRes, achievementsRes, internshipsRes, examsRes] = await Promise.all([
+          axios.get( `${API_BASE_URL}/api/published-jobs/`),
+          axios.get( `${API_BASE_URL}/api/published-achievement/`),
+          axios.get( `${API_BASE_URL}/api/published-internship/`),
+          axios.get( `${API_BASE_URL}/api/published-exams/`), // Ensure this endpoint is correct
         ]);
 
-        setJobs(jobsRes.data.jobs);
+        setJobs(jobsRes.data.jobs.filter(job => job.status === "Active"));
         setAchievements(achievementsRes.data.achievements);
-        setInternships(internshipsRes.data.internships);
+        setInternships(internshipsRes.data.internships.filter(internship => internship.status === "Active"));
+        setExams(examsRes.data.exams.filter(exam => exam.status === "Active"));
       } catch (err) {
         console.error("Error fetching data:", err);
         setError("Failed to load data.");
@@ -769,13 +1121,14 @@ export default function HomeDashboard() {
     fetchData();
   }, [setIsLoading]);
 
+
   useEffect(() => {
     const checkApplicationStatus = async () => {
       try {
         const token = Cookies.get("jwt");
         const userId = JSON.parse(atob(token.split(".")[1])).student_user;
         const response = await axios.get(
-          `${base_url}/api/applied-jobs/${userId}/`
+          `${API_BASE_URL}/api/applied-jobs/${userId}/`
         );
         const appliedJobs = response.data.jobs;
 
@@ -783,7 +1136,7 @@ export default function HomeDashboard() {
         if (unconfirmed) {
           // Fetch job details using the job ID
           const jobResponse = await axios.get(
-            `${base_url}/api/job/${unconfirmed.job_id}/`
+            `${API_BASE_URL}/api/job/${unconfirmed.job_id}/`
           );
           const jobDetails = jobResponse.data.job;
           setUnconfirmedJob({ ...unconfirmed, job_data: jobDetails.job_data });
@@ -797,27 +1150,49 @@ export default function HomeDashboard() {
     checkApplicationStatus();
   }, []);
 
-  const handleConfirm = async () => {
+  const handleConfirm = async (type, applicationId) => {
     try {
       const token = Cookies.get("jwt");
       const userId = JSON.parse(atob(token.split(".")[1])).student_user;
-      await axios.post(`${base_url}/api/confirm-job/`, {
+
+      let endpoint;
+      switch (type) {
+        case "job":
+          endpoint = "confirm-job/";
+          break;
+        case "internship":
+          endpoint = "confirm-internship/";
+          break;
+        case "exam":
+          endpoint = "confirm-exam/";
+          break;
+        default:
+          throw new Error("Unknown application type");
+      }
+
+      await axios.post(`${API_BASE_URL}/api/${endpoint}`, {
         studentId: userId,
-        jobId: unconfirmedJob.job_id,
+        Id: applicationId,
         confirmed: true,
       });
-      setShowPopup(false);
+      setUnconfirmedApplications((prevApplications) => prevApplications.filter((application) => application._id !== applicationId));
+      if (unconfirmedApplications.length ==1){
+        setShowPopup(false)
+      }
     } catch (error) {
-      console.error("Error confirming job application:", error);
+      console.error("Error confirming application:", error);
       alert("Unable to track application. Please try again later.");
     }
   };
+
+  useEffect(() => {
+  }, [unconfirmedApplications]);
 
   const handleCancel = async () => {
     try {
       const token = Cookies.get("jwt");
       const userId = JSON.parse(atob(token.split(".")[1])).student_user;
-      await axios.post(`${base_url}/api/confirm-job/`, {
+      await axios.post(`${API_BASE_URL}/api/confirm-job/`, {
         studentId: userId,
         jobId: unconfirmedJob.job_id,
         confirmed: false,
@@ -915,7 +1290,7 @@ export default function HomeDashboard() {
 
     try {
       const response = await axios.post(
-        `${base_url}api/contact-us/`,
+        `${API_BASE_URL}/api/contact-us/`,
         formData,
         {
           headers: { "Content-Type": "application/json" },
@@ -936,15 +1311,15 @@ export default function HomeDashboard() {
   };
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center ">
       <Header jobs={jobs} />
 
       <ToastContainer />
 
       <section className="pt-20 md:pt-40 pb-10 md:pb-20 flex flex-col items-center justify-center text-center px-4">
         <p className="text-xl md:text-2xl"> Speed Up Your Job Search </p>
-        <p className="text-4xl md:text-7xl font-semibold mt-2"> 10x faster </p>
-        <p className="text-sm mt-2">
+        <p className="text-4xl md:text-7xl font-bold mt-2"> 10x faster </p>
+        <p className="text-xs mt-2 text-gray-600">
           {" "}
           We provide powerful features to streamline your job{" "}
           <br className="hidden md:block" /> applications and increase your
@@ -954,56 +1329,83 @@ export default function HomeDashboard() {
 
       <Insights />
 
-      <section className="flex flex-col space-y-4 mt-10 md:mt-0 mb-10 md:mb-20 items-center w-[90%] mx-auto px-4 md:px-0">
+      <section className="flex flex-col space-y-4 mt-10 mb-10 md:mb-20 items-center w-[90%] mx-auto px-4 md:px-0">
         {/* Header Section */}
         <div className="">
           <div className="flex flex-col items-center space-y-2 mt-5">
-            <p className="px-3 py-1 border rounded font-semibold text-sm md:text-base bg-gray-100">
-              NEWEST
-            </p>
             <p className="text-xl sm:text-2xl md:text-4xl font-semibold text-center ">
               Explore the Latest Job Opportunities
             </p>
-            <p className="text-sm sm:text-sm md:text-sm font-semibold text-center ">
+            <p className="text-sm sm:text-sm md:text-sm text-gray-400 text-center ">
               Find Your Perfect Job, Internship, or Career Breakthrough
             </p>
           </div>
 
           {/* Cards Section */}
-          <div className="flex flex-col sm:flex-row w-full gap-4 sm:gap-6 md:gap-8 mt-6">
-            {jobs.length > 0 && (
-              <>
-                <div className="w-full sm:flex-1">
-                  <ApplicationCard
-                    application={{ ...jobs[3], ...jobs[3]?.job_data }}
-                    key={jobs[4]?._id}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 md:gap-8 mt-6">
+            {/* Jobs Column */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-center">Jobs</h3>
+              {jobs.slice(0, 2).map((job, index) => (
+                <div key={index} className="w-full">
+                  <HomeCard
+                    application={{ ...job, ...job?.job_data }}
                     handleCardClick={() => {}}
                     isSaved={undefined}
                   />
                 </div>
-              </>
-            )}
+              ))}
+            </div>
 
-            {internships.length > 0 && (
-              <div className="w-full sm:flex-1">
-                <ApplicationCard
-                  key={internships[0].id}
-                  application={{
-                    ...internships[2].internship_data,
-                    total_views: internships[2].total_views,
-                    ...internships[0],
-                  }}
-                  handleCardClick={() => {
-                  }}
-                  isSaved={undefined}
-                />
-              </div>
-            )}
+            {/* Internships Column */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-center">Internships</h3>
+              {internships.slice(2, 4).map((internship, index) => (
+                <div key={index} className="w-full">
+                  <HomeCard
+                    application={{
+                      ...internship.internship_data,
+                      total_views: internship.total_views,
+                      type: "internship",
+                      ...internship,
+                    }}
+                    handleCardClick={() => {}}
+                    isSaved={undefined}
+                  />
+                </div>
+              ))}
+            </div>
+
+            {/* Exams Column */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-center">Exams</h3>
+              {exams.slice(0, 2).map((exam, index) => (
+                <div key={index} className="w-full">
+                  <HomeCard
+                    application={{
+                      title: exam.exam_data.exam_title || "Exam Title", // Fallback to a default value
+                      company_name: exam.exam_data.organization || "Organization Name", // Adjust field names as necessary
+                      location: exam.exam_data.exam_centers || "Exam Centers",
+                      job_description: exam.exam_data.about_exam || "About Exam",
+                      updated_at: exam.exam_data.application_deadline,
+                      views: exam.exam_data.views || 0,
+                      status: exam.status || "Active",
+                      _id: exam._id,
+                      type: "exam",
+                    }}
+                    handleCardClick={() => {}}
+                    isSaved={undefined}
+                  />
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
-      <ThatOnePainInTheA__
+
+      <Thatabout
         achieversImages={[...achievements.map((achiever) => achiever.photo)]}
+        achievements={achievements}
       />
 
       <AboutCCE mentors={mentors} />
@@ -1015,7 +1417,6 @@ export default function HomeDashboard() {
         setFormData={setFormData}
         handleSubmit={handleSubmit}
       />
-
       {showPopup && (
         <div className="fixed inset-0 flex items-center justify-center bg-[#1e2939a8] z-60 px-4">
           <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg text-center max-w-md w-full">

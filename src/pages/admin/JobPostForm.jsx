@@ -14,7 +14,8 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { MultiStepLoader as Loader } from "../../components/ui/multi-step-loader";
 import { max } from 'date-fns';
-import { base_url } from "../../App";
+import DesktopOnly from '../../components/Common/DesktopOnly';
+
 const loadingStates = [
   { text: "Gathering job details" },
   { text: "Checking application deadline" },
@@ -58,7 +59,7 @@ const JobDetails = ({ formData, setFormData }) => {
         />
         <FormInputField
           label="Job Level"
-          required={true}
+          required={false}
           args={{ placeholder: "Enter the job level here (Eg: Entry-level, Mid-level, Senior, Executive)", value: formData.experience_level, maxLength: 200 }}
           setter={(val) => setFormData(prev => ({ ...prev, experience_level: val }))}
         />
@@ -95,6 +96,7 @@ const JobDetails = ({ formData, setFormData }) => {
       <div className="flex flex-col space-y-5">
         <FormTextAreaField
           label="Job Description"
+          required={true}
           args={{ placeholder: "Enter the job description here (Max length 5000 characters)", value: formData.job_description, maxLength: 5000 }}
           setter={(val) => setFormData(prev => ({ ...prev, job_description: val }))}
         />
@@ -115,12 +117,13 @@ const JobDetails = ({ formData, setFormData }) => {
         </div>
         <FormInputField
           label="Company Website"
+          required={true}
           args={{ placeholder: "Enter the company website here (Eg: https://www.infosys.com/)", value: formData.company_website, maxLength: 200 }}
           setter={(val) => setFormData(prev => ({ ...prev, company_website: val }))}
         />
         <FormInputField
           label="Salary Range"
-          required={true}
+          required={false}
           args={{
             placeholder: "Enter the salary range here", value: formData.salary_range, type: "number", // Ensure input is numeric
             min: 0, // Set a minimum value (adjust as needed)
@@ -252,7 +255,7 @@ const Requirement = ({ formData, setFormData }) => {
         />
         <TagInput
           label="Technical Skills Required"
-          required={true}
+          
           value={formData.technical_skills || []}
           placeholder="Enter skills and press comma or Enter (Eg: Java, Python, React)"
           maxLength={50}
@@ -500,18 +503,11 @@ const Summary = ({ formData, setFormData }) => {
           setter={(val) => setFormData(prev => ({ ...prev, job_description: val }))}
         />
         <FormInputField
-          label="Work Type"
-          disabled={true}
-          args={{ placeholder: "Select Work Type", value: formData.work_type }}
-          setter={(val) => setFormData(prev => ({ ...prev, work_type: val }))}
-        />
-        <FormInputField
           label="Company Name"
           disabled={true}
           args={{ placeholder: "Enter the company name here", value: formData.company_name }}
           setter={(val) => setFormData(prev => ({ ...prev, company_name: val }))}
         />
-
       </div>
       <div className="flex flex-col space-y-4">
         <FormInputField
@@ -527,12 +523,6 @@ const Summary = ({ formData, setFormData }) => {
           setter={(val) => setFormData(prev => ({ ...prev, job_location: val }))}
         />
         <FormInputField
-          label="Salary Range"
-          disabled={true}
-          args={{ placeholder: "Enter salary range here", value: formData.salary_range }}
-          setter={(val) => setFormData(prev => ({ ...prev, salary_range: val }))}
-        />
-        <FormInputField
           label="Job Posting Date"
           disabled={true}
           args={{ placeholder: "Enter the job posting date here", value: formData.job_posting_date }}
@@ -544,7 +534,6 @@ const Summary = ({ formData, setFormData }) => {
           args={{ placeholder: "Enter the application deadline here", value: formData.application_deadline }}
           setter={(val) => setFormData(prev => ({ ...prev, application_deadline: val }))}
         />
-        
       </div>
     </>
   );
@@ -663,6 +652,7 @@ export default function JobPostForm() {
   const [toastMessage, setToastMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [userRole, setUserRole] = useState(null);
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
   const [userId, setUserId] = useState(null);
   const navigate = useNavigate();
 
@@ -676,11 +666,6 @@ export default function JobPostForm() {
 
   const sectionKeys = Object.keys(formSections);
   const activeIndex = sectionKeys.findIndex(key => formSections[key].status === "active");
-
-  const validateUrl = (url) => {
-    const urlPattern = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
-    return urlPattern.test(url);
-  };
 
   const validateApplicationDeadline = (deadline) => {
     const now = new Date();
@@ -734,6 +719,11 @@ export default function JobPostForm() {
     }
   }, [navigate]);
 
+  const validateUrl = (url) => {
+    const urlPattern = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
+    return urlPattern.test(url);
+  };
+
   const handleNavigation = (direction) => {
     const currentSection = sectionKeys[activeIndex];
     let isValid = true;
@@ -741,25 +731,23 @@ export default function JobPostForm() {
     if (direction === "next") {
       switch (currentSection) {
         case "Job Details":
-          if (!formData.title) {
-            toast.error("Please fill in all mandatory fields in Job Details.");
+          if (!formData.title || !formData.company_name || !formData.job_location || 
+              !formData.job_description || !formData.company_website) {
+            toast.error("Please fill in all mandatory fields.");
             isValid = false;
-          }
-          break;
-        case "Requirement":
-          if (!formData.technical_skills.length) {
-            toast.error("Please fill in all mandatory fields in Requirements.");
+          } else if (!validateUrl(formData.company_website)) {
+            toast.error("Please enter a valid company website URL");
             isValid = false;
           }
           break;
         case "Application Process":
           if (!formData.application_deadline) {
-            toast.error("Please fill in all mandatory fields in Application Process.");
+            toast.error("Application Deadline is required.");
+            isValid = false;
+          } else if (formData.job_link && !validateUrl(formData.job_link)) {
+            toast.error("Please enter a valid job link URL");
             isValid = false;
           }
-          break;
-        case "Other Instructions":
-          // Remove the validation for key_responsibilities as it's no longer mandatory
           break;
         default:
           break;
@@ -907,7 +895,8 @@ export default function JobPostForm() {
       // If in edit mode, handle the edit request using the same FormData structure
       if (isEditMode) {
         
-        const response = await axios.post(`${base_url}/api/job-edit/${id}/`,
+        const response = await axios.post(
+          `${API_BASE_URL}/api/job-edit/${id}/`,
           formDataToSend,
           {
             headers: {
@@ -922,7 +911,7 @@ export default function JobPostForm() {
       } else {
         // Create new job
         const response = await axios.post(
-          `${base_url}/api/job_post/`,
+          `${API_BASE_URL}/api/job_post/`,
           formDataToSend,
           {
             headers: {
@@ -951,9 +940,10 @@ export default function JobPostForm() {
     
     // Required fields validation
     if (!formData.title) errors.push("Job Title is required");
+    if (!formData.job_description) errors.push("Job Description is required");
     if (!formData.company_name) errors.push("Company Name is required");
-    if (!formData.job_location) errors.push("Job Location is required");
-    if (!formData.salary_range) errors.push("Salary Range is required");
+    if (!formData.job_location) errors.push("Work Location is required");
+    if (!formData.company_website) errors.push("Company Website is required");
     if (!formData.job_link) errors.push("Job Link is required");
     if (!formData.application_deadline) errors.push("Application Deadline is required");
     
@@ -993,7 +983,9 @@ export default function JobPostForm() {
 
       <ToastContainer />
 
-      <div className="flex-1 flex items-center justify-center p-6">
+      <DesktopOnly />
+
+      <div className="flex-1 hidden items-center justify-center p-6 lg:flex">
         <div className="flex-1 p-8 bg-white rounded-xl flex flex-col h-full max-w-[1400px] mx-auto shadow-lg">
           <div className="flex justify-between items-center text-2xl pb-4 border-b border-gray-300 mb-4">
             <p className="font-semibold">{isEditMode ? "Edit Job" : "Post a Job"}</p>
@@ -1073,9 +1065,10 @@ export default function JobPostForm() {
                 {formSections["Other Instructions"].status === "active" && (
                   <>
                     <OtherInstructions formData={formData} setFormData={setFormData} />
-                    
+                                                                         
                     {/* Image Upload Section - Outside the grid */}
                     <div className="col-span-2 mt-8">
+                      <h2 className="text-sm font-bold mb-4 ">Upload a Image</h2>
                       <div className="border-2 border-gray-300 border-dashed rounded-xl px-3 py-2 text-center bg-white w-full hover:border-[#ffcc00] transition-colors">
                         <label
                           htmlFor="image"

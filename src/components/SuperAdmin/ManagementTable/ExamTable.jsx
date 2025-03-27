@@ -72,6 +72,18 @@ const ExamTable = ({
     }
   };
 
+  const renderCellContent = (content) => {
+    if (typeof content === "string") {
+      return content;
+    }
+    if (typeof content === "object" && content !== null) {
+      return Object.entries(content)
+        .map(([key, value]) => `${key}:${value}`)
+        .join(", ");
+    }
+    return JSON.stringify(content);
+  };
+
   return (
     <ErrorBoundary>
       <div id="exams-section" className="mt-4 w-full flex-col">
@@ -114,14 +126,14 @@ const ExamTable = ({
             </div>
 
             <button
-              className="px-5 py-1 bg-[#00b69b] text-white rounded text-sm flex items-center space-x-2"
+              className="px-5 py-1 hover:bg-green-50 border border-green text-green-800 rounded text-sm flex items-center space-x-2"
               onClick={() => handleBulkApprove("exam")}
             >
               <p>Approve all</p>
               <FaCheck />
             </button>
             <button
-              className="px-5 py-1 bg-[#ef3826] text-white rounded text-sm flex items-center space-x-2"
+              className="px-5 py-1 hover:bg-red-50 border border-red text-red-500 rounded text-sm flex items-center space-x-2"
               onClick={() => handleBulkDelete("exam")}
             >
               <p>Delete all</p>
@@ -143,14 +155,13 @@ const ExamTable = ({
                       type="checkbox"
                       checked={selectedExams.length === exams.length}
                       onChange={handleSelectAll}
-                      className="form-checkbox h-4 w-4 text-blue-600 mr-2"
+                      className="form-checkbox h-4 w-4 text-blue-600"
                     />
-                    Select
                   </th>
-                  <th className="py-3 border-b border-gray-200">Title</th>
-                  <th className="py-3 border-b border-gray-200">Cutoff</th>
-                  <th className="py-3 border-b border-gray-200">Staff Name</th>
-                  <th className="py-3 border-b border-gray-200">Status</th>
+                  <th className="py-3 border-b text-left border-gray-200">Title</th>
+                  <th className="py-3 border-b text-left border-gray-200">Cutoff</th>
+                  <th className="py-3 border-b text-left border-gray-200">Staff Name</th>
+                  <th className="py-3 border-b text-left border-gray-200">Status</th>
                   <th className="py-3 border-b border-gray-200">Actions</th>
                 </tr>
               </thead>
@@ -173,10 +184,10 @@ const ExamTable = ({
                           className="form-checkbox h-4 w-4 text-blue-600"
                         />
                       </td>
-                      <td className="text-center py-3">{truncateText(renderCellContent(data.exam_title) || "N/A", 20)}</td>
-                      <td className="text-center py-3">{truncateText(renderCellContent(data.cutoff) || "N/A", 20)}</td>
-                      <td className="text-center py-3">{truncateText(renderCellContent(exam.admin_name) || "N/A", 20)}</td>
-                      <td className="text-center py-3 font-semibold">
+                      <td className="text-left py-3">{truncateText(renderCellContent(data.exam_title) || "N/A", 20)}</td>
+                      <td className="text-left py-3">{truncateText(renderCellContent(data.cutoff) || "N/A", 20)}</td>
+                      <td className="text-left py-3">{truncateText(renderCellContent(exam.admin_name) || "N/A", 20)}</td>
+                      <td className="text-left py-3 font-semibold">
                         {exam.is_publish === true ? (
                           <span className="text-green-800 px-1 py-0.5 rounded-full text-xs">
                             Approved
@@ -188,11 +199,11 @@ const ExamTable = ({
                         ) : (
                           <span className="text-yellow-800 px-1 py-0.5 rounded-full text-xs">
                             Pending
-                          </span>
+                          </span> 
                         )}
                       </td>
-                      <td className="text-center py-3">
-                        <div className="flex justify-center space-x-1">
+                      <td className="text-left py-3">
+                        <div className="flex justify-center space-x-2">
                           {exam.is_publish === null && (
                             <>
                               <IoMdCheckmark
@@ -227,13 +238,14 @@ const ExamTable = ({
           </div>
         )}
 
-        {/* Pagination */}
+        {exams.length > itemsPerPage && (
         <Pagination
           currentPage={currentPage}
           totalItems={exams.length}
           itemsPerPage={itemsPerPage}
           onPageChange={handlePageChange}
         />
+      )}
       </div>
     </ErrorBoundary>
   );

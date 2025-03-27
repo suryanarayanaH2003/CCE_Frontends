@@ -12,7 +12,6 @@ import {
   Trophy,
   X,
 } from "lucide-react";
-import { base_url } from "../../App";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 import { FaCheckDouble, FaCheck, FaEye } from "react-icons/fa";
@@ -24,251 +23,227 @@ import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 // SearchBar Component
 const SearchBar = ({ searchQuery, setSearchQuery, onSearch }) => {
   const handleSearchChange = (e) => {
-    setSearchQuery(e.target.value);
-  };
+    setSearchQuery(e.target.value)
+  }
 
   const handleSearchClick = () => {
-    onSearch(searchQuery);
-  };
+    onSearch(searchQuery)
+  }
 
   return (
     <header className="flex flex-col items-start justify-start py-2 px-4 sm:py-2  container mx-auto text-start">
       <p className="text-3xl sm:text-4xl tracking-[0.8px]">Notifications</p>
     </header>
-  );
-};
+  )
+}
 
 const InboxPage = () => {
-  const navigate = useNavigate();
-  const [students, setStudents] = useState([]);
-  const [selectedStudent, setSelectedStudent] = useState(null);
-  const [messages, setMessages] = useState([]);
-  const [reply, setReply] = useState("");
-  const [studentName, setStudentName] = useState("S");
-  const [adminId, setAdminId] = useState(null);
-  const [achievements, setAchievements] = useState([]);
-  const [jobs, setJobs] = useState([]);
-  const [exams, setExams] = useState([]);
-  const [internships, setInternships] = useState([]);
-  const [studyMaterials, setStudyMaterials] = useState([]);
-  const [studentAchievements, setStudentAchievements] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState("Jobs");
-  const [selectedItem, setSelectedItem] = useState(null);
+  const navigate = useNavigate()
+  const [students, setStudents] = useState([])
+  const [selectedStudent, setSelectedStudent] = useState(null)
+  const [messages, setMessages] = useState([])
+  const [reply, setReply] = useState("")
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+  const [studentName, setStudentName] = useState("S")
+  const [adminId, setAdminId] = useState(null)
+  const [achievements, setAchievements] = useState([])
+  const [jobs, setJobs] = useState([])
+  const [exams, setExams] = useState([])
+  const [internships, setInternships] = useState([])
+  const [studyMaterials, setStudyMaterials] = useState([])
+  const [studentAchievements, setStudentAchievements] = useState([])
+  const [selectedCategory, setSelectedCategory] = useState("Jobs")
+  const [selectedItem, setSelectedItem] = useState(null)
   const [currentPage, setCurrentPage] = useState({
-    achievements: 1,
-    internships: 1,
+    Achievements: 1,
+    Internships: 1,
     studyMaterials: 1,
     Jobs: 1,
     Exams: 1,
     studentAchievements: 1,
-  });
-  const [replyText, setReplyText] = useState({});
-  const [loading, setLoading] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [toastMessage, setToastMessage] = useState("");
-  const [isChatOpen, setIsChatOpen] = useState(false);
-  const itemsPerPage = 6;
+  })
+  const [replyText, setReplyText] = useState({})
+  const [loading, setLoading] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [toastMessage, setToastMessage] = useState("")
+  const [isChatOpen, setIsChatOpen] = useState(false)
+  const itemsPerPage = 6
 
   const paginate = (category, pageNumber) => {
     setCurrentPage((prev) => ({
       ...prev,
       [category]: pageNumber,
-    }));
-  };
+    }))
+  }
 
   useEffect(() => {
-    const token = Cookies.get("jwt");
+    const token = Cookies.get("jwt")
     if (!token) {
-      console.error("No token found. Please log in.");
-      return;
+      console.error("No token found. Please log in.")
+      return
     }
 
     try {
-      const decodedToken = jwtDecode(token);
-      setAdminId(decodedToken.superadmin_user);
+      const decodedToken = jwtDecode(token)
+      setAdminId(decodedToken.superadmin_user)
     } catch (error) {
-      console.error("Invalid token format.");
+      console.error("Invalid token format.")
     }
 
-    fetchAchievements();
-    fetchJobs();
-    fetchExams();
-    fetchInternships();
-    fetchStudyMaterials();
-    fetchStudentAchievements();
-  }, []);
+    fetchAchievements()
+    fetchJobs()
+    fetchExams()
+    fetchInternships()
+    fetchStudyMaterials()
+    //fetchStudentAchievements();
+  }, [])
 
   useEffect(() => {
     if (toastMessage) {
-      const timer = setTimeout(() => setToastMessage(""), 3000);
-      return () => clearTimeout(timer);
+      const timer = setTimeout(() => setToastMessage(""), 3000)
+      return () => clearTimeout(timer)
     }
-  }, [toastMessage]);
+  }, [toastMessage])
 
   useEffect(() => {
-    setSelectedItem(null);
-  }, [selectedCategory]);
+    setSelectedItem(null)
+  }, [selectedCategory])
 
   const fetchAchievements = async () => {
     try {
-      const response = await axios.get(
-        `${base_url}/api/get_achievements_with_admin/`
-      );
-      setAchievements(response.data.achievements || []);
+      const response = await axios.get(`${API_BASE_URL}/api/get_achievements_with_admin/`)
+      setAchievements(response.data.achievements || [])
     } catch (err) {
-      console.error("Failed to fetch achievements.");
+      console.error("Failed to fetch achievements.")
     }
-  };
+  }
 
   const fetchJobs = async () => {
     try {
-      const response = await axios.get(
-        `${base_url}/api/get_jobs_with_admin/`
-      );
-      let jobsData = response.data.jobs || [];
+      const response = await axios.get(`${API_BASE_URL}/api/get_jobs_with_admin/`)
+      let jobsData = response.data.jobs || []
       if (Array.isArray(jobsData)) {
-        jobsData = jobsData.sort(
-          (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
-        );
+        jobsData = jobsData.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
 
-        setJobs(jobsData);
+        setJobs(jobsData)
       } else {
-        console.error("Unexpected data format:", jobsData);
+        console.error("Unexpected data format:", jobsData)
       }
     } catch (err) {
-      console.error("Error fetching jobs:", err);
+      console.error("Error fetching jobs:", err)
     }
-  };
+  }
 
   const fetchExams = async () => {
     try {
-      const response = await axios.get(
-        `${base_url}/api/get_exams_with_admin/`
-      );
-      let examsData = response.data.exams || [];
+      const response = await axios.get(`${API_BASE_URL}/api/get_exams_with_admin/`)
+      let examsData = response.data.exams || []
       if (Array.isArray(examsData)) {
-        examsData = examsData.sort(
-          (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
-        );
-        setExams(examsData);
+        examsData = examsData.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+        setExams(examsData)
       } else {
-        console.error("Unexpected data format:", examsData);
+        console.error("Unexpected data format:", examsData)
       }
     } catch (err) {
-      console.error("Error fetching exams:", err);
+      console.error("Error fetching exams:", err)
     }
-  };
+  }
 
   const fetchInternships = async () => {
     try {
-      const response = await axios.get(
-        `${base_url}/api/get_internships_with_admin/`
-      );
-      let internshipsData = response.data.internships || [];
+      const response = await axios.get(`${API_BASE_URL}/api/get_internships_with_admin/`)
+      let internshipsData = response.data.internships || []
       if (Array.isArray(internshipsData)) {
-        internshipsData = internshipsData.sort(
-          (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
-        );
-        setInternships(internshipsData);
+        internshipsData = internshipsData.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+        setInternships(internshipsData)
       } else {
-        console.error("Unexpected data format:", internshipsData);
+        console.error("Unexpected data format:", internshipsData)
       }
     } catch (err) {
-      console.error("Failed to fetch internships.", err);
+      console.error("Failed to fetch internships.", err)
     }
-  };
+  }
 
   const fetchStudyMaterials = async () => {
     try {
-      const response = await axios.get(
-        `${base_url}/api/get_study_materials_with_admin/`
-      );
-      setStudyMaterials(response.data.study_materials || []);
+      const response = await axios.get(`${API_BASE_URL}/api/get_study_materials_with_admin/`)
+      setStudyMaterials(response.data.study_materials || [])
     } catch (err) {
-      console.error("Failed to fetch study materials.", err);
+      console.error("Failed to fetch study materials.", err)
     }
-  };
+  }
 
   const fetchStudentAchievements = async () => {
     try {
-      const response = await axios.get(
-        `${base_url}/api/get_student_achievements_with_students/`
-      );
-      setStudentAchievements(response.data.student_achievements || []);
+      const response = await axios.get(`${API_BASE_URL}/api/get_student_achievements_with_students/`)
+      setStudentAchievements(response.data.student_achievements || [])
     } catch (err) {
-      console.error("Failed to fetch student achievements.");
+      console.error("Failed to fetch student achievements.")
     }
-  };
+  }
 
   const fetchMessages = async (student_id) => {
-    setSelectedStudent(student_id);
+    setSelectedStudent(student_id)
     try {
-      const response = await axios.get(
-        `${base_url}/api/get_student_messages/${student_id}/`,
-        {
-          headers: {
-            Authorization: `Bearer ${Cookies.get("jwt")}`,
-          },
-        }
-      );
-      setMessages(response.data.messages || []);
+      const response = await axios.get(`${API_BASE_URL}/api/get_student_messages/${student_id}/`, {
+        headers: {
+          Authorization: `Bearer ${Cookies.get("jwt")}`,
+        },
+      })
+      setMessages(response.data.messages || [])
     } catch (error) {
-      console.error("Error fetching messages:", error);
+      console.error("Error fetching messages:", error)
     }
-  };
+  }
 
   const markMessagesAsSeen = async (student_id) => {
     try {
       const response = await axios.post(
-        `${base_url}/api/mark_messages_as_seen/${student_id}/`,
+        `${API_BASE_URL}/api/mark_messages_as_seen/${student_id}/`,
         {},
         {
           headers: {
             Authorization: `Bearer ${Cookies.get("jwt")}`,
           },
-        }
-      );
+        },
+      )
       if (response.status === 200) {
-        fetchMessages(student_id);
+        fetchMessages(student_id)
       }
     } catch (error) {
-      console.error("Error marking messages as seen:", error);
+      console.error("Error marking messages as seen:", error)
     }
-  };
+  }
 
   const sendReply = async () => {
     if (!selectedStudent) {
-      console.error("No student selected.");
-      return;
+      console.error("No student selected.")
+      return
     }
 
     const replyData = {
       student_id: selectedStudent,
       content: reply,
-    };
+    }
 
     try {
-      const response = await axios.post(
-        `${base_url}/api/admin_reply_message/`,
-        replyData,
-        {
-          headers: {
-            Authorization: `Bearer ${Cookies.get("jwt")}`,
-          },
-        }
-      );
+      const response = await axios.post(`${API_BASE_URL}/api/admin_reply_message/`, replyData, {
+        headers: {
+          Authorization: `Bearer ${Cookies.get("jwt")}`,
+        },
+      })
       if (response.status === 200) {
-        setReply("");
-        fetchMessages(selectedStudent);
+        setReply("")
+        fetchMessages(selectedStudent)
       }
     } catch (error) {
-      console.error("Error sending reply:", error);
+      console.error("Error sending reply:", error)
     }
-  };
+  }
 
   const handleSearch = (query) => {
     // Filtering is handled in renderContent
-  };
+  }
 
   const categories = [
     { name: "Jobs", icon: Briefcase },
@@ -277,90 +252,75 @@ const InboxPage = () => {
     // { name: "studyMaterials", icon: BookOpen },
     { name: "Achievements", icon: Trophy },
     // { name: "studentAchievements", icon: Trophy },
-  ];
+  ]
 
   const handleCategoryChange = (direction) => {
-    const currentIndex = categories.findIndex(
-      (category) => category.name === selectedCategory
-    );
-    const newIndex =
-      (currentIndex + direction + categories.length) % categories.length;
-    setSelectedCategory(categories[newIndex].name);
-  };
+    const currentIndex = categories.findIndex((category) => category.name === selectedCategory)
+    const newIndex = (currentIndex + direction + categories.length) % categories.length
+    setSelectedCategory(categories[newIndex].name)
+  }
 
-  let itemsToDisplay = [];
+  let itemsToDisplay = []
 
   const renderContent = () => {
-    const currentPageNumber = currentPage[selectedCategory];
+    const currentPageNumber = currentPage[selectedCategory]
 
     switch (selectedCategory) {
-      case "achievements":
-        itemsToDisplay = achievements.slice(
-          (currentPageNumber - 1) * itemsPerPage,
-          currentPageNumber * itemsPerPage
-        );
-        break;
-      case "internships":
-        itemsToDisplay = internships.slice(
-          (currentPageNumber - 1) * itemsPerPage,
-          currentPageNumber * itemsPerPage
-        );
-        break;
+      case "Achievements":
+        itemsToDisplay = achievements.slice((currentPageNumber - 1) * itemsPerPage, currentPageNumber * itemsPerPage)
+        break
+      case "Internships":
+        itemsToDisplay = internships.slice((currentPageNumber - 1) * itemsPerPage, currentPageNumber * itemsPerPage)
+        break
         // case "studyMaterials":
         //   itemsToDisplay = studyMaterials.slice(
         //     (currentPageNumber - 1) * itemsPerPage,
         //     currentPageNumber * itemsPerPage
         //   );
-        break;
+        break
       case "Jobs":
-        itemsToDisplay = jobs.slice(
-          (currentPageNumber - 1) * itemsPerPage,
-          currentPageNumber * itemsPerPage
-        );
-        break;
+        itemsToDisplay = jobs.slice((currentPageNumber - 1) * itemsPerPage, currentPageNumber * itemsPerPage)
+        break
       case "Exams":
-        itemsToDisplay = exams.slice(
-          (currentPageNumber - 1) * itemsPerPage,
-          currentPageNumber * itemsPerPage
-        );
-        break;
+        itemsToDisplay = exams.slice((currentPageNumber - 1) * itemsPerPage, currentPageNumber * itemsPerPage)
+        break
         // case "studentAchievements":
         //   itemsToDisplay = studentAchievements.slice(
         //     (currentPageNumber - 1) * itemsPerPage,
         //     currentPageNumber * itemsPerPage
         //   );
-        break;
+        break
       default:
-        return null;
+        return null
     }
     const handleView = (item) => {
-      let path = "";
+      let path = ""
 
       switch (selectedCategory) {
-        case "achievements":
-          path = `/achievement-preview/${item.achievement_id}`;
-          break;
-        case "internships":
-          path = `/internship-preview/${item.internship_id}`;
-          break;
+        case "Achievements":
+          path = `/achievement-preview/${item.achievement_id}`
+          break
+        case "Internships":
+          path = `/internship-preview/${item.internship_id}`
+          break
         // case "studyMaterials":
         //   path = `/student-study-detail/${item.study_material_id}`;
         //   break;
         case "Jobs":
-          path = `/job-preview/${item.job_id}`;
-          break;
+          path = `/job-preview/${item.job_id}`
+          break
         case "Exams":
-          path = `/exam-preview/${item.exam_id}`;
-          break;
+          path = `/exam-preview/${item.exam_id}`
+          break
         // case "studentAchievements":
         //   path = `/student-achievement-preview/${item.student_achievement_id}`;
         //   break;
         default:
-          path = "/";
+          path = "/"
       }
 
-      navigate(path);
-    };
+      navigate(path)
+    }
 
     const filteredItems = itemsToDisplay.filter(
       (item) =>
@@ -370,8 +330,10 @@ const InboxPage = () => {
         item.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         item.company_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         item.student_email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.student_name?.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+        item.student_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.internship_data?.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.achievement_data?.description?.toLowerCase().includes(searchQuery.toLowerCase()),
+    )
 
     return (
       <section>
@@ -392,52 +354,43 @@ const InboxPage = () => {
                   transition={{ delay: index * 0.1 }}
                 >
                   <div className="text-gray-900">
-                    <span className="font-bold block">
-                      {item.job_data?.title ||
-                        item.internship_data?.title ||
-                        item.exam_data?.exam_title ||
-                        item.achievement_data?.type}
-                    </span>
-                    <span className="block">
-                      {item.admin_name ||
-                        item.name ||
-                        item.student_name ||
-                        "Admin"}{" "}
-                      posted a{" "}
-                      {item.job_data
-                        ? "Job"
-                        : item.internship_data
-                        ? "Internship"
-                        : item.exam_data
-                        ? "Exam"
-                        : item.achievement_data
-                        ? "Achievement"
-                        : "Post"}
-                    </span>
+                    {selectedCategory === "Jobs" && (
+                      <>
+                        <span className="font-bold block">{item.job_data?.title || item.title || "Job Posting"}</span>
+                        <span className="block">
+                          {item.admin_name} posted a job at {item.job_data?.company_name || item.company_name || ""}
+                        </span>
+                      </>
+                    )}
+                    {selectedCategory === "Exams" && (
+                      <>
+                        <span className="font-bold block">{item.exam_data?.title || item.title || "Exam Posting"}</span>
+                        <span className="block">{item.admin_name} posted an exam</span>
+                      </>
+                    )}
+                    {selectedCategory === "Internships" && (
+                      <>
+                        <span className="font-bold block">{item.internship_data?.title || "Internship Posting"}</span>
+                        <span className="block">
+                          {item.admin_name} posted an internship at {item.internship_data?.company || ""}
+                        </span>
+                      </>
+                    )}
+                    {selectedCategory === "Achievements" && (
+                      <>
+                        <span className="font-bold block">{item.achievement_data?.type || "Achievement"}</span>
+                        <span className="block">
+                          {item.admin_name} posted: {item.achievement_data?.description?.substring(0, 50)}
+                          {item.achievement_data?.description?.length > 50 ? "..." : ""}
+                        </span>
+                      </>
+                    )}
                   </div>
-
                   <button
                     className="flex items-center px-4 py-2 border border-black rounded-md text-black hover:bg-gray-200 transition duration-300"
-                    // onClick={async (e) => {
-                    //   e.stopPropagation();
-                    //   if (selectedCategory === "contactMessages") {
-                    //     setSelectedStudent(item.student_id);
-                    //     await markMessagesAsSeen(item.student_id);
-                    //     await fetchMessages(item.student_id);
-                    //     const response = await axios.get(
-                    //       `${base_url}/api/profile/${item.student_id}/`
-                    //     );
-                    //     const data = response.data;
-                    //     item.name = data.data.name;
-                    //     setStudentName(item.name[0]);
-                    //     setIsChatOpen(true);
-                    //   } else {
-                    //     setSelectedItem(item);
-                    //   }
-                    // }}
                     onClick={(e) => {
-                      e.stopPropagation(); // Prevent event bubbling
-                      handleView(item);
+                      e.stopPropagation()
+                      handleView(item)
                     }}
                   >
                     <span className="mr-5">View</span> <FaEye className="w-5" />
@@ -455,8 +408,8 @@ const InboxPage = () => {
           </div>
         )}
       </section>
-    );
-  };
+    )
+  }
 
   const renderChatInterface = () => {
     return (
@@ -469,41 +422,26 @@ const InboxPage = () => {
             <X className="h-5 w-5" />
           </button>
           <h2 className="text-xl font-semibold ml-2">
-            Chat with{" "}
-            {selectedStudent &&
-              students.find((student) => student.student_id === selectedStudent)
-                ?.name}
+            Chat with {selectedStudent && students.find((student) => student.student_id === selectedStudent)?.name}
           </h2>
         </div>
         <div className="flex-1 overflow-y-auto max-h-[calc(100vh-200px)] p-4 bg-white rounded-lg shadow-inner">
           {messages.length > 0 ? (
             messages.map((message, index) => {
-              const dateLabel = formatDate(message.timestamp);
-              const shouldShowDate =
-                index === 0 ||
-                formatDate(messages[index - 1].timestamp) !== dateLabel;
+              const dateLabel = formatDate(message.timestamp)
+              const shouldShowDate = index === 0 || formatDate(messages[index - 1].timestamp) !== dateLabel
 
               return (
                 <React.Fragment key={index}>
-                  {shouldShowDate && (
-                    <div className="text-center text-gray-500 mb-2">
-                      {dateLabel}
-                    </div>
-                  )}
+                  {shouldShowDate && <div className="text-center text-gray-500 mb-2">{dateLabel}</div>}
                   <div className="flex items-start mb-4">
                     <div
                       className={`flex flex-col ${
-                        message.sender === "admin"
-                          ? "items-end ml-auto"
-                          : "items-start mr-auto"
+                        message.sender === "admin" ? "items-end ml-auto" : "items-start mr-auto"
                       }`}
                     >
                       <div
-                        className={`flex items-start ${
-                          message.sender === "admin"
-                            ? "justify-end"
-                            : "justify-start"
-                        }`}
+                        className={`flex items-start ${message.sender === "admin" ? "justify-end" : "justify-start"}`}
                       >
                         {message.sender !== "admin" && (
                           <div className="w-10 h-10 rounded-full bg-gray-600 text-white flex items-center justify-center text-lg mr-2">
@@ -515,9 +453,7 @@ const InboxPage = () => {
                           animate={{ y: 0, opacity: 1 }}
                           transition={{ delay: index * 0.1 }}
                           className={`p-3 rounded-lg w-xs ${
-                            message.sender === "admin"
-                              ? "bg-[#ffc800]"
-                              : "bg-[#f5f5f5] text-black"
+                            message.sender === "admin" ? "bg-[#ffc800]" : "bg-[#f5f5f5] text-black"
                           }`}
                         >
                           <p className="text-sm">{message.content}</p>
@@ -525,15 +461,13 @@ const InboxPage = () => {
                             {message.sender === "admin" && (
                               <>
                                 <span className="mr-1 text-gray-700">
-                                  {new Date(
-                                    message.timestamp
-                                  ).toLocaleTimeString([], {
+                                  {new Date(message.timestamp).toLocaleTimeString([], {
                                     hour: "2-digit",
                                     minute: "2-digit",
                                   })}
                                 </span>
                                 {message.status === "seen" ? (
-                                  <img src={SeenTick} alt="Seen" />
+                                  <img src={SeenTick || "/placeholder.svg"} alt="Seen" />
                                 ) : (
                                   <FaCheck />
                                 )}
@@ -541,13 +475,10 @@ const InboxPage = () => {
                             )}
                             {message.sender !== "admin" && (
                               <span className="text-gray-700">
-                                {new Date(message.timestamp).toLocaleTimeString(
-                                  [],
-                                  {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                  }
-                                )}
+                                {new Date(message.timestamp).toLocaleTimeString([], {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                })}
                               </span>
                             )}
                           </div>
@@ -561,12 +492,10 @@ const InboxPage = () => {
                     </div>
                   </div>
                 </React.Fragment>
-              );
+              )
             })
           ) : (
-            <p className="text-center text-gray-500 italic">
-              No messages found.
-            </p>
+            <p className="text-center text-gray-500 italic">No messages found.</p>
           )}
         </div>
         <div className="flex items-center mt-4">
@@ -586,26 +515,16 @@ const InboxPage = () => {
           </button>
         </div>
       </div>
-    );
-  };
+    )
+  }
 
   const renderPreview = () => {
-    if (!selectedItem) return null;
+    if (!selectedItem) return null
 
-    const {
-      job_data,
-      exam_data,
-      internship_data,
-      study_material_data,
-      item_type,
-      item_id,
-    } = selectedItem;
+    const { job_data, exam_data, internship_data, study_material_data, item_type, item_id } = selectedItem
 
-    if (
-      selectedCategory === "studentAchievements" ||
-      selectedCategory === "achievements"
-    ) {
-      const { student_name, achievement_data } = selectedItem;
+    if (selectedCategory === "studentAchievements" || selectedCategory === "Achievements") {
+      const { student_name, achievement_data } = selectedItem
       return (
         <div className="flex-1 relative p-4 bg-gray-100 rounded-lg shadow-xl mt-10">
           <button
@@ -620,7 +539,7 @@ const InboxPage = () => {
                 {student_name ? student_name[0] : "A"}
               </div>
               <div className="flex-1">
-                <h2 className="text-xl font-semibold">{student_name}</h2>
+                <h2 className="text-xl font-semibold">{student_name || item.admin_name}</h2>
                 <div className="flex justify-between items-center text-sm text-gray-500">
                   <span>{achievement_data?.company}</span>
                 </div>
@@ -635,20 +554,15 @@ const InboxPage = () => {
                 <strong>Type:</strong> {achievement_data?.type}
               </p>
               <p>
-                <strong>Date:</strong>{" "}
-                {new Date(achievement_data?.date).toLocaleDateString()}
+                <strong>Company:</strong> {achievement_data?.company}
               </p>
               <p>
-                <strong>Batch:</strong> {achievement_data?.batch}
-              </p>
-              <p>
-                <strong>Approval Status:</strong>{" "}
-                {achievement_data?.is_approved ? "Approved" : "Not Approved"}
+                <strong>Date:</strong> {new Date(achievement_data?.date).toLocaleDateString()}
               </p>
             </div>
           </div>
         </div>
-      );
+      )
     }
 
     return (
@@ -675,10 +589,7 @@ const InboxPage = () => {
               </h2>
               <div className="flex justify-between items-center text-sm text-gray-500">
                 <span>
-                  {job_data?.company_name ||
-                    exam_data?.exam_title ||
-                    internship_data?.company_name ||
-                    "Company Name"}
+                  {job_data?.company_name || exam_data?.exam_title || internship_data?.company || "Company Name"}
                 </span>
               </div>
             </div>
@@ -687,7 +598,7 @@ const InboxPage = () => {
           <div className="whitespace-pre-wrap text-sm text-gray-700">
             {job_data?.job_description ||
               exam_data?.about_exam ||
-              internship_data?.job_description ||
+              internship_data?.description ||
               study_material_data?.description ||
               `Feedback: ${selectedItem.feedback}`}
           </div>
@@ -739,9 +650,7 @@ const InboxPage = () => {
               </div>
               <div>
                 <p className="text-gray-600 font-semibold">Deadline:</p>
-                <p className="text-sm">
-                  {new Date(internship_data.deadline).toLocaleDateString()}
-                </p>
+                <p className="text-sm">{new Date(internship_data.deadline).toLocaleDateString()}</p>
               </div>
               <div>
                 <p className="text-gray-600 font-semibold">Location:</p>
@@ -764,11 +673,7 @@ const InboxPage = () => {
           {item_type && (
             <div className="mt-4 text-center">
               <a
-                href={
-                  item_type === "internship"
-                    ? `/internship-edit/${item_id}`
-                    : `/job-edit/${item_id}`
-                }
+                href={item_type === "internship" ? `/internship-edit/${item_id}` : `/job-edit/${item_id}`}
                 className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md inline-block"
               >
                 Edit
@@ -783,28 +688,24 @@ const InboxPage = () => {
                 rel="noopener noreferrer"
                 className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-center inline-block"
               >
-                {job_data
-                  ? "Apply Now"
-                  : internship_data
-                  ? "Apply Now"
-                  : "View More"}
+                {job_data ? "Apply Now" : internship_data ? "Apply Now" : "View More"}
               </a>
             </div>
           )}
         </div>
       </div>
-    );
-  };
+    )
+  }
 
   const formatDate = (timestamp) => {
-    const today = new Date();
-    const messageDate = new Date(timestamp);
-    const diff = today.getDate() - messageDate.getDate();
+    const today = new Date()
+    const messageDate = new Date(timestamp)
+    const diff = today.getDate() - messageDate.getDate()
 
-    if (diff === 0) return "Today";
-    if (diff === 1) return "Yesterday";
-    return messageDate.toLocaleDateString();
-  };
+    if (diff === 0) return "Today"
+    if (diff === 1) return "Yesterday"
+    return messageDate.toLocaleDateString()
+  }
 
   return (
     <div className="flex">
@@ -812,11 +713,7 @@ const InboxPage = () => {
       <div className="flex flex-1 flex-col p-6">
         {/* Search Bar */}
         <div className="mb-6">
-          <SearchBar
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            onSearch={handleSearch}
-          />
+          <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} onSearch={handleSearch} />
         </div>
 
         {/* Category Toggle */}
@@ -840,9 +737,7 @@ const InboxPage = () => {
 
         {/* Content */}
         <div className="flex-1 overflow-auto space-y-4 flex">
-          <div className="flex-1">
-            {isChatOpen ? renderChatInterface() : renderContent()}
-          </div>
+          <div className="flex-1">{isChatOpen ? renderChatInterface() : renderContent()}</div>
           {/* {selectedItem && selectedCategory !== "contactMessages" && (
             <div className="w-1/3 p-4">
               {renderPreview()}
@@ -861,7 +756,8 @@ const InboxPage = () => {
         )}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default InboxPage;
+export default InboxPage
+

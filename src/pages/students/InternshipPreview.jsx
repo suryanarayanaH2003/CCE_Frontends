@@ -6,7 +6,6 @@ import AdminPageNavbar from "../../components/Admin/AdminNavBar";
 import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
 import StudentPageNavbar from "../../components/Students/StudentPageNavbar";
 import Footer from "../../components/Common/Footer";
-import { base_url } from "../../App";
 import {
   FaBuilding,
   FaBriefcase,
@@ -30,9 +29,8 @@ import {
 import { MdPunchClock } from "react-icons/md";
 import { RiEdit2Fill } from "react-icons/ri";
 import { LuFileClock } from "react-icons/lu";
-import { PiBuildingOfficeBold } from "react-icons/pi";
-// Import a placeholder image directly
-import placeholderImage from "../../assets/images/internship.png";
+import { PiBuildingOfficeBold, PiStudentBold } from "react-icons/pi";
+import { toast } from "react-toastify";
 import ApplicationCard from "../../components/Students/ApplicationCard";
 import GridLines from "../../assets/images/Grid Lines.png";
 
@@ -57,10 +55,15 @@ const InternshipPreview = () => {
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [publishedInternships, setPublishedInternships] = useState([]);
   const [loadingInternships, setLoadingInternships] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
   const navigate = useNavigate();
 
   const handleEditClick = () => {
-    sessionStorage.setItem("internshipData", JSON.stringify(internship.internship_data));
+    sessionStorage.setItem(
+      "internshipData",
+      JSON.stringify(internship.internship_data)
+    );
     sessionStorage.setItem("internshipId", id);
     // Store the return URL to come back to this preview page
     sessionStorage.setItem("returnToPreview", `/internship-preview/${id}`);
@@ -94,7 +97,7 @@ const InternshipPreview = () => {
 
   useEffect(() => {
     setLoading(true);
-    fetch(`${base_url}/api/internship/${id}/`)
+    fetch(`${API_BASE_URL}/api/internship/${id}/`)
       .then((response) => response.json())
       .then((data) => {
         setInternship(data.internship);
@@ -111,7 +114,7 @@ const InternshipPreview = () => {
       setLoadingInternships(true);
       try {
         const response = await axios.get(
-          `${base_url}/api/published-internship/`
+          `${API_BASE_URL}/api/published-internship/`
         );
 
         // Check if response.data is an array or if it has a specific property containing the internships
@@ -140,23 +143,29 @@ const InternshipPreview = () => {
   useEffect(() => {
     // Get savedJobs from location.state (if available)
     if (location.state?.savedJobs) {
-        setSavedJobs(location.state.savedJobs);
+      setSavedJobs(location.state.savedJobs);
     }
-}, [location.state]);
+  }, [location.state]);
 
   useEffect(() => {
     if (savedJobs.includes(id)) {
-        setSaved(true);  // Mark as saved if ID matches
+      setSaved(true); // Mark as saved if ID matches
     } else {
-        setSaved(false); // Otherwise, mark as unsaved
+      setSaved(false); // Otherwise, mark as unsaved
     }
-}, [id, savedJobs]);
+  }, [id, savedJobs]);
 
+  const truncateString = (str, num) => {
+    if (str.length <= num) {
+      return str;
+    }
+    return str.slice(0, num) + '...';
+  };
   const handleApplyClick = async () => {
     try {
       const token = Cookies.get("jwt");
       const userId = JSON.parse(atob(token.split(".")[1])).student_user;
-      await axios.post(`${base_url}/api/apply-internship/`, {
+      await axios.post(`${API_BASE_URL}/api/apply-internship/`, {
         studentId: userId,
         internshipId: id,
       });
@@ -176,34 +185,34 @@ const InternshipPreview = () => {
 
   const handleSaveInternship = async () => {
     try {
-        if (!userId) {
-            console.error("User ID is not available");
-            return;
-        }
+      if (!userId) {
+        console.error("User ID is not available");
+        return;
+      }
 
-        const endpoint = saved
-            ? `${base_url}/api/unsave-internship/${id}/`
-            : `${base_url}/api/save-internship/${id}/`;
+      const endpoint = saved
+        ? `${API_BASE_URL}/api/unsave-internship/${id}/`
+        : `${API_BASE_URL}/api/save-internship/${id}/`;
 
-        const response = await axios.post(endpoint, { userId });
+      const response = await axios.post(endpoint, { userId });
 
-        const updatedJobs = saved
-            ? savedJobs.filter((jobId) => jobId !== id) 
-            : [...savedJobs, id];                     
-        setSavedJobs(updatedJobs); 
-        setSaved(!saved); 
+      const updatedJobs = saved
+        ? savedJobs.filter((jobId) => jobId !== id)
+        : [...savedJobs, id];
+      setSavedJobs(updatedJobs);
+      setSaved(!saved);
 
-        setShowSaveSuccess(true);
-        setTimeout(() => {
-            setShowSaveSuccess(false);
-        }, 2000);
+      setShowSaveSuccess(true);
+      setTimeout(() => {
+        setShowSaveSuccess(false);
+      }, 2000);
     } catch (error) {
-        console.error("Error saving/unsaving internship:", error);
-        if (error.response) {
-            console.error("Server response:", error.response.data);
-        }
+      console.error("Error saving/unsaving internship:", error);
+      if (error.response) {
+        console.error("Server response:", error.response.data);
+      }
     }
-};
+  };
 
   const handleCardClick = (internshipId) => {
     window.location.href = `/internship-preview/${internshipId}`;
@@ -211,20 +220,27 @@ const InternshipPreview = () => {
 
   const handleDelete = () => {
     if (window.confirm("Are you sure you want to delete this internship?")) {
-      fetch(`${base_url}/api/internship-delete/${id}/`, {
-        method: 'DELETE'
+      fetch(`${API_BASE_URL}/api/internship-delete/${id}/`, {
+        method: "DELETE",
       })
-        .then(response => {
+        .then((response) => {
           if (response.ok) {
-            // Redirect based on the user role
-            if (userRole === "admin" || userRole === "superadmin") {
-              navigate('/internships');
-            }
+            toast.success("Internship deleted successfully.");
+            setTimeout(() => {
+              // Redirect based on the user role
+              if (userRole === "admin" || userRole === "superadmin") {
+                navigate("/internships");
+              }
+            }, 2000); // Delay navigation to allow the toast message to be seen
           } else {
             console.error("Error deleting internship:", response.statusText);
+            toast.error("Failed to delete internship.");
           }
         })
-        .catch(error => console.error("Error deleting internship:", error));
+        .catch((error) => {
+          console.error("Error deleting internship:", error);
+          toast.error("Failed to delete internship.");
+        });
     }
   };
 
@@ -271,6 +287,42 @@ const InternshipPreview = () => {
     );
   }
 
+  const ImageModal = ({ imageSrc, onClose }) => {
+    const handleDownload = () => {
+      // Create a temporary anchor element
+      const link = document.createElement("a");
+      link.href = imageSrc;
+      link.download = "image.jpg"; // Set the default filename
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    };
+
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 z-50">
+        <div className="relative w-3/4 h-3/4 max-w-4xl max-h-4xl">
+          <button
+            className="absolute top-4 right-4 text-white text-3xl bg-gray-800 rounded-full p-2"
+            onClick={onClose}
+          >
+            &times;
+          </button>
+          <img
+            src={imageSrc}
+            alt="Preview"
+            className="w-full h-full object-contain rounded-lg"
+          />
+          <button
+            onClick={handleDownload}
+            className="absolute right-4 left-1/2 transform -translate-x-1/2 text-black bg-yellow-500 hover:bg-yellow-600 px-4 py-2 rounded-lg text-lg"
+          >
+            Download
+          </button>
+        </div>
+      </div>
+    );
+  };
+
   const { internship_data } = internship;
 
   return (
@@ -284,27 +336,24 @@ const InternshipPreview = () => {
       {showApplySuccess && (
         <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 bg-green-100 border border-green-200 text-green-800 px-6 py-3 rounded-lg shadow-lg flex items-center">
           <FaCheck className="mr-2" />
-          Application submitted successfully! Redirecting...
+          Redirecting...
         </div>
       )}
 
       {showSaveSuccess && (
         <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 bg-green-100 border border-green-200 text-green-800 px-6 py-3 rounded-lg shadow-lg flex items-center">
           <FaCheck className="mr-2" />
-          Internship saved successfully!
+          {saved ? "Internship saved successfully!" : "Internship unsaved !"}
         </div>
       )}
-
       <div
-        className={`flex-grow p-4 sm:p-6 w-full ${userRole === "admin" || userRole === "superadmin"
+        className={`flex-grow p-4 sm:p-6 w-full ${
+          userRole === "admin" || userRole === "superadmin"
             ? "lg:ml-70 lg:w-[calc(100%-280px)]"
             : "lg:w-full"
-          }`}
+        }`}
       >
-        
-
         <div className="flex flex-col lg:flex-row gap-6">
-          
           {/* Main Content - Internship Details */}
           <div
             className={`space-y-6 w-full ${
@@ -312,70 +361,392 @@ const InternshipPreview = () => {
             }`}
           >
             {/* Internship Overview Card */}
-        <div className="bg-white shadow-lg rounded-lg overflow-hidden mb-6 border border-gray-100">
-          <div className="flex flex-col">
-            {/* Left Column - Company Image */}
-            <div
-              style={{
-                background:
-                  "linear-gradient(to bottom, rgba(255, 230, 141, 0.28), rgba(255, 204, 0, 0.25))",
-              }}
-              className="md: p-6 border-b md:border-b-0 md:border-r border-gray-200 bg-gray-50 flex items-center justify-center "
-            >
-              <img
-                src={internship.internship_data.image ? `data:image/jpeg;base64,${internship.internship_data.image}` : placeholderImage}
-                alt={`${internship_data.company_name} logo`}
-                className="max-w-full h-80  rounded-lg"
-                onError={(e) => {
-                  e.target.onerror = null;
-                  e.target.src = placeholderImage;
-                }}
-              />
-            </div>
+            <div className="bg-white shadow-lg rounded-lg overflow-hidden mb-6 border border-gray-100">
+              <div className="flex flex-col">
+                {/* Left Column - Company Image */}
+                <div
+                  style={{
+                    background:
+                      "linear-gradient(to bottom, rgba(255, 230, 141, 0.28), rgba(255, 204, 0, 0.25))",
+                  }}
+                  className="p-6 border-b md:border-b-0 md:border-r border-gray-200 bg-gray-50 flex items-center justify-center"
+                >
+                  <div className="w-120 h-80 flex items-center justify-center">
+                    {internship.internship_data.image ? (
+                      // <img
+                      //   src={`data:image/jpeg;base64,${internship.internship_data.image}`}
+                      //   alt={`${internship.internship_data.company_name}`}
+                      //   className="max-w-full max-h-full object-contain rounded-lg"
+                      //   onClick={() => setIsModalOpen(true)}
+                      //   onError={(e) => {
+                      //     e.target.onerror = null;
+                      //     e.target.src = placeholderImage; // Fallback only if image fails
+                      //   }}
+                      // />
+                      <h6 className="max-w-full font-bold text-5xl object-contain">
+                      {internship.internship_data.company_name}
+                    </h6>
+                    
+                    ) : (
+                      <h1 className="text-9xl font-bold text-center">
+                        {internship.internship_data.company_name}
+                      </h1>
+                    )}
+                  </div>
+                </div>
 
-            {/* Right Column - Internship Summary */}
-            <div className="md: p-6 relative">
-              <img
-                src={GridLines || "/placeholder.svg"}
-                alt="Background"
-                className="absolute inset-0 w-full h-full object-cover z-0"
-                style={{ height: "220%" }}
-              />
+                {/* Right Column - Internship Summary */}
+                <div className="md: p-6 relative">
+                  <img
+                    src={GridLines || "/placeholder.svg"}
+                    alt="Background"
+                    className="absolute inset-0 w-full h-full object-cover z-0"
+                    style={{ height: "220%" }}
+                  />
 
-              <div className="relative z-10 flex justify-between items-start">
-                <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">
-                  {internship_data.title}
-                </h1>
-              </div>
+                  <div className="relative z-10 flex justify-between items-start">
+                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">
+                      {truncateString(internship_data.title,25)}
+                    </h1>
+                  </div>
 
-              <p className="relative z-10 text-lg sm:text-xl text-gray-600 mb-4 flex items-center">
-                {internship_data.job_description}
-              </p>
+                  <p className="relative z-10 text-lg sm:text-xl text-gray-600 mb-4 flex items-center">
+                    {internship_data.job_description}
+                  </p>
 
               <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <div className="flex items-center">
                   <span className=" font-bold text-gray-700">
-                   Company Name : </span>
-                  <span className="ml-4 text-gray-700">
-                    {internship_data.title}
+                   Location : </span>
+                  <span className="ml-2 text-gray-700">
+                    {internship_data.location}
                   </span>
                 </div>
                 <div className="flex items-center">
                   <span className="font-bold text-gray-700">
                    Application Deadline : </span>
-                <span className="ml-4 text-gray-700">
-                    {internship_data.internship_type}
+                <span className="ml-2 text-gray-700">
+                    {internship_data.application_deadline}
                   </span>
                 </div>
               </div>
 
-              <div className="relative z-10 flex flex-wrap gap-4">
-                <div className="relative flex-1">
+                  <div className="relative z-10 flex flex-wrap gap-4">
+                    {userRole === "student" ? (
+                      <>
+                        <button
+                          onClick={handleApplyClick}
+                          title={
+                            userRole !== "student"
+                              ? "Only students can apply for internships"
+                              : ""
+                          }
+                          className={`bg-yellow-500 ${
+                            userRole === "student"
+                              ? "hover:bg-yellow-600"
+                              : "opacity-60 cursor-not-allowed"
+                          } 
+                          text-white font-semibold py-3 px-8 rounded-lg transition duration-300 ease-in-out 
+                          flex items-center shadow-md ${
+                            userRole === "student" && "hover:shadow-lg"
+                          }`}
+                        >
+                          Apply Now <FaExternalLinkAlt className="ml-2 text-sm" />
+                        </button>
+                        <button
+                          onClick={
+                            userRole === "student"
+                              ? handleSaveInternship
+                              : undefined
+                          }
+                          className={`${
+                            saved
+                              ? "bg-gray-100 text-gray-800"
+                              : "border-2 border-gray-300 text-gray-700"
+                          } 
+                          font-semibold py-3 px-8 rounded-lg 
+                          ${userRole === "student" ? "hover:bg-gray-100" : "opacity-60 cursor-not-allowed"}
+                          transition duration-300 ease-in-out flex items-center justify-center`}
+                          title={userRole !== "student" ? "Only students can save internships" : ""}
+                        >
+                          {saved ? (
+                            <>
+                              Saved <FaBookmark className="ml-2 text-yellow-500" />
+                            </>
+                          ) : (
+                            <>
+                              Save Internship <FaBookmark className="ml-2" />
+                            </>
+                          )}
+                        </button>
+                      </>
+                    ) : null}
+                    {(userRole === "admin" || userRole === "superadmin") && (
+                      <div className="relative flex-1">
+                        <button
+                          onClick={handleEditClick}
+                          className="text-gray-800 w-full border-2 border-gray-300 text-gray-700 font-semibold py-3 px-8 rounded-lg hover:bg-gray-100 transition duration-300 ease-in-out flex items-center justify-center"
+                        >
+                          Edit Internship{" "}
+                          <RiEdit2Fill className="ml-2 text-lg" />
+                        </button>
+                      </div>
+                    )}
+                    {userRole === "admin" || userRole === "superadmin" ? (
+                      <button
+                        onClick={handleDelete}
+                        className="text-gray-800 border-2 border-gray-300 text-gray-700 font-semibold py-3 px-8 rounded-lg hover:bg-gray-100 transition duration-300 ease-in-out flex items-center"
+                      >
+                        Delete
+                        <FaTrash className="ml-2" />
+                      </button>
+                    ) : null}
+                    {userRole === "admin" || userRole === "superadmin" ? (
+                      <button
+                        onClick={() =>
+                          navigate(`/applied-students/internship/${id}`)
+                        }
+                        className="text-gray-800 border-2 border-gray-300 text-gray-700 font-semibold py-3 px-8 rounded-lg hover:bg-gray-100 transition duration-300 ease-in-out flex items-center"
+                      >
+                        Applied students
+                        <PiStudentBold className="ml-2 text-xl" />
+                      </button>
+                    ) : null}
+                  </div>
+                </div>
+              </div>
+            </div>
+            {/* Internship Description Card */}
+            {internship_data.job_description && (
+              <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100">
+                <div className="p-6">
+                  <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center">
+                    <div className="bg-yellow-100 p-2 rounded-full mr-3">
+                      <FaBriefcase className="text-yellow-600" />
+                    </div>
+                    Internship Description
+                  </h2>
+                  <p className="text-gray-700 whitespace-pre-line leading-relaxed text-justify">
+                    {internship_data.job_description}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Required Skills Card */}
+            {internship_data.required_skills &&
+              internship_data.required_skills.length > 0 && (
+                <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100">
+                  <div className="p-6">
+                    <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center">
+                      <div className="bg-yellow-100 p-2 rounded-full mr-3">
+                        <FaCode className="text-yellow-600" />
+                      </div>
+                      Technical Skills
+                    </h2>
+                    <div className="flex flex-wrap gap-2">
+                      {Array.isArray(internship_data.required_skills) ? (
+                        internship_data.required_skills.map((skill, index) => (
+                          <span
+                            key={index}
+                            className="bg-yellow-50 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium border border-yellow-100"
+                          >
+                            {skill}
+                          </span>
+                        ))
+                      ) : (
+                        <span className="text-gray-600">
+                          No skills specified
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+            {/* Education Requirements Card */}
+            {internship_data.education_requirements &&
+              internship_data.education_requirements !== "NA" && (
+                <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100">
+                  <div className="p-6">
+                    <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center">
+                      <div className="bg-yellow-100 p-2 rounded-full mr-3">
+                        <FaGraduationCap className="text-yellow-600" />
+                      </div>
+                      Education Requirements
+                    </h2>
+                    <p className="text-gray-700 whitespace-pre-line leading-relaxed">
+                      {internship_data.education_requirements}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+            {/* Internship Details Card */}
+            {(internship_data.internship_type !== "NA" ||
+              internship_data.duration !== "NA" ||
+              internship_data.stipend !== "NA" ||
+              internship_data.remote_work_availability !== "NA") && (
+              <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100">
+                <div className="p-6">
+                  <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center">
+                    <div className="bg-yellow-100 p-2 rounded-full mr-3">
+                      <FaBriefcase className="text-yellow-600" />
+                    </div>
+                    Internship Details
+                  </h2>
+                  <div className="space-y-1">
+                    <div className="flex flex-col sm:flex-row sm:items-center py-2 border-b border-gray-100">
+                      <div className=" flex items-center font-medium w-full sm:w-1/3 text-gray-600 mb-1 sm:mb-0">
+                        <MdPunchClock className="inline-block mr-1 text-gray-500" />
+                        Type:
+                      </div>
+                      <div className="text-gray-700 w-full sm:w-2/3 bg-gray-50 p-2 rounded">
+                        {internship_data.internship_type}
+                      </div>
+                    </div>
+                    <div className="flex flex-col sm:flex-row sm:items-center py-2 border-b border-gray-100">
+                      <div className="font-medium w-full sm:w-1/3 text-gray-600 mb-1 sm:mb-0">
+                        <FaClock className="inline-block mr-1 text-gray-500" />
+                        Duration:
+                      </div>
+                      <div className="text-gray-700 w-full sm:w-2/3 bg-gray-50 p-2 rounded">
+                        {internship_data.duration}
+                      </div>
+                    </div>
+                    <div className="flex flex-col sm:flex-row sm:items-center py-2 border-b border-gray-100">
+                      <div className="font-medium w-full sm:w-1/3 text-gray-600 mb-1 sm:mb-0">
+                        <FaMoneyBillWave className="inline-block mr-1 text-gray-500" />
+                        Stipend:
+                      </div>
+                      <div className="text-gray-700 w-full sm:w-2/3 bg-gray-50 p-2 rounded">
+                        ₹ {internship_data.stipend} per month
+                      </div>
+                    </div>
+                    <div className="flex flex-col sm:flex-row sm:items-center py-2">
+                      <div className="font-medium w-full sm:w-1/3 text-gray-600 mb-1 sm:mb-0">
+                        <FaLaptop className="inline-block mr-1 text-gray-500" />
+                        Remote Work:
+                      </div>
+                      <div className="text-gray-700 w-full sm:w-2/3 bg-gray-50 p-2 rounded">
+                        {internship_data.remote_work_availability || "On-site"}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Application Process Card */}
+            {internship_data.application_process &&
+              internship_data.application_process !== "NA" && (
+                <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100">
+                  <div className="p-6">
+                    <h2 className="text-xl font-semibold mb-6 text-gray-800 py-2 border-b flex items-center">
+                      <div className="bg-yellow-100 p-3 rounded-full mr-4">
+                        <FaFileAlt className="text-yellow-600 text-xl" />
+                      </div>
+                      Application Process
+                    </h2>
+                    <div className="bg-gradient-to-r from-yellow-50 to-white p-4 rounded-lg border border-yellow-200">
+                      <h3 className="font-semibold text-lg mb-3 text-gray-800 flex items-center">
+                        <FaListOl className="mr-2 text-yellow-600" />
+                        How to Apply
+                      </h3>
+                      <p className="text-gray-700 leading-relaxed">
+                        Click the "Apply Now" button to be redirected to the
+                        application page. Make sure to prepare your resume and
+                        any required documents before applying.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+            {/* Important Dates Card */}
+            {internship_data.application_deadline && (
+              <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100">
+                <div className="p-6">
+                  <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center">
+                    <div className="bg-yellow-100 p-2 rounded-full mr-3">
+                      <FaRegCalendarAlt className="text-yellow-600" />
+                    </div>
+                    Important Dates
+                  </h2>
+                  <div className="space-y-1">
+                    <div className="flex flex-col sm:flex-row sm:items-center py-2 border-b border-gray-100">
+                      <div className=" flex items-center font-medium w-full sm:w-1/3 text-gray-600 mb-1 sm:mb-0">
+                        <LuFileClock className="inline-block mr-1 text-gray-500" />
+                        Apply By:
+                      </div>
+                      <div className="text-red-600 font-medium w-full sm:w-2/3 bg-gray-50 p-2 rounded border border-gray-100">
+                        {formatDate(internship_data.application_deadline)}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Company Information Card */}
+            {(internship_data.company_name !== "NA" ||
+              internship_data.company_website !== "NA") && (
+              <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100">
+                <div className="p-6">
+                  <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center">
+                    <div className="bg-yellow-100 p-2 rounded-full mr-3">
+                      <FaBuilding className="text-yellow-600" />
+                    </div>
+                    Company Information
+                  </h2>
+                  <div className="space-y-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center py-2 border-b border-gray-100">
+                      <div className="flex items-center font-medium w-full sm:w-1/3 text-gray-600 mb-1 sm:mb-0">
+                        <PiBuildingOfficeBold className=" inline-block mr-1 text-gray-500" />
+                        Company:
+                      </div>
+                      <div className="text-gray-700 font-medium w-full sm:w-2/3 bg-gray-50 p-2 rounded">
+                        {internship_data.company_name}
+                      </div>
+                    </div>
+                    <div className="flex flex-col sm:flex-row sm:items-center py-2">
+                      <div className="font-medium w-full sm:w-1/3 text-gray-600 mb-1 sm:mb-0">
+                        <FaGlobe className="inline-block mr-1 text-gray-500" />
+                        Website:
+                      </div>
+                      <div className="w-full sm:w-2/3 bg-gray-50 p-2 rounded">
+                        <a
+                          href={internship_data.company_website}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:underline flex items-center"
+                        >
+                          {internship_data.company_website}
+                          <FaExternalLinkAlt className="ml-2 text-xs" />
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Apply Now Card at the bottom */}
+            <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100">
+              <div className="p-6">
+                <h2 className="text-xl font-semibold mb-4 text-gray-800 py-2 border-b flex items-center">
+                  <div className="bg-yellow-100 p-2 rounded-full mr-3">
+                    <FaFileAlt className="text-yellow-600" />
+                  </div>
+                  Ready to Apply?
+                </h2>
+                <p className="text-gray-600 mb-4">
+                  Don't miss this opportunity! Apply before the deadline.
+                </p>
+                <div className="flex gap-4">
                   <button
-                    onClick={
-                      userRole === "student" ? handleApplyClick : undefined
-                    }
-                    className={`w-full bg-yellow-500 ${
+                    onClick={userRole === "student" ? handleApplyClick : undefined}
+                    className={`w-auto bg-yellow-500 ${
                       userRole === "student"
                         ? "hover:bg-yellow-600"
                         : "opacity-60 cursor-not-allowed"
@@ -390,26 +761,17 @@ const InternshipPreview = () => {
                   >
                     Apply Now <FaExternalLinkAlt className="ml-2 text-sm" />
                   </button>
-                </div>
-                <div className="relative flex-1">
                   <button
-                    onClick={
-                      userRole === "student" ? handleSaveInternship : undefined
-                    }
-                    className={`w-full ${
+                    onClick={userRole === "student" ? handleSaveInternship : undefined}
+                    className={`${
                       saved
                         ? "bg-gray-100 text-gray-800"
                         : "border-2 border-gray-300 text-gray-700"
-                    } font-semibold py-3 px-8 rounded-lg ${
-                      userRole === "student"
-                        ? "hover:bg-gray-100"
-                        : "opacity-60 cursor-not-allowed"
-                    } transition duration-300 ease-in-out flex items-center justify-center`}
-                    title={
-                      userRole !== "student"
-                        ? "Only students can save internships"
-                        : ""
-                    }
+                    } 
+                    font-semibold py-3 px-8 rounded-lg 
+                    ${userRole === "student" ? "hover:bg-gray-100" : "opacity-60 cursor-not-allowed"}
+                    transition duration-300 ease-in-out flex items-center justify-center`}
+                    title={userRole !== "student" ? "Only students can save internships" : ""}
                   >
                     {saved ? (
                       <>
@@ -421,286 +783,6 @@ const InternshipPreview = () => {
                       </>
                     )}
                   </button>
-                </div>
-                {(userRole === "admin" || userRole === "superadmin") && (
-                  <div className="relative flex-1">
-                    <button
-                      onClick={handleEditClick}
-                      className="text-gray-800 w-full border-2 border-gray-300 text-gray-700 font-semibold py-3 px-8 rounded-lg hover:bg-gray-100 transition duration-300 ease-in-out flex items-center justify-center"
-                    >
-                      Edit Internship <RiEdit2Fill className="ml-2 text-lg" />
-                    </button>
-                  </div>
-                )}
-                {userRole === 'admin' || userRole === 'superadmin' ? (
-                  <button onClick={handleDelete} className="text-gray-800 border-2 border-gray-300 text-gray-700 font-semibold py-3 px-8 rounded-lg hover:bg-gray-100 transition duration-300 ease-in-out flex items-center">
-                    Delete
-                    <FaTrash className="ml-2" />
-                  </button>
-                ) : null}
-              </div>
-            </div>
-          </div>
-        </div>
-            {/* Internship Description Card */}
-            <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100">
-              <div className="p-6">
-                <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center">
-                  <div className="bg-yellow-100 p-2 rounded-full mr-3">
-                    <FaBriefcase className="text-yellow-600" />
-                  </div>
-                  Internship Description
-                </h2>
-                <p className="text-gray-700 whitespace-pre-line leading-relaxed text-justify">
-                  {internship_data.job_description}
-                </p>
-              </div>
-            </div>
-
-            {/* Required Skills Card */}
-            <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100">
-              <div className="p-6">
-                <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center">
-                  <div className="bg-yellow-100 p-2 rounded-full mr-3">
-                    <FaCode className="text-yellow-600" />
-                  </div>
-                  Technical Skills
-                </h2>
-                <div className="flex flex-wrap gap-2">
-                  {Array.isArray(internship_data.required_skills) ? (
-                    internship_data.required_skills.map((skill, index) => (
-                      <span
-                        key={index}
-                        className="bg-yellow-50 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium border border-yellow-100"
-                      >
-                        {skill}
-                      </span>
-                    ))
-                  ) : (
-                    <span className="text-gray-600">No skills specified</span>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* Education Requirements Card */}
-            <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100">
-              <div className="p-6">
-                <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center">
-                  <div className="bg-yellow-100 p-2 rounded-full mr-3">
-                    <FaGraduationCap className="text-yellow-600" />
-                  </div>
-                  Education Requirements
-                </h2>
-                <p className="text-gray-700 whitespace-pre-line leading-relaxed">
-                  {internship_data.education_requirements}
-                </p>
-              </div>
-            </div>
-
-            {/* Internship Details Card */}
-            <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100">
-              <div className="p-6">
-                <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center">
-                  <div className="bg-yellow-100 p-2 rounded-full mr-3">
-                    <FaBriefcase className="text-yellow-600" />
-                  </div>
-                  Internship Details
-                </h2>
-                <div className="space-y-1">
-                  <div className="flex flex-col sm:flex-row sm:items-center py-2 border-b border-gray-100">
-                    <div className=" flex items-center font-medium w-full sm:w-1/3 text-gray-600 mb-1 sm:mb-0">
-                    <MdPunchClock className="inline-block mr-1 text-gray-500" />
-                      Type:
-                    </div>
-                    <div className="text-gray-700 w-full sm:w-2/3 bg-gray-50 p-2 rounded">
-                      {internship_data.internship_type}
-                    </div>
-                  </div>
-                  <div className="flex flex-col sm:flex-row sm:items-center py-2 border-b border-gray-100">
-                    <div className="font-medium w-full sm:w-1/3 text-gray-600 mb-1 sm:mb-0">
-                      <FaClock className="inline-block mr-1 text-gray-500" />
-                      Duration:
-                    </div>
-                    <div className="text-gray-700 w-full sm:w-2/3 bg-gray-50 p-2 rounded">
-                      {internship_data.duration}
-                    </div>
-                  </div>
-                  <div className="flex flex-col sm:flex-row sm:items-center py-2 border-b border-gray-100">
-                    <div className="font-medium w-full sm:w-1/3 text-gray-600 mb-1 sm:mb-0">
-                      <FaMoneyBillWave className="inline-block mr-1 text-gray-500" />
-                      Stipend:
-                    </div>
-                    <div className="text-gray-700 w-full sm:w-2/3 bg-gray-50 p-2 rounded">
-                      ₹ {internship_data.stipend} per month
-                    </div>
-                  </div>
-                  <div className="flex flex-col sm:flex-row sm:items-center py-2">
-                    <div className="font-medium w-full sm:w-1/3 text-gray-600 mb-1 sm:mb-0">
-                      <FaLaptop className="inline-block mr-1 text-gray-500" />
-                      Remote Work:
-                    </div>
-                    <div className="text-gray-700 w-full sm:w-2/3 bg-gray-50 p-2 rounded">
-                      {internship_data.remote_work_availability || "On-site"}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Application Process Card */}
-            <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100">
-              <div className="p-6">
-                <h2 className="text-xl font-semibold mb-6 text-gray-800 py-2 border-b flex items-center">
-                  <div className="bg-yellow-100 p-3 rounded-full mr-4">
-                    <FaFileAlt className="text-yellow-600 text-xl" />
-                  </div>
-                  Application Process
-                </h2>
-                <div className="bg-gradient-to-r from-yellow-50 to-white p-4 rounded-lg border border-yellow-200">
-                  <h3 className="font-semibold text-lg mb-3 text-gray-800 flex items-center">
-                    <FaListOl className="mr-2 text-yellow-600" />
-                    How to Apply
-                  </h3>
-                  <p className="text-gray-700 leading-relaxed">
-                    Click the "Apply Now" button to be redirected to the
-                    application page. Make sure to prepare your resume and any
-                    required documents before applying.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Important Dates Card */}
-            <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100">
-              <div className="p-6">
-                <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center">
-                  <div className="bg-yellow-100 p-2 rounded-full mr-3">
-                    <FaRegCalendarAlt className="text-yellow-600" />
-                  </div>
-                  Important Dates
-                </h2>
-                <div className="space-y-1">
-                  <div className="flex flex-col sm:flex-row sm:items-center py-2 border-b border-gray-100">
-                    <div className=" flex items-center font-medium w-full sm:w-1/3 text-gray-600 mb-1 sm:mb-0">
-                      <LuFileClock className="inline-block mr-1 text-gray-500" />
-                      Apply By:
-                    </div>
-                    <div className="text-red-600 font-medium w-full sm:w-2/3 bg-gray-50 p-2 rounded border border-gray-100">
-                      {formatDate(internship_data.application_deadline)}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Company Information Card */}
-            <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100">
-              <div className="p-6">
-                <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center">
-                  <div className="bg-yellow-100 p-2 rounded-full mr-3">
-                    <FaBuilding className="text-yellow-600" />
-                  </div>
-                  Company Information
-                </h2>
-                <div className="space-y-3">
-                  <div className="flex flex-col sm:flex-row sm:items-center py-2 border-b border-gray-100">
-                    <div className="flex items-center font-medium w-full sm:w-1/3 text-gray-600 mb-1 sm:mb-0">
-                    <PiBuildingOfficeBold className=" inline-block mr-1 text-gray-500" />
-                      Company:
-                    </div>
-                    <div className="text-gray-700 font-medium w-full sm:w-2/3 bg-gray-50 p-2 rounded">
-                      {internship_data.company_name}
-                    </div>
-                  </div>
-                  <div className="flex flex-col sm:flex-row sm:items-center py-2">
-                    <div className="font-medium w-full sm:w-1/3 text-gray-600 mb-1 sm:mb-0">
-                      <FaGlobe className="inline-block mr-1 text-gray-500" />
-                      Website:
-                    </div>
-                    <div className="w-full sm:w-2/3 bg-gray-50 p-2 rounded">
-                      <a
-                        href={internship_data.company_website}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline flex items-center"
-                      >
-                        {internship_data.company_website}
-                        <FaExternalLinkAlt className="ml-2 text-xs" />
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Apply Now Card at the bottom */}
-            <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100">
-              <div className="p-6">
-                <h2 className="text-xl font-semibold mb-4 text-gray-800 py-2 border-b flex items-center">
-                  <div className="bg-yellow-100 p-2 rounded-full mr-3">
-                    <FaFileAlt className="text-yellow-600" />
-                  </div>
-                  Ready to Apply?
-                </h2>
-                <p className="text-gray-600 mb-4">
-                  Don't miss this opportunity! Apply before the deadline.
-                </p>
-                <div className="flex flex-wrap gap-4">
-                  <div className="relative flex-1">
-                    <button
-                      onClick={
-                        userRole === "student" ? handleApplyClick : undefined
-                      }
-                      className={`w-full bg-yellow-500 ${
-                        userRole === "student"
-                          ? "hover:bg-yellow-600"
-                          : "opacity-60 cursor-not-allowed"
-                      } text-white font-semibold py-3 px-6 rounded-lg transition duration-300 ease-in-out flex items-center justify-center shadow-md ${
-                        userRole === "student" && "hover:shadow-lg"
-                      }`}
-                      title={
-                        userRole !== "student"
-                          ? "Only students can apply for internships"
-                          : ""
-                      }
-                    >
-                      Apply Now <FaExternalLinkAlt className="ml-2 text-sm" />
-                    </button>
-                  </div>
-                  <div className="relative flex-1">
-                    <button
-                      onClick={
-                        userRole === "student"
-                          ? handleSaveInternship
-                          : undefined
-                      }
-                      className={`w-full ${
-                        saved
-                          ? "bg-gray-100 text-gray-800"
-                          : "border-2 border-gray-300 text-gray-700"
-                      } font-semibold py-3 px-6 rounded-lg ${
-                        userRole === "student"
-                          ? "hover:bg-gray-100"
-                          : "opacity-60 cursor-not-allowed"
-                      } transition duration-300 ease-in-out flex items-center justify-center`}
-                      title={
-                        userRole !== "student"
-                          ? "Only students can save internships"
-                          : ""
-                      }
-                    >
-                      {saved ? (
-                        <>
-                          Saved <FaBookmark className="ml-2 text-yellow-500" />
-                        </>
-                      ) : (
-                        <>
-                          Save Internship <FaBookmark className="ml-2" />
-                        </>
-                      )}
-                    </button>
-                  </div>
                 </div>
               </div>
             </div>
@@ -796,6 +878,16 @@ const InternshipPreview = () => {
                 </div>
               </div>
             </div>
+          )}
+          {isModalOpen && (
+            <ImageModal
+              imageSrc={
+                internship.internship_data.image
+                  ? `data:image/jpeg;base64,${internship.internship_data.image}`
+                  :  placeholderImage
+              }
+              onClose={() => setIsModalOpen(false)}
+            />
           )}
         </div>
       </div>

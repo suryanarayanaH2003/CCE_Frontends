@@ -5,7 +5,6 @@ import PageHeader from "../../components/Common/StudentPageHeader";
 import ApplicationCard from "../../components/Students/ApplicationCard";
 import { AppPages } from "../../utils/constants";
 import Cookies from "js-cookie";
-import { base_url } from "../../App";
 
 export default function AppliedJobs() {
   const [appliedJobs, setAppliedJobs] = useState([]);
@@ -14,6 +13,7 @@ export default function AppliedJobs() {
   const [filter, setFilter] = useState("All");
   const [searchPhrase, setSearchPhrase] = useState("");
   const [error, setError] = useState("");
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
   const [userRole, setUserRole] = useState(null);
 
   useEffect(() => {
@@ -22,7 +22,7 @@ export default function AppliedJobs() {
         const token = Cookies.get("jwt");
         const userId = JSON.parse(atob(token.split(".")[1])).student_user;
         const response = await axios.get(
-          `${base_url}/api/applied-jobs/${userId}/`
+          `${API_BASE_URL}/api/applied-jobs/${userId}/`
         );
 
         // Access the job details within the response data
@@ -34,7 +34,7 @@ export default function AppliedJobs() {
         // Fetch additional job details if necessary
         const jobIds = confirmedJobs.map(job => job.job_id);
         const jobDetailsPromises = jobIds.map(jobId =>
-          axios.get(`${base_url}/api/job/${jobId}/`)
+          axios.get(`${API_BASE_URL}/api/job/${jobId}/`)
         );
 
         const jobResponses = await Promise.all(jobDetailsPromises);
@@ -64,7 +64,7 @@ export default function AppliedJobs() {
         const token = Cookies.get("jwt");
         const userId = JSON.parse(atob(token.split(".")[1])).student_user;
         const response = await axios.get(
-          `${base_url}/api/saved-jobs/${userId}/`
+          `${API_BASE_URL}/api/saved-jobs/${userId}/`
         );
 
         // Access the jobs array within the response data
