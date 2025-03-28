@@ -4,6 +4,7 @@ import StudentPageNavbar from "../../components/Students/StudentPageNavbar";
 import Cookies from "js-cookie";
 import { LoaderContext } from "../../components/Common/Loader";
 import gridImg from "../../assets/images/Grid Lines.png";
+import profession from "../../assets/images/profession.png";
 import HomeCard from "../../components/Students/HomeCard";
 import CarouselAchievments from "../../components/Students/CarouselAchievments";
 import Image from "../../assets/images/AboutCCE1.png";
@@ -24,7 +25,7 @@ import fileIcon from "../../assets/icons/file.png";
 import { toast, ToastContainer } from "react-toastify";
 
 const themeButton =
-  "bg-[#ffcc00] text-black py-2 px-6 rounded-full font-semibold hover:bg-[#ffdb4d] transition-colors duration-300"
+  "bg-[#ffcc00] text-black py-2 px-6 rounded-lg font-semibold hover:bg-[#ffdb4d] transition-colors duration-300"
 
 import { IoIosArrowForward } from "react-icons/io";
 import { IoMdClose, IoMdAdd } from "react-icons/io";
@@ -277,9 +278,9 @@ const Header = () => {
   return (
     <header className="w-full relative" id="hero">
       <img
-        src={gridImg || "/placeholder.svg"}
+        src={profession || "/placeholder.svg"}
         alt=""
-        className="absolute h-full w-full -z-1 object-cover"
+        className="absolute h-full w-full mt-18 -z-1 object-cover"
       />
 
       <div className="h-20"></div>
@@ -288,7 +289,7 @@ const Header = () => {
         <StudentPageNavbar transparent={true} />
       </div>
 
-      {staticJobs.length > 0 && (
+      {/* {staticJobs.length > 0 && (
         <div className="w-full h-full absolute hidden md:flex">
           <div className="flex-1 flex flex-col">
             <div className="flex-1 flex items-center px-20 pt-10">
@@ -442,15 +443,15 @@ const Header = () => {
             </div>
           </div>
         </div>
-      )}
+      )} */}
 
       <div className="w-full flex flex-col items-center text-center py-12 md:py-20 lg:py-34 space-y-3 md:space-y-5 z-20">
-        <p className="text-3xl md:text-5xl lg:text-7xl font-semibold">
+        <p className="text-3xl mt-10 md:text-5xl text-white lg:text-7xl font-semibold">
           {" "}
-          One Step Closer To <br /> Your{" "}
-          <span className="text-[#FFCC00]"> Dream Job </span>{" "}
+          Your Gateway To <span className="text-[#FFCC00]"> Government </span>{" "} <br /> &{" "}
+          <span className="text-[#FFCC00]"> Career Opportunities </span>{" "}
         </p>
-        <p className="text-sm md:text-base">
+        <p className="text-sm text-white md:text-base">
           {" "}
           let us help you find a job that suits you the best!{" "}
         </p>
@@ -463,7 +464,7 @@ const Header = () => {
         </button>
       </div>
 
-      <div className="relative w-full">
+      <div className="relative mt-12 w-full">
         <p className="w-full bg-[#FFCC00] p-2 md:p-4 px-0 rotate-[2deg] text-justify shadow-lg leading-snug custom-justify text-sm md:text-lg lg:text-2xl">
           Build an entrepreneurial mindset through our Design Thinking Framework
           * Redesigning common mind and Business Towards Excellence
@@ -865,7 +866,7 @@ const AboutCCE = () => {
         <div className="bg-white grid grid-cols-1 md:grid-cols-12 gap-6">
           {/* Left Column - About Us */}
           <div className="md:col-span-6">
-            <div className="p-6 rounded-lg border border-gray-200 shadow-sm h-full">
+            <div className="p-6 rounded-lg border border-gray-500 shadow-sm h-full">
               <h2 className="text-xl md:text-2xl font-bold mb-4">About Us</h2>
               <div className="text-sm space-y-4 text-justify">
                 <p>

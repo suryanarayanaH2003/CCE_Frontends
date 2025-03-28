@@ -10,7 +10,6 @@ import "react-toastify/dist/ReactToastify.css";
 import { toast } from "react-toastify";
 import { RiEdit2Fill } from "react-icons/ri";
 
-
 import {
   FaBook,
   FaMapMarkerAlt,
@@ -172,8 +171,8 @@ const ExamPreview = () => {
         // Check if there's a valid exam link
         if (examLink && examLink.trim() !== '') {
           // If the link doesn't start with http:// or https://, add https://
-          const formattedLink = examLink.match(/^https?:\/\//) ? 
-            examLink : 
+          const formattedLink = examLink.match(/^https?:\/\//) ?
+            examLink :
             `https://${examLink}`;
           window.open(formattedLink, "_blank", "noopener noreferrer");
         } else {
@@ -192,22 +191,22 @@ const ExamPreview = () => {
         console.error("User ID is not available");
         return;
       }
-  
+
       const endpoint = saved
         ? `${API_BASE_URL}/api/unsave-exam/${id}/`
         : `${API_BASE_URL}/api/save-exam/${id}/`;
-  
+
       const response = await axios.post(endpoint, { userId });
-  
+
       if (response.status === 200) {
         const updatedExams = saved
           ? savedExams.filter((examId) => examId !== id)
           : [...savedExams, id];
-  
+
         setSavedExams(updatedExams);
         setSaved(!saved);
         setShowSaveSuccess(true);
-  
+
         setTimeout(() => {
           setShowSaveSuccess(false);
         }, 2000);
@@ -220,7 +219,7 @@ const ExamPreview = () => {
       toast.error("Error saving exam. Please try again.");
     }
   };
-  
+
   const truncateString = (str, num) => {
     if (str.length <= num) {
       return str;
@@ -281,7 +280,7 @@ const ExamPreview = () => {
       link.click();
       document.body.removeChild(link);
     };
-  
+
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 z-50">
         <div className="relative w-3/4 h-3/4 max-w-4xl max-h-4xl">
@@ -337,30 +336,34 @@ const ExamPreview = () => {
               userRole === "student" ? "lg:w-[70%]" : "lg:w-full"
             }`}
           >
-            <div className="bg-white shadow-lg rounded-lg overflow-hidden mb-6 border border-gray-100 ">
-              <div className="flex flex-col  ">
-                {/* Left Column - Exam Image */}
+            <div className="bg-white shadow-lg rounded-lg overflow-hidden mb-6 border border-gray-100">
+              <div className="flex flex-col">
+                {/* Left Column - Company Image */}
                 <div
                   style={{
                     background:
                       "linear-gradient(to bottom, rgba(255, 230, 141, 0.28), rgba(255, 204, 0, 0.25))",
                   }}
-                  className="md: p-6 border-b md:border-b-0 md:border-r border-gray-200 bg-gray-50 flex items-center justify-center"
+                  className="p-6 border-b md:border-b-0 md:border-r border-gray-200 bg-gray-50 flex items-center justify-center"
                 >
-                  <img
-                    src={
-                      exam.exam_data.image
-                        ? `data:image/jpeg;base64,${exam.exam_data.image}`
-                        : placeholderImage
-                    }
-                    alt={`${exam.exam_data.exam_title} image`}
-                    className="max-w-full max-h-80 object-contain rounded-lg"
-                    onClick={() => setIsModalOpen(true)}
-                    onError={(e) => {
-                      e.target.onerror = null;
-                      e.target.src = placeholderImage;
-                    }}
-                  />
+                  <div className="w-120 h-80 flex items-center justify-center">
+                  {exam.exam_data.image ? (
+                    <img
+                      src={`data:image/jpeg;base64,${exam.exam_data.image}`}
+                      alt={`${exam.exam_data.exam_title} image`}
+                      className="max-w-full max-h-80 object-contain rounded-lg"
+                      onClick={() => setIsModalOpen(true)}
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = placeholderImage;
+                      }}
+                    />
+                  ) : (
+                    <h6 className="max-w-full font-bold text-5xl object-contain">
+                      {exam.exam_data.organization}
+                    </h6>
+                  )}
+                </div>
                 </div>
 
                 {/* Right Column - Exam Summary */}
@@ -427,8 +430,8 @@ const ExamPreview = () => {
                             userRole === "student"
                               ? "hover:bg-yellow-600"
                               : "opacity-60 cursor-not-allowed"
-                          } 
-                                    text-white font-semibold py-3 px-8 rounded-lg transition duration-300 ease-in-out 
+                          }
+                                    text-white font-semibold py-3 px-8 rounded-lg transition duration-300 ease-in-out
                                     flex items-center shadow-md ${
                                       userRole === "student" && "hover:shadow-lg"
                                     }`}
@@ -441,8 +444,8 @@ const ExamPreview = () => {
                                 saved
                                     ? "bg-gray-100 text-gray-800"
                                     : "border-2 border-gray-300 text-gray-700"
-                            } 
-                            font-semibold py-3 px-8 rounded-lg 
+                            }
+                            font-semibold py-3 px-8 rounded-lg
                             ${userRole === "student" ? "hover:bg-gray-100" : "opacity-60 cursor-not-allowed"}
                             transition duration-300 ease-in-out flex items-center justify-center`}
                             title={userRole !== "student" ? "Only students can save exams" : ""}
@@ -474,7 +477,7 @@ const ExamPreview = () => {
                           onClick={handleDeleteClick}
                           className="bg-gray-100 hover:bg-gray-300 text-black font-semibold py-3 px-8 rounded-lg transition duration-300 ease-in-out flex items-center shadow-md hover:shadow-lg"
                         >
-                          Delete 
+                          Delete
                           <FaTrash className="ml-2" />
                         </button>
                       </>
@@ -694,8 +697,8 @@ const ExamPreview = () => {
                       saved
                         ? "bg-gray-100 text-gray-800"
                         : "border-2 border-gray-300 text-gray-700"
-                    } 
-                    font-semibold py-3 px-6 rounded-lg 
+                    }
+                    font-semibold py-3 px-6 rounded-lg
                     ${userRole === "student" ? "hover:bg-gray-100" : "opacity-60 cursor-not-allowed"}
                     transition duration-300 ease-in-out flex items-center justify-center`}
                     title={userRole !== "student" ? "Only students can save exams" : ""}

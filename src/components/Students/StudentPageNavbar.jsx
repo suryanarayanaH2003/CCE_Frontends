@@ -37,6 +37,12 @@ export default function StudentPageNavbar({ currentPage, transparent, tag }) {
     }
   }, [transparent])
 
+  useEffect(() => {
+    const user = localStorage.getItem("username"); // Retrieve username from local storage
+    if (user) {
+      setUsername(user);
+    }
+  }, []);
   // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -95,7 +101,7 @@ export default function StudentPageNavbar({ currentPage, transparent, tag }) {
       dropdownId: "support",
       subItems: [
         { label: "Contact Us", href: "/contact" },
-        { label: "Inbox", href: "/student/mail" },
+        //{ label: "Inbox", href: "/student/mail" },
       ],
     },
   ]
@@ -106,7 +112,7 @@ export default function StudentPageNavbar({ currentPage, transparent, tag }) {
         ${
           transparent
             ? isScrolled
-              ? "fixed bg-transparent shadow-md"
+              ? "fixed bg-white shadow-md"
               : "fixed bg-[#ffc800] md:bg-transparent glass-lg"
             : "sticky shadow-md"
         }
@@ -189,7 +195,7 @@ export default function StudentPageNavbar({ currentPage, transparent, tag }) {
                 setMobileMenuOpen(false)
               }}
             >
-              <span className="text-lg text-black mr-2 hidden md:block">My Profile</span>
+              <span className="text-lg text-black mr-2 hidden md:block">{username || "My Profile"}</span>
               <img
                 src={ProfileStudent || "/placeholder.svg"}
                 alt="Profile"
@@ -308,4 +314,3 @@ export default function StudentPageNavbar({ currentPage, transparent, tag }) {
     </div>
   )
 }
-

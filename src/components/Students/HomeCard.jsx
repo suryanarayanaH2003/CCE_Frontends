@@ -221,7 +221,7 @@ return (
                 </div>
                 <div className="flex items-center">
                     <FiEye className="mr-1 opacity-75 text-[12px] sm:text-[15px]" />
-                    {viewCount} views
+                    {viewCount} viewed
                 </div>
             </div>
         </div>
