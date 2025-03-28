@@ -55,11 +55,11 @@ export default function StudentLogin() {
             });
     
             const data = await response.json();
-    
             if (response.ok) {
                 Cookies.set("jwt", data.token.jwt, { expires: 1, path: "/" });
                 Cookies.set("username", data.username, { expires: 1, path: "/" });
-                localStorage.setItem("student.email", formData.email);
+                localStorage.setItem("student_email", data.email);
+                localStorage.setItem("username", data.username);
     
                 toast.success("Login successful! Redirecting...");
                 navigate("/home");
@@ -95,6 +95,8 @@ export default function StudentLogin() {
             if (response.ok) {
                 Cookies.set("jwt", data.token.jwt, { expires: 7, path: "/" });
                 Cookies.set("username", data.username, { expires: 7, path: "/" });
+                localStorage.setItem("student_email", data.email);
+                localStorage.setItem("username", data.username);
     
                 toast.success("Google login successful! Redirecting...");
                 navigate("/home");

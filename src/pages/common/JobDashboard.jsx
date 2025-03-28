@@ -335,7 +335,7 @@ export default function JobDashboard() {
               {/* Pagination for Admin and Super Admin */}
               {(userRole === "admin" || userRole === "superadmin") && (
                 <div className="mb-5">
-                  {jobs.length > 0 && currentJobs.length > 0 && (
+                  {jobs.length > itemsPerPage && currentJobs.length > itemsPerPage && (
                     <Pagination
                       currentPage={currentPage}
                       totalItems={filteredJobs.length}
@@ -346,7 +346,7 @@ export default function JobDashboard() {
                 </div>
               )}
               {/* Pagination at the bottom for Students */}
-              {userRole === "student" && jobs.length > 0 && currentJobs.length > 0 && (
+              {userRole === "student" && jobs.length > itemsPerPage && currentJobs.length > itemsPerPage && (
                 <Pagination
                   currentPage={currentPage}
                   totalItems={filteredJobs.length}

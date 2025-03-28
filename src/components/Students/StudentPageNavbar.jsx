@@ -106,7 +106,7 @@ export default function StudentPageNavbar({ currentPage, transparent, tag }) {
         ${
           transparent
             ? isScrolled
-              ? "fixed bg-white shadow-md"
+              ? "fixed bg-transparent shadow-md"
               : "fixed bg-[#ffc800] md:bg-transparent glass-lg"
             : "sticky shadow-md"
         }

@@ -26,7 +26,7 @@ const ContactForm = () => {
       try {
         const decodedToken = jwtDecode(token);
         const studentId = decodedToken.student_user;
-        const storedEmail = localStorage.getItem("student.email");
+        const storedEmail = localStorage.getItem("student_email");
         const storedName = Cookies.get("username");
 
         // Only update state if the values are different
@@ -99,11 +99,11 @@ const ContactForm = () => {
           </p>
           <div className="mb-4">
             <p className="font-semibold">📧 Message Us</p>
-            <p className="text-gray-600">support@gmail.com</p>
+            <p className="text-gray-600">head.cce@snsgroups.com</p>
           </div>
           <div>
             <p className="font-semibold">📞 Call Us</p>
-            <p className="text-gray-600">+91 9384785767</p>
+            <p className="text-gray-600">+91 99463 02567</p>
           </div>
         </div>
 

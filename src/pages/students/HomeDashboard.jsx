@@ -24,7 +24,7 @@ import fileIcon from "../../assets/icons/file.png";
 import { toast, ToastContainer } from "react-toastify";
 
 const themeButton =
-  "px-7 py-[8px]  rounded w-fit text-md bg-[#FFCC00] cursor-pointer";
+  "bg-[#ffcc00] text-black py-2 px-6 rounded-full font-semibold hover:bg-[#ffdb4d] transition-colors duration-300"
 
 import { IoIosArrowForward } from "react-icons/io";
 import { IoMdClose, IoMdAdd } from "react-icons/io";
@@ -36,11 +36,37 @@ import mentor1 from "../../assets/images/mentors (1).jpeg";
 import mentor2 from "../../assets/images/mentors (2).jpeg";
 import mentor3 from "../../assets/images/user.png";
 import { jwtDecode } from "jwt-decode";
-const ContactSection = ({ formData, setFormData, handleSubmit }) => {
+const ContactSection = ({ handleSubmit }) => {
+  // const handleChange = (e) => {
+  //   setFormData({ ...formData, [e.target.name]: e.target.value });
+  // };
+
+  const [formData, setFormData] = useState({
+    student_email: '', 
+    username: '',
+  });
+
+  useEffect(() => {
+    // Fetch the email and username from local storage
+    const email = localStorage.getItem('student_email');
+    const username = localStorage.getItem('username');
+
+    setFormData({
+      student_email: email || '', 
+      username: username || '',  
+    });
+  }, [])
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
   };
 
+
+
+  
   return (
     <div className="flex flex-col md:flex-row items-center md:space-x-12 space-y-8 md:space-y-0 justify-stretch py-8 pt-12 md:pt-22 relative">
       <img
@@ -66,7 +92,7 @@ const ContactSection = ({ formData, setFormData, handleSubmit }) => {
                 <p className="text-xl font-bold mt-1">Message Us</p>
               </div>
 
-              <p className="text-gray-500">support@gmail.com</p>
+              <p className="text-gray-500">head.cce@snsgroups.com</p>
             </div>
             <div className="flex flex-col items-stretch space-y-2 sm:space-y-0 sm:space-x-3 pb-2 flex-1">
               <div className="border-b pb-2.5 mb-2.5">
@@ -74,7 +100,7 @@ const ContactSection = ({ formData, setFormData, handleSubmit }) => {
                 <p className="text-xl font-bold mt-1">Call Us</p>
               </div>
 
-              <p className="text-gray-500">+91 98765 54321</p>
+              <p className="text-gray-500">+91 99463 02567</p>
             </div>
           </div>
         </div>
@@ -88,7 +114,7 @@ const ContactSection = ({ formData, setFormData, handleSubmit }) => {
                 name="name"
                 disabled
                 placeholder="Your Name"
-                value={formData.name}
+                value={formData.username}
                 onChange={handleChange}
                 className="w-full p-3 opacity-75 rounded bg-yellow-100 focus:outline-none"
               />
@@ -129,26 +155,26 @@ const FAQSection = () => {
       question: "Are the study materials free to access?",
       answer:
         "Yes, all study materials provided on our platform are free for students. You can download PDFs, presentations, and other resources to help with your exam and job preparation.",
-      linkText: "Explore the Study Materials",
-      linkTo: "/study-material"
+      // linkText: "Explore the Study Materials",
+      // linkTo: "/study-material"
     },
     {
       question: "Where can I find job opportunities?",
       answer: "You can explore a wide range of job opportunities on our platform. Filter by industry, role, and location to find the perfect fit for you.",
-      linkText: "Explore the Jobs",
-      linkTo: "/jobs"
+      // linkText: "Explore the Jobs",
+      // linkTo: "/jobs"
     },
     {
       question: "How can I find internship opportunities?",
       answer: "Our platform provides a dedicated section for internships. Browse through various opportunities and apply to gain valuable experience in your field.",
-      linkText: "Explore the Internships",
-      linkTo: "/internships"
+      // linkText: "Explore the Internships",
+      // linkTo: "/internships"
     },
     {
       question: "How will I know about upcoming exams?",
       answer: "You will receive timely notifications about new exam postings. Stay updated by enabling notifications in your account settings.",
-      linkText: "Explore the Exams",
-      linkTo: "/exams"
+      // linkText: "Explore the Exams",
+      // linkTo: "/exams"
     }
   ];
 
@@ -616,276 +642,205 @@ const Insights = () => {
   );
 };
 
+
+
 const Thatabout = ({ achieversImages, achievements }) => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [hoveredIndex, setHoveredIndex] = useState(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
 
   useEffect(() => {
-    const user = Cookies.get("username");
+    const user = Cookies.get("username")
     if (user) {
-      setIsLoggedIn(true);
+      setIsLoggedIn(true)
     }
-  }, []);
+  }, [])
 
   return (
     <section className="flex flex-col lg:flex-row w-[90%] mx-auto py-10 md:py-20 lg:py-30 items-center gap-8 px-4 md:px-0">
       {/* Text Section */}
       <div className="space-y-3 w-full lg:flex-1 text-center lg:text-left">
-        <p className="text-3xl md:text-4xl font-semibold">
-          Celebrating Student
-        </p>
+        <p className="text-3xl md:text-4xl font-semibold">Celebrating Student</p>
         <p className="text-3xl md:text-4xl font-semibold">Success &</p>
         <p className="text-3xl md:text-4xl font-semibold">Achievements!</p>
-        <p className="text-gray-600 text-sm md:text-base">
-          Inspiring Journeys, Remarkable Milestones
-        </p>
+        <p className="text-gray-600 text-sm md:text-base">Inspiring Journeys, Remarkable Milestones</p>
         <button
           className={themeButton}
-          onClick={
-            !isLoggedIn
-              ? () => (window.location.href = "/")
-              : () => (window.location.href = "/achievements")
-          }
+          onClick={!isLoggedIn ? () => (window.location.href = "/") : () => (window.location.href = "/achievements")}
         >
           {!isLoggedIn ? "Log In" : "Visit Achievements"}
         </button>
       </div>
-  
+
       {/* Image Section */}
       <div className="w-full lg:w-2/3 flex justify-center lg:justify-end">
         <div className="h-[250px] sm:h-[300px] md:h-[400px] lg:h-[600px] aspect-square border-dashed border border-[#ffcc00] rounded-full flex items-center justify-center relative">
-          {/* Animation containers for outer circle */}
-          <div className="absolute inset-0 rounded-full" style={{ animation: 'spin 45s linear infinite' }}>
-            {/* Image 1 - Fixed positioning to be like others */}
-            <div className="absolute -top-4 md:-top-6 left-1/2 transform -translate-x-1/2" style={{ animation: 'counterSpin 45s linear infinite' }}>
-              <img
-                src={
-                  !achieversImages[0]
-                    ? "https://smitg.ukzn.ac.za/wp-content/uploads/2022/07/default-profie-image-m.jpg"
-                    : `data:image/jpeg;base64,${achieversImages[0]}`
-                }
-                alt="Achiever 1"
-                className="w-8 sm:w-10 md:w-16 rounded-full object-cover aspect-square transition-transform duration-300 hover:scale-150 hover:z-50"
-                onMouseEnter={() => setHoveredIndex(0)}
-                onMouseLeave={() => setHoveredIndex(null)}
-              />
-              {hoveredIndex === 0 && achievements && achievements[0] && (
-                <div className="absolute bg-white p-2 rounded shadow-md z-50 w-40 text-xs -top-16 left-1/2 transform -translate-x-1/2">
-                  <p className="font-bold">{achievements[0].name}</p>
-                  <p>{achievements[0].achievement_type}</p>
-                </div>
-              )}
+          {/* Outer circle with fixed positioning */}
+          <div className="absolute inset-0 rounded-full">
+            {/* Image 1 - Top left */}
+            <div className="absolute bottom-6 sm:bottom-14 md:bottom-18 right-6 sm:right-8 md:right-10">
+              <div className="relative">
+                <img
+                  src={
+                    !achieversImages[1]
+                      ? "https://smitg.ukzn.ac.za/wp-content/uploads/2022/07/default-profie-image-m.jpg"
+                      : `data:image/jpeg;base64,${achieversImages[1]}`
+                  }
+                  alt="Achiever 1"
+                  className="md:w-20  w-8 sm:w-10 md:w-16 rounded-full object-cover aspect-square transition-transform duration-300 hover:scale-125 hover:z-50"
+                />
+                {achievements && achievements[1] && (
+                  <div className="absolute bg-white p-1 sm:p-2 rounded shadow-md z-40 w-24 sm:w-32 md:w-40 text-[8px] sm:text-xs -bottom-12 sm:-bottom-16 left-1/2 transform -translate-x-1/2">
+                    <p className="font-bold truncate">{achievements[1].name}</p>
+                    <p className="truncate">{achievements[1].achievement_type}</p>
+                  </div>
+                )}
+              </div>
             </div>
-  
-            {/* Image 2 */}
-            <div className="absolute bottom-6 sm:bottom-14 md:bottom-18 right-6 sm:right-8 md:right-10" style={{ animation: 'counterSpin 45s linear infinite' }}>
-              <img
-                src={
-                  !achieversImages[1]
-                    ? "https://smitg.ukzn.ac.za/wp-content/uploads/2022/07/default-profie-image-m.jpg"
-                    : `data:image/jpeg;base64,${achieversImages[1]}`
-                }
-                alt="Achiever 2"
-                className="w-8 sm:w-10 md:w-16 rounded-full object-cover aspect-square transition-transform duration-300 hover:scale-150 hover:z-50"
-                onMouseEnter={() => setHoveredIndex(1)}
-                onMouseLeave={() => setHoveredIndex(null)}
-              />
-              {hoveredIndex === 1 && achievements && achievements[1] && (
-                <div className="absolute bg-white p-2 rounded shadow-md z-50 w-40 text-xs right-0 -top-16">
-                  <p className="font-bold">{achievements[1].name}</p>
-                  <p>{achievements[1].achievement_type}</p>
-                </div>
-              )}
+
+            {/* Image 2 - Bottom left */}
+            <div className="absolute bottom-6 sm:bottom-14 md:bottom-18 left-6 sm:left-8 md:left-12">
+              <div className="relative">
+                <img
+                  src={
+                    !achieversImages[2]
+                      ? "https://smitg.ukzn.ac.za/wp-content/uploads/2022/07/default-profie-image-m.jpg"
+                      : `data:image/jpeg;base64,${achieversImages[2]}`
+                  }
+                  alt="Achiever 2"
+                  className="md:w-20   w-8 sm:w-10 md:w-16 rounded-full object-cover aspect-square transition-transform duration-300 hover:scale-125 hover:z-50"
+                />
+                {achievements && achievements[2] && (
+                  <div className="absolute bg-white p-1 sm:p-2 rounded shadow-md z-40 w-24 sm:w-32 md:w-40 text-[8px] sm:text-xs -bottom-12 sm:-bottom-16 left-1/2 transform -translate-x-1/2">
+                    <p className="font-bold truncate">{achievements[2].name}</p>
+                    <p className="truncate">{achievements[2].achievement_type}</p>
+                  </div>
+                )}
+              </div>
             </div>
-  
-            {/* Image 3 */}
-            <div className="absolute bottom-6 sm:bottom-14 md:bottom-18 left-6 sm:left-8 md:left-12" style={{ animation: 'counterSpin 45s linear infinite' }}>
-              <img
-                src={
-                  !achieversImages[2]
-                    ? "https://smitg.ukzn.ac.za/wp-content/uploads/2022/07/default-profie-image-m.jpg"
-                    : `data:image/jpeg;base64,${achieversImages[2]}`
-                }
-                alt="Achiever 3"
-                className="w-8 sm:w-10 md:w-16 rounded-full object-cover aspect-square transition-transform duration-300 hover:scale-150 hover:z-50"
-                onMouseEnter={() => setHoveredIndex(2)}
-                onMouseLeave={() => setHoveredIndex(null)}
-              />
-              {hoveredIndex === 2 && achievements && achievements[2] && (
-                <div className="absolute bg-white p-2 rounded shadow-md z-50 w-40 text-xs left-0 -top-16">
-                  <p className="font-bold">{achievements[2].name}</p>
-                  <p>{achievements[2].achievement_type}</p>
-                </div>
-              )}
+
+            {/* Image 3 - Left middle */}
+            <div className="absolute top-14 sm:top-20 md:top-30 left-0">
+              <div className="relative">
+                <img
+                  src={
+                    !achieversImages[3]
+                      ? "https://smitg.ukzn.ac.za/wp-content/uploads/2022/07/default-profie-image-m.jpg"
+                      : `data:image/jpeg;base64,${achieversImages[3]}`
+                  }
+                  alt="Achiever 3"
+                  className="md:w-20  w-8 sm:w-10 md:w-16 rounded-full object-cover aspect-square transition-transform duration-300 hover:scale-125 hover:z-50"
+                />
+                {achievements && achievements[3] && (
+                  <div className="absolute bg-white p-1 sm:p-2 rounded shadow-md z-40 w-24 sm:w-32 md:w-40 text-[8px] sm:text-xs -top-12 sm:-top-16 left-1/2 transform -translate-x-1/2">
+                    <p className="font-bold truncate">{achievements[3].name}</p>
+                    <p className="truncate">{achievements[3].achievement_type}</p>
+                  </div>
+                )}
+              </div>
             </div>
-  
-            {/* Image 4 */}
-            <div className="absolute top-14 sm:top-20 md:top-30 left-0" style={{ animation: 'counterSpin 45s linear infinite' }}>
-              <img
-                src={
-                  !achieversImages[3]
-                    ? "https://smitg.ukzn.ac.za/wp-content/uploads/2022/07/default-profie-image-m.jpg"
-                    : `data:image/jpeg;base64,${achieversImages[3]}`
-                }
-                alt="Achiever 4"
-                className="w-8 sm:w-10 md:w-16 rounded-full object-cover aspect-square transition-transform duration-300 hover:scale-150 hover:z-50"
-                onMouseEnter={() => setHoveredIndex(3)}
-                onMouseLeave={() => setHoveredIndex(null)}
-              />
-              {hoveredIndex === 3 && achievements && achievements[3] && (
-                <div className="absolute bg-white p-2 rounded shadow-md z-50 w-40 text-xs right-0 -top-16">
-                  <p className="font-bold">{achievements[3].name}</p>
-                  <p>{achievements[3].achievement_type}</p>
-                </div>
-              )}
-            </div>
-  
-            {/* Image 5 */}
-            <div className="absolute top-14 sm:top-20 md:top-30 right-0" style={{ animation: 'counterSpin 45s linear infinite' }}>
-              <img
-                src={
-                  !achieversImages[4]
-                    ? "https://smitg.ukzn.ac.za/wp-content/uploads/2022/07/default-profie-image-m.jpg"
-                    : `data:image/jpeg;base64,${achieversImages[4]}`
-                }
-                alt="Achiever 5"
-                className="w-8 sm:w-10 md:w-16 rounded-full object-cover aspect-square transition-transform duration-300 hover:scale-150 hover:z-50"
-                onMouseEnter={() => setHoveredIndex(4)}
-                onMouseLeave={() => setHoveredIndex(null)}
-              />
-              {hoveredIndex === 4 && achievements && achievements[4] && (
-                <div className="absolute bg-white p-2 rounded shadow-md z-50 w-40 text-xs left-0 -top-16">
-                  <p className="font-bold">{achievements[4].name}</p>
-                  <p>{achievements[4].achievement_type}</p>
-                </div>
-              )}
+
+            {/* Image 4 - Right middle */}
+            <div className="absolute top-14 sm:top-20 md:top-30 right-0">
+              <div className="relative">
+                <img
+                  src={
+                    !achieversImages[4]
+                      ? "https://smitg.ukzn.ac.za/wp-content/uploads/2022/07/default-profie-image-m.jpg"
+                      : `data:image/jpeg;base64,${achieversImages[4]}`
+                  }
+                  alt="Achiever 4"
+                  className="md:w-20  w-8 sm:w-10 md:w-16 rounded-full object-cover aspect-square transition-transform duration-300 hover:scale-125 hover:z-50"
+                />
+                {achievements && achievements[4] && (
+                  <div className="absolute bg-white p-1 sm:p-2 rounded shadow-md z-40 w-24 sm:w-32 md:w-40 text-[8px] sm:text-xs -top-12 sm:-top-16 left-1/2 transform -translate-x-1/2">
+                    <p className="font-bold truncate">{achievements[4].name}</p>
+                    <p className="truncate">{achievements[4].achievement_type}</p>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
-  
-          {/* Inner Circle with Animation */}
+
+          {/* Inner Circle with fixed positioning */}
           <div className="h-[120px] sm:h-[150px] md:h-[300px] aspect-square border-dashed border border-[#ffcc00] rounded-full flex items-center justify-center relative">
-            {/* Inner Circle Animation */}
-            <div className="absolute inset-0 rounded-full" style={{ animation: 'spinReverse 45s linear infinite' }}>
-              {/* Image 6 - Fixed positioning to be like others */}
-              <div className="absolute -top-4 md:-top-6 left-1/2 transform -translate-x-1/2" style={{ animation: 'spin 45s linear infinite' }}>
-                <img
-                  src={
-                    !achieversImages[5]
-                      ? "https://smitg.ukzn.ac.za/wp-content/uploads/2022/07/default-profie-image-m.jpg"
-                      : `data:image/jpeg;base64,${achieversImages[5]}`
-                  }
-                  alt="Achiever 6"
-                  className="w-8 sm:w-10 md:w-16 rounded-full object-cover aspect-square transition-transform duration-300 hover:scale-150 hover:z-50"
-                  onMouseEnter={() => setHoveredIndex(5)}
-                  onMouseLeave={() => setHoveredIndex(null)}
-                />
-                {hoveredIndex === 5 && achievements && achievements[5] && (
-                  <div className="absolute bg-white p-2 rounded shadow-md z-50 w-40 text-xs left-1/2 transform -translate-x-1/2 -top-16">
-                    <p className="font-bold">{achievements[5].name}</p>
-                    <p>{achievements[5].achievement_type}</p>
-                  </div>
-                )}
-              </div>
-  
-              {/* Image 7 */}
-              <div className="absolute bottom-3 sm:bottom-4 md:bottom-7 left-0" style={{ animation: 'spin 45s linear infinite' }}>
-                <img
-                  src={
-                    !achieversImages[6]
-                      ? "https://smitg.ukzn.ac.za/wp-content/uploads/2022/07/default-profie-image-m.jpg"
-                      : `data:image/jpeg;base64,${achieversImages[6]}`
-                  }
-                  alt="Achiever 7"
-                  className="w-8 sm:w-10 md:w-16 rounded-full object-cover aspect-square transition-transform duration-300 hover:scale-150 hover:z-50"
-                  onMouseEnter={() => setHoveredIndex(6)}
-                  onMouseLeave={() => setHoveredIndex(null)}
-                />
-                {hoveredIndex === 6 && achievements && achievements[6] && (
-                  <div className="absolute bg-white p-2 rounded shadow-md z-50 w-40 text-xs right-0 -top-16">
-                    <p className="font-bold">{achievements[6].name}</p>
-                    <p>{achievements[6].achievement_type}</p>
-                  </div>
-                )}
-              </div>
-  
-              {/* Image 8 */}
-              <div className="absolute bottom-3 sm:bottom-4 md:bottom-7 right-0" style={{ animation: 'spin 45s linear infinite' }}>
-                <img
-                  src={
-                    !achieversImages[7]
-                      ? "https://smitg.ukzn.ac.za/wp-content/uploads/2022/07/default-profie-image-m.jpg"
-                      : `data:image/jpeg;base64,${achieversImages[7]}`
-                  }
-                  alt="Achiever 8"
-                  className="w-8 sm:w-10 md:w-16 rounded-full object-cover aspect-square transition-transform duration-300 hover:scale-150 hover:z-50"
-                  onMouseEnter={() => setHoveredIndex(7)}
-                  onMouseLeave={() => setHoveredIndex(null)}
-                />
-                {hoveredIndex === 7 && achievements && achievements[7] && (
-                  <div className="absolute bg-white p-2 rounded shadow-md z-50 w-40 text-xs left-0 -top-16">
-                    <p className="font-bold">{achievements[7].name}</p>
-                    <p>{achievements[7].achievement_type}</p>
-                  </div>
-                )}
-              </div>
-            </div>
-  
-            {/* Center Image (Not Rotating) - Fixed hover effect */}
-            <div className="relative">
-              <img
-                src={
-                  !achieversImages[8]
-                    ? "https://smitg.ukzn.ac.za/wp-content/uploads/2022/07/default-profie-image-m.jpg"
-                    : `data:image/jpeg;base64,${achieversImages[8]}`
-                }
-                alt="Achiever 9"
-                className="w-8 sm:w-10 md:w-16 rounded-full object-cover aspect-square transition-transform duration-300 hover:scale-150 hover:z-50"
-                onMouseEnter={() => setHoveredIndex(8)}
-                onMouseLeave={() => setHoveredIndex(null)}
-              />
-              {hoveredIndex === 8 && achievements && achievements[8] && (
-                <div className="absolute bg-white p-2 rounded shadow-md z-50 w-40 text-xs left-1/2 transform -translate-x-1/2 -top-16">
-                  <p className="font-bold">{achievements[8].name}</p>
-                  <p>{achievements[8].achievement_type}</p>
+            {/* Inner Circle fixed positions */}
+            <div className="absolute inset-0 rounded-full">
+              {/* Image 5 - Top position */}
+              <div className="absolute -top-4 md:-top-6 left-1/2 transform -translate-x-1/2">
+                <div className="relative">
+                  <img
+                    src={
+                      !achieversImages[5]
+                        ? "https://smitg.ukzn.ac.za/wp-content/uploads/2022/07/default-profie-image-m.jpg"
+                        : `data:image/jpeg;base64,${achieversImages[5]}`
+                    }
+                    alt="Achiever 5"
+                    className="md:w-20  w-8 sm:w-10 md:w-16 rounded-full object-cover aspect-square transition-transform duration-300 hover:scale-125 hover:z-50"
+                  />
+                  {achievements && achievements[5] && (
+                    <div className="absolute bg-white p-1 sm:p-2 rounded shadow-md z-40 w-24 sm:w-32 md:w-40 text-[8px] sm:text-xs -top-12 sm:-top-16 left-1/2 transform -translate-x-1/2">
+                      <p className="font-bold truncate">{achievements[5].name}</p>
+                      <p className="truncate">{achievements[5].achievement_type}</p>
+                    </div>
+                  )}
                 </div>
-              )}
+              </div>
+
+              {/* Image 6 - Bottom left */}
+              <div className="absolute bottom-3 sm:bottom-4 md:bottom-7 left-0">
+                <div className="relative">
+                  <img
+                    src={
+                      !achieversImages[6]
+                        ? "https://smitg.ukzn.ac.za/wp-content/uploads/2022/07/default-profie-image-m.jpg"
+                        : `data:image/jpeg;base64,${achieversImages[6]}`
+                    }
+                    alt="Achiever 6"
+                    className="md:w-20  w-8 sm:w-10 md:w-16 rounded-full object-cover aspect-square transition-transform duration-300 hover:scale-125 hover:z-50"
+                  />
+                  {achievements && achievements[6] && (
+                    <div className="absolute bg-white p-1 sm:p-2 rounded shadow-md z-40 w-24 sm:w-32 md:w-40 text-[8px] sm:text-xs -top-12 sm:-top-16 left-1/2 transform -translate-x-1/2">
+                      <p className="font-bold truncate">{achievements[6].name}</p>
+                      <p className="truncate">{achievements[6].achievement_type}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Image 7 - Bottom right */}
+              <div className="absolute bottom-3 sm:bottom-4 md:bottom-7 right-0">
+                <div className="relative">
+                  <img
+                    src={
+                      !achieversImages[7]
+                        ? "https://smitg.ukzn.ac.za/wp-content/uploads/2022/07/default-profie-image-m.jpg"
+                        : `data:image/jpeg;base64,${achieversImages[7]}`
+                    }
+                    alt="Achiever 7"
+                    className="md:w-20  w-8 sm:w-10 md:w-16 rounded-full object-cover aspect-square transition-transform duration-300 hover:scale-125 hover:z-50"
+                  />
+                  {achievements && achievements[7] && (
+                    <div className="absolute bg-white p-1 sm:p-2 rounded shadow-md z-40 w-24 sm:w-32 md:w-40 text-[8px] sm:text-xs -top-12 sm:-top-16 left-1/2 transform -translate-x-1/2">
+                      <p className="font-bold truncate">{achievements[7].name}</p>
+                      <p className="truncate">{achievements[7].achievement_type}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
-  
-      {/* CSS for animations */}
+
+      {/* CSS for transitions only */}
       <style jsx>{`
-        @keyframes spin {
-          from {
-            transform: rotate(0deg);
-          }
-          to {
-            transform: rotate(360deg);
-          }
-        }
-        
-        @keyframes spinReverse {
-          from {
-            transform: rotate(0deg);
-          }
-          to {
-            transform: rotate(-360deg);
-          }
-        }
-        
-        @keyframes counterSpin {
-          from {
-            transform: rotate(0deg);
-          }
-          to {
-            transform: rotate(-360deg);
-          }
+        .absolute {
+          transition: transform 0.5s ease-out;
         }
       `}</style>
     </section>
-  );
-};
+  )
+}
+
 const AboutCCE = () => {
   return (
     <section className="flex flex-col w-[90%] space-y-10 md:space-y-20 items-center px-4 md:px-0">
