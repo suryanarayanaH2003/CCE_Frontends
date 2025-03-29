@@ -3,13 +3,13 @@
 @import "tailwindcss";
 
 body {
-  font-family: 'Britti Sans Trial', sans-serif;
+  font-family: 'Britti Sans Trial';
 }
 
 @font-face {
   font-family: 'Britti Sans Trial';
-  src: url('fonts/BrittiSansTrial-Regular-BF6757bfd47ffbf.otf') format('woff2'),
-       url('fonts/BrittiSansTrial-Regular-BF6757bfd47ffbf.otf') format('woff');
+  src: url('../src/assets/fonts/BrittiSans/BrittiSans-Regular.otf') format('woff2'),
+       url('../src/assets/fonts/BrittiSans/BrittiSansTrial-Regular-BF6757bfd47ffbf.otf') format('woff');
   font-weight: normal;
   font-style: normal;
 }
