@@ -346,7 +346,7 @@ export default function JobDashboard() {
                 </div>
               )}
               {/* Pagination at the bottom for Students */}
-              {userRole === "student" && jobs.length > itemsPerPage && currentJobs.length > itemsPerPage && (
+              {filteredJobs.length > itemsPerPage && (
                 <Pagination
                   currentPage={currentPage}
                   totalItems={filteredJobs.length}
